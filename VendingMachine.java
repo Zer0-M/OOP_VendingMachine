@@ -45,14 +45,14 @@ public class VendingMachine {
 
         if (moneyManager.pay(price)) {
             slot.dispense();
-            System.out.println("✅ Buy" + slot.getProduct().getName() + " Successfull!");
+            System.out.println("Buy" + slot.getProduct().getName() + " Successfull!");
         }
     }
 
     public void returnChange() {
         double change = moneyManager.returnChange();
         if (change > 0) {
-            System.out.println("💸 Receive Change: " + change + " Baht");
+            System.out.println("Receive Change: " + change + " Baht");
         } else {
             System.out.println("No money left.");
         }

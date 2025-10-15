@@ -7,7 +7,7 @@ public class MoneyManager {
             return;
         }
         currentBalance += amount;
-        System.out.println("Your money: " + amount + " Baht (Almoney: " + currentBalance + " Baht)");
+        System.out.println("Your money: " + amount + " Baht (Allmoney: " + currentBalance + " Baht)");
     }
 
     public boolean pay(double price) {
