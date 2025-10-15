@@ -68,7 +68,7 @@ public class VendingMachine {
     System.out.println("[1] Insert Coins");
     System.out.println("[2] Pick Product");
     System.out.println("[3] Receive Change");
-    System.out.println("[0] Log Out\n");
+    System.out.println("[4] Log Out\n");
 
     System.out.print("Insert Coins: ");
     double coin = sc.nextDouble();
