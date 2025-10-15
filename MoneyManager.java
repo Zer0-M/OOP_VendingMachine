@@ -3,11 +3,11 @@ public class MoneyManager {
 
     public void insertCoin(double amount) {
         if (amount <= 0) {
-            System.out.println("จำนวนเงินไม่ถูกต้อง");
+            System.out.println("Fault value!");
             return;
         }
         currentBalance += amount;
-        System.out.println("คุณใส่เงิน: " + amount + "฿ (รวม: " + currentBalance + "฿)");
+        System.out.println("Your money: " + amount + " Baht (Almoney: " + currentBalance + " Baht)");
     }
 
     public boolean pay(double price) {
@@ -15,7 +15,7 @@ public class MoneyManager {
             currentBalance -= price;
             return true;
         } else {
-            System.out.println("เงินไม่พอ! กรุณาเติมเงินเพิ่ม");
+            System.out.println("Not enough money Please give me more");
             return false;
         }
     }

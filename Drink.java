@@ -8,6 +8,6 @@ public class Drink extends Product {
 
     @Override
     public String getInfo() {
-        return getName() + " (" + volume + " ml) - " + getPrice() + "฿";
+        return getName() + " (" + volume + " ml) - " + getPrice() + " Baht";
     }
 }

@@ -16,11 +16,11 @@ public class VendingMachine {
     }
 
     public void displayProducts() {
-        System.out.println("=== สินค้าที่มีในตู้ ===");
+        System.out.println("=== Our Product ===");
         for (int i = 0; i < slots.length; i++) {
             ItemSlot slot = slots[i];
             System.out.println((i + 1) + ". " + slot.getProduct().getInfo() +
-                    " | คงเหลือ: " + slot.getQuantity());
+                    " | Remain: " + slot.getQuantity());
         }
     }
 
@@ -30,14 +30,14 @@ public class VendingMachine {
 
     public void selectProduct(int index) {
         if (index < 1 || index > slots.length) {
-            System.out.println("ช่องสินค้าที่เลือกไม่ถูกต้อง");
+            System.out.println("Fault Product");
             return;
         }
 
         ItemSlot slot = slots[index - 1];
 
         if (slot.isEmpty()) {
-            System.out.println("สินค้าหมด!");
+            System.out.println("Not have!");
             return;
         }
 
@@ -45,54 +45,44 @@ public class VendingMachine {
 
         if (moneyManager.pay(price)) {
             slot.dispense();
-            System.out.println("✅ ซื้อ " + slot.getProduct().getName() + " สำเร็จ!");
+            System.out.println("✅ Buy" + slot.getProduct().getName() + " Successfull!");
         }
     }
 
     public void returnChange() {
         double change = moneyManager.returnChange();
         if (change > 0) {
-            System.out.println("💸 รับเงินทอน: " + change + "฿");
+            System.out.println("💸 Receive Change: " + change + " Baht");
         } else {
-            System.out.println("ไม่มีเงินคงเหลือ");
+            System.out.println("No money left.");
         }
     }
 
     public static void main(String[] args) {
-        VendingMachine vm = new VendingMachine();
-        Scanner sc = new Scanner(System.in);
+    VendingMachine vm = new VendingMachine();
+    Scanner sc = new Scanner(System.in);
+        
+    System.out.println("\n=== Vending Mechine ===");
+    vm.displayProducts();
+    System.out.println("\n=== Step for Using Mechine ===");
+    System.out.println("[1] Insert Coins");
+    System.out.println("[2] Pick Product");
+    System.out.println("[3] Receive Change");
+    System.out.println("[0] Log Out\n");
 
-        while (true) {
-            System.out.println("\n=== ตู้ขายของอัตโนมัติ ===");
-            vm.displayProducts();
-            System.out.println("[1] ใส่เหรียญ");
-            System.out.println("[2] เลือกสินค้า");
-            System.out.println("[3] รับเงินทอน");
-            System.out.println("[0] ออกจากระบบ");
-            System.out.print("เลือกเมนู: ");
-            int choice = sc.nextInt();
+    System.out.print("Insert Coins: ");
+    double coin = sc.nextDouble();
+    vm.insertCoin(coin);
 
-            switch (choice) {
-                case 1:
-                    System.out.print("ใส่จำนวนเงิน: ");
-                    double coin = sc.nextDouble();
-                    vm.insertCoin(coin);
-                    break;
-                case 2:
-                    System.out.print("เลือกสินค้าหมายเลข: ");
-                    int index = sc.nextInt();
-                    vm.selectProduct(index);
-                    break;
-                case 3:
-                    vm.returnChange();
-                    break;
-                case 0:
-                    System.out.println("ขอบคุณที่ใช้บริการ!");
-                    sc.close();
-                    return;
-                default:
-                    System.out.println("เมนูไม่ถูกต้อง");
-            }
-        }
+
+    System.out.print("Select num of Product: ");
+    int index = sc.nextInt();
+    vm.selectProduct(index);
+
+    vm.returnChange();
+
+    System.out.println("Thank you!");
+    sc.close();
+    return;
     }
 }
