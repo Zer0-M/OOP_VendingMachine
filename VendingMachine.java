@@ -6,15 +6,16 @@ import java.util.Scanner;
 public class VendingMachine {
     private MoneyManager moneyManager;
     private LinkedHashMap<String, ItemSlot[]> ItemType;
-    private ItemSlot[] allSlots;
+    private List<ItemSlot> allSlots;
+    private List<Integer> selectProduct;
 
     public VendingMachine() {
         this.ItemType = ItemManager.Initialize();
         this.moneyManager = new MoneyManager();
-        this.allSlots = new ItemSlot[];
+        this.allSlots = new ArrayList<>();
 
-        for (List<ItemSlot> categoryList : ItemType.values()) {
-                allSlots.addAll(categoryList);
+        for (ItemSlot[] categoryList : ItemType.values()) {
+                allSlots.addAll(List.of(categoryList));
         }
     }
 
@@ -30,26 +31,26 @@ public class VendingMachine {
         });
     }
 
-    public void selectProduct(int index) {
+    public void selectProduct(int productID) {
         // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
-        ItemType.forEach((key, value) -> {
-            
-        });
-
-        // ดึงสินค้าตัวนั้นทาเก็บใน slot
-        // ItemSlot slot = slots[index - 1]; //ต้องมาแก้แน่ๆ
-
-        // //เช็คว่าของมันยังมีอยู่มั้ย
-        // if (slot.isEmpty()) {
-        // System.out.println("Not have!");
-        // return;
-        // }
-
-        // double price = slot.getProduct().getPrice();
-        // if (moneyManager.pay(price)) {
-        // slot.dispense();
-        // System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
-        // }
+        for (ItemSlot slot : allSlots) {
+            if (slot.getProduct().product_code() == productID) {
+                //เช็คว่าของมันยังมีอยู่มั้ย
+                if (slot.isEmpty()) {
+                    System.out.println("Not have!");
+                    return;
+                }
+                selectProduct.add(productID);
+                System.out.println("You have selected: " + slot.getProduct().getName());
+                
+                // double price = slot.getProduct().getPrice();
+                // if (moneyManager.pay(price)) {
+                //     slot.dispense();
+                //     System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
+                // }
+                // return;
+            }
+        }
     }
 
     public void returnChange() {
@@ -75,9 +76,10 @@ public class VendingMachine {
         System.out.println("[5] Log Out\n");
 
         // เลือกสินค้า
-        System.out.print("Select num of Product: ");
-        int index = sc.nextInt();
-        vm.selectProduct(index);
+        System.out.print("Select ID of Product Code: ");
+        
+        int productID = sc.nextInt();
+        vm.selectProduct(productID);
 
         // รับเงิน
         System.out.println("Please select payment method to add funds:");

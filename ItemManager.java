@@ -8,7 +8,7 @@ class ItemManager {
         return current_id++;
     }
     
-    public static LinkedHashMap<String, ItemSlot> Initialize() {
+    public static LinkedHashMap<String, ItemSlot[]> Initialize() {
         LinkedHashMap<String, ItemSlot[]> temp = new LinkedHashMap<>();
         ItemSlot[] slots0, slots1;
 
