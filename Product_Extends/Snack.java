@@ -1,8 +1,8 @@
 public class Snack extends Product {
     private double weight; // น้ำหนัก (g)
 
-    public Snack(String name, double price, double weight) {
-        super(name, price);
+    public Snack(int product_code, String name, double price, double weight) {
+        super(product_code, name, price);
         this.weight = weight;
     }
 

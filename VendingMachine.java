@@ -1,20 +1,27 @@
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class VendingMachine {
     private MoneyManager moneyManager;
     private LinkedHashMap<String, ItemSlot[]> ItemType;
-    private ItemSlot ItemSelected;
+    private ItemSlot[] allSlots;
 
     public VendingMachine() {
-        moneyManager = new MoneyManager();
-        ItemType = ItemManager.Initialize();
+        this.ItemType = ItemManager.Initialize();
+        this.moneyManager = new MoneyManager();
+        this.allSlots = new ItemSlot[];
+
+        for (List<ItemSlot> categoryList : ItemType.values()) {
+                allSlots.addAll(categoryList);
+        }
     }
 
     public void displayProducts() {
         System.out.println("=== Our Product ===");
 
-        ItemType.forEach((key, value) ->{
+        ItemType.forEach((key, value) -> {
             System.out.println(key + ":");
             for (int j = 0; j < value.length; j++) {
                 System.out.println(value[j].getProduct().getInfo() +
@@ -25,10 +32,9 @@ public class VendingMachine {
 
     public void selectProduct(int index) {
         // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
-        // if (index < 1 || index > slots.length) {
-        // System.out.println("Fault Product");
-        // return;
-        // }
+        ItemType.forEach((key, value) -> {
+            
+        });
 
         // ดึงสินค้าตัวนั้นทาเก็บใน slot
         // ItemSlot slot = slots[index - 1]; //ต้องมาแก้แน่ๆ

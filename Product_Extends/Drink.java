@@ -1,8 +1,8 @@
 public class Drink extends Product {
     private double volume; // ปริมาตร (ml)
 
-    public Drink(String name, double price, double volume) {
-        super(name, price);
+    public Drink(int product_code, String name, double price, double volume) {
+        super(product_code, name, price);
         this.volume = volume;
     }
 
