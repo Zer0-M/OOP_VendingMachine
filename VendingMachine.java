@@ -15,6 +15,10 @@ public class VendingMachine {
         slots[3] = new ItemSlot(new Snack("Cookie", 12.0, 50), 4);
     }
 
+    public void addFunds(PaymentReceiver method) {
+        moneyManager.addFunds(method);
+    }
+
     public void displayProducts() {
         System.out.println("=== Our Product ===");
         for (int i = 0; i < slots.length; i++) {
@@ -22,10 +26,6 @@ public class VendingMachine {
             System.out.println((i + 1) + ". " + slot.getProduct().getInfo() +
                     " | Remain: " + slot.getQuantity());
         }
-    }
-
-    public void insertCoin(double amount) {
-        moneyManager.insertCoin(amount);
     }
 
     public void selectProduct(int index) {
@@ -65,24 +65,45 @@ public class VendingMachine {
     System.out.println("\n=== Vending Mechine ===");
     vm.displayProducts();
     System.out.println("\n=== Step for Using Mechine ===");
-    System.out.println("[1] Insert Coins");
+    System.out.println("[1] Add Funds (Insert Money)");
     System.out.println("[2] Pick Product");
     System.out.println("[3] Receive Change");
     System.out.println("[4] Log Out\n");
 
-    System.out.print("Insert Coins: ");
-    double coin = sc.nextDouble();
-    vm.insertCoin(coin);
+    System.out.println("Please select payment method to add funds:");
+        System.out.println("  [1] Coins");
+        System.out.println("  [2] Banknote");
+        System.out.println("  [3] QR Scan (Top-up)");
+        System.out.print("Select method: ");
+        int choice = sc.nextInt();
+
+        PaymentReceiver selectedPaymentMethod; // สร้างตัวแปร Interface
+
+        if (choice == 1) {
+            selectedPaymentMethod = new CoinReceiver(); // เสียบ "ปลั๊ก" แบบเหรียญ
+        } else if (choice == 2) {
+            selectedPaymentMethod = new BanknoteReceiver(); // เสียบ "ปลั๊ก" แบบแบงก์
+        } else if (choice == 3) {
+            selectedPaymentMethod = new QRPaymentReceiver(); // เสียบ "ปลั๊ก" แบบ QR
+        } else {
+            System.out.println("Invalid method.");
+            sc.close();
+            return;
+        }
+
+        // สั่งให้ Vending Machine ทำงาน โดย "ฉีด" (Inject) วิธีจ่ายเงินที่เราเลือกเข้าไป
+        vm.addFunds(selectedPaymentMethod);
+        // --- จบส่วนที่เปลี่ยน ---
 
 
-    System.out.print("Select num of Product: ");
-    int index = sc.nextInt();
-    vm.selectProduct(index);
+        System.out.print("Select num of Product: ");
+        int index = sc.nextInt();
+        vm.selectProduct(index);
 
-    vm.returnChange();
+        vm.returnChange();
 
-    System.out.println("Thank you!");
-    sc.close();
-    return;
+        System.out.println("Thank you!");
+        sc.close();
+        return;
     }
 }

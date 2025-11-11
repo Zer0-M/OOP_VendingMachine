@@ -16,10 +16,10 @@ public class ItemSlot {
     }
 
     public boolean isEmpty() {
-        return quantity <= 0;
+        return quantity <= 0; //return true-false
     }
 
-    public boolean dispense() {
+    public boolean dispense() { //จ่ายสินค้าออก
         if (quantity > 0) {
             quantity--;
             return true;

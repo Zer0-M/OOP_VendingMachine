@@ -1,13 +1,15 @@
 public class MoneyManager {
     private double currentBalance = 0.0;
 
-    public void insertCoin(double amount) {
-        if (amount <= 0) {
-            System.out.println("Fault value!");
-            return;
+    public void addFunds(PaymentReceiver paymentMethod) {
+        double receivedAmount = paymentMethod.receiveFunds();
+
+        if (receivedAmount > 0) {
+            currentBalance += receivedAmount;
+            System.out.println("Your money: " + receivedAmount + " Baht (Allmoney: " + currentBalance + " Baht)");
+        } else {
+            System.out.println("Add funds failed.");
         }
-        currentBalance += amount;
-        System.out.println("Your money: " + amount + " Baht (Allmoney: " + currentBalance + " Baht)");
     }
 
     public boolean pay(double price) {
