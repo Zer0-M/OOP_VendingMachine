@@ -8,7 +8,7 @@ public class VendingMachine {
     public VendingMachine() {
         moneyManager = new MoneyManager();
         slots = new ItemSlot[4]; // ตัวอย่างมี 4 ช่อง
-        
+
         // ตั้งค่าสินค้า
         slots[0] = new ItemSlot(new Drink("Coke", 15.0, 330), 5);
         slots[1] = new ItemSlot(new Drink("Water", 10.0, 500), 5);
