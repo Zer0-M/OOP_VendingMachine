@@ -15,4 +15,8 @@ public class BanknoteReceiver implements PaymentReceiver {
         System.out.println("Invalid Banknote!");
         return 0.0;
     }
+
+    public String getMethodName() {
+        return "Banknote";
+    }
 }

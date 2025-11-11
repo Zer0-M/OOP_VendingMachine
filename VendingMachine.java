@@ -7,15 +7,16 @@ public class VendingMachine {
     private MoneyManager moneyManager;
     private LinkedHashMap<String, ItemSlot[]> ItemType;
     private List<ItemSlot> allSlots;
-    private List<Integer> selectProduct;
+    private List<Integer> selectProductID;
 
     public VendingMachine() {
         this.ItemType = ItemManager.Initialize();
         this.moneyManager = new MoneyManager();
         this.allSlots = new ArrayList<>();
+        this.selectProductID = new ArrayList<>();
 
         for (ItemSlot[] categoryList : ItemType.values()) {
-                allSlots.addAll(List.of(categoryList));
+            allSlots.addAll(List.of(categoryList));
         }
     }
 
@@ -35,20 +36,20 @@ public class VendingMachine {
         // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
         for (ItemSlot slot : allSlots) {
             if (slot.getProduct().product_code() == productID) {
-                //เช็คว่าของมันยังมีอยู่มั้ย
+                // เช็คว่าของมันยังมีอยู่มั้ย
                 if (slot.isEmpty()) {
                     System.out.println("Not have!");
                     return;
                 }
-                selectProduct.add(productID);
+                selectProductID.add(productID);
                 System.out.println("You have selected: " + slot.getProduct().getName());
-                
-                // double price = slot.getProduct().getPrice();
-                // if (moneyManager.pay(price)) {
-                //     slot.dispense();
-                //     System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
-                // }
-                // return;
+
+                double price = slot.getProduct().getPrice();
+                if (moneyManager.pay(price)) {
+                slot.dispense();
+                System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
+                }
+                return;
             }
         }
     }
@@ -76,10 +77,12 @@ public class VendingMachine {
         System.out.println("[5] Log Out\n");
 
         // เลือกสินค้า
-        System.out.print("Select ID of Product Code: ");
-        
-        int productID = sc.nextInt();
-        vm.selectProduct(productID);
+        while (true) {
+            System.out.print("Select ID of Product Code: ");
+            int productID = sc.nextInt();
+            vm.selectProduct(productID);
+            if(productID == 000) break;
+        }
 
         // รับเงิน
         System.out.println("Please select payment method to add funds:");

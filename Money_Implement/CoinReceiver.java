@@ -15,4 +15,9 @@ public class CoinReceiver implements PaymentReceiver {
         System.out.println("Fault value!");
         return 0.0;
     }
+
+    public String getMethodName() {
+        return "Coins";
+    }
+    
 }
