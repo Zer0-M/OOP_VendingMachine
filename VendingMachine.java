@@ -60,18 +60,23 @@ public class VendingMachine {
     }
 
     public static void main(String[] args) {
-    VendingMachine vm = new VendingMachine();
-    Scanner sc = new Scanner(System.in);
+        VendingMachine vm = new VendingMachine();
+        Scanner sc = new Scanner(System.in);
         
-    System.out.println("\n=== Vending Mechine ===");
-    vm.displayProducts();
-    System.out.println("\n=== Step for Using Mechine ===");
-    System.out.println("[1] Add Funds (Insert Money)");
-    System.out.println("[2] Pick Product");
-    System.out.println("[3] Receive Change");
-    System.out.println("[4] Log Out\n");
+        System.out.println("\n=== Vending Mechine ===");
+        vm.displayProducts();
+        System.out.println("\n=== Step for Using Mechine ===");
+        System.out.println("[1] Pick Product");
+        System.out.println("[2] Select Payment Method");
+        System.out.println("[3] Insert Money");
+        System.out.println("[4] Receive Change");
+        System.out.println("[5] Log Out\n");
 
-    System.out.println("Please select payment method to add funds:");
+        System.out.print("Select num of Product: ");
+        int index = sc.nextInt();
+        vm.selectProduct(index);
+
+        System.out.println("Please select payment method to add funds:");
         System.out.println("  [1] Coins");
         System.out.println("  [2] Banknote");
         System.out.println("  [3] QR Scan (Top-up)");
@@ -81,11 +86,11 @@ public class VendingMachine {
         PaymentReceiver selectedPaymentMethod; // สร้างตัวแปร Interface
 
         if (choice == 1) {
-            selectedPaymentMethod = new CoinReceiver(); // เสียบ "ปลั๊ก" แบบเหรียญ
+            selectedPaymentMethod = new CoinReceiver();
         } else if (choice == 2) {
-            selectedPaymentMethod = new BanknoteReceiver(); // เสียบ "ปลั๊ก" แบบแบงก์
+            selectedPaymentMethod = new BanknoteReceiver();
         } else if (choice == 3) {
-            selectedPaymentMethod = new QRPaymentReceiver(); // เสียบ "ปลั๊ก" แบบ QR
+            selectedPaymentMethod = new QRPaymentReceiver();
         } else {
             System.out.println("Invalid method.");
             sc.close();
@@ -95,11 +100,6 @@ public class VendingMachine {
         // สั่งให้ Vending Machine ทำงาน โดย "ฉีด" (Inject) วิธีจ่ายเงินที่เราเลือกเข้าไป
         vm.addFunds(selectedPaymentMethod);
         // --- จบส่วนที่เปลี่ยน ---
-
-
-        System.out.print("Select num of Product: ");
-        int index = sc.nextInt();
-        vm.selectProduct(index);
 
         vm.returnChange();
 
