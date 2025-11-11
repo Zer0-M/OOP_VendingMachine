@@ -1,53 +1,50 @@
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class VendingMachine {
-    private ItemSlot[] slots;
     private MoneyManager moneyManager;
+    private LinkedHashMap<String, ItemSlot[]> ItemType;
+    private ItemSlot ItemSelected;
 
     public VendingMachine() {
         moneyManager = new MoneyManager();
-        slots = new ItemSlot[4]; // ตัวอย่างมี 4 ช่อง
-
-        // ตั้งค่าสินค้า
-        slots[0] = new ItemSlot(new Drink("Coke", 15.0, 330), 5);
-        slots[1] = new ItemSlot(new Drink("Water", 10.0, 500), 5);
-        slots[2] = new ItemSlot(new Snack("Chips", 20.0, 100), 3);
-        slots[3] = new ItemSlot(new Snack("Cookie", 12.0, 50), 4);
-    }
-
-    public void addFunds(PaymentReceiver method) {
-        moneyManager.addFunds(method);
+        ItemType = ItemManager.Initialize();
     }
 
     public void displayProducts() {
         System.out.println("=== Our Product ===");
-        for (int i = 0; i < slots.length; i++) {
-            ItemSlot slot = slots[i];
-            System.out.println((i + 1) + ". " + slot.getProduct().getInfo() +
-                    " | Remain: " + slot.getQuantity());
-        }
+
+        ItemType.forEach((key, value) ->{
+            System.out.println(key + ":");
+            for (int j = 0; j < value.length; j++) {
+                System.out.println(value[j].getProduct().getInfo() +
+                        " | Remain: " + value[j].getQuantity());
+            }
+        });
     }
 
     public void selectProduct(int index) {
-        if (index < 1 || index > slots.length) {
-            System.out.println("Fault Product");
-            return;
-        }
+        // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
+        // if (index < 1 || index > slots.length) {
+        // System.out.println("Fault Product");
+        // return;
+        // }
 
-        ItemSlot slot = slots[index - 1];
+        // ดึงสินค้าตัวนั้นทาเก็บใน slot
+        // ItemSlot slot = slots[index - 1]; //ต้องมาแก้แน่ๆ
 
-        if (slot.isEmpty()) {
-            System.out.println("Not have!");
-            return;
-        }
+        // //เช็คว่าของมันยังมีอยู่มั้ย
+        // if (slot.isEmpty()) {
+        // System.out.println("Not have!");
+        // return;
+        // }
 
-        double price = slot.getProduct().getPrice();
-
-        if (moneyManager.pay(price)) {
-            slot.dispense();
-            System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
-        }
+        // double price = slot.getProduct().getPrice();
+        // if (moneyManager.pay(price)) {
+        // slot.dispense();
+        // System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
+        // }
     }
 
     public void returnChange() {
@@ -62,7 +59,7 @@ public class VendingMachine {
     public static void main(String[] args) {
         VendingMachine vm = new VendingMachine();
         Scanner sc = new Scanner(System.in);
-        
+
         System.out.println("\n=== Vending Mechine ===");
         vm.displayProducts();
         System.out.println("\n=== Step for Using Mechine ===");
@@ -72,10 +69,12 @@ public class VendingMachine {
         System.out.println("[4] Receive Change");
         System.out.println("[5] Log Out\n");
 
+        // เลือกสินค้า
         System.out.print("Select num of Product: ");
         int index = sc.nextInt();
         vm.selectProduct(index);
 
+        // รับเงิน
         System.out.println("Please select payment method to add funds:");
         System.out.println("  [1] Coins");
         System.out.println("  [2] Banknote");
@@ -96,15 +95,16 @@ public class VendingMachine {
             sc.close();
             return;
         }
-
-        // สั่งให้ Vending Machine ทำงาน โดย "ฉีด" (Inject) วิธีจ่ายเงินที่เราเลือกเข้าไป
         vm.addFunds(selectedPaymentMethod);
-        // --- จบส่วนที่เปลี่ยน ---
 
         vm.returnChange();
 
         System.out.println("Thank you!");
         sc.close();
         return;
+    }
+
+    public void addFunds(PaymentReceiver method) {
+        moneyManager.addFunds(method);
     }
 }

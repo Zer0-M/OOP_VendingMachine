@@ -3,13 +3,16 @@ public class MoneyManager {
 
     public void addFunds(PaymentReceiver paymentMethod) {
         double receivedAmount = paymentMethod.receiveFunds();
+        System.out.println("[Debug]receivedAmount: " + receivedAmount);
 
-        if (receivedAmount > 0) {
-            currentBalance += receivedAmount;
-            System.out.println("Your money: " + receivedAmount + " Baht (Allmoney: " + currentBalance + " Baht)");
-        } else {
+        //ถ้าเงินลบ ก็ไม่ต้องรับ
+        if (receivedAmount < 0){
             System.out.println("Add funds failed.");
+            return;
         }
+        // รับปกติ
+        currentBalance += receivedAmount;
+        System.out.println("Your money: " + receivedAmount + " Baht (Allmoney: " + currentBalance + " Baht)");
     }
 
     public boolean pay(double price) {
