@@ -25,8 +25,6 @@ public class VendingMachine {
 
         ItemType.forEach((categoryName, slots) -> {
             System.out.println("--- " + categoryName.toUpperCase() + " ---");
-
-            // v-- ปรับ Format ให้แสดง SlotCode
             System.out.printf("    %-5s | %-38s | %s\n", "Code", "Product Details", "In Stock");
             System.out.println("    ------|----------------------------------------|--------");
 
@@ -41,27 +39,27 @@ public class VendingMachine {
         System.out.println("==========================================================");
     }
 
-    // public void selectProduct(int productID) {
-    //     // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
-    //     for (ItemSlot slot : allSlots) {
-    //         if (slot.getProduct().product_code() == productID) {
-    //             // เช็คว่าของมันยังมีอยู่มั้ย
-    //             if (slot.isEmpty()) {
-    //                 System.out.println("Not have!");
-    //                 return;
-    //             }
-    //             selectProductID.add(productID);
-    //             System.out.println("You have selected: " + slot.getProduct().getName());
+    public void selectProduct(int productID) {
+        // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
+        for (ItemSlot slot : allSlots) {
+            if (slot.getProduct().product_code() == productID) {
+                // เช็คว่าของมันยังมีอยู่มั้ย
+                if (slot.isEmpty()) {
+                    System.out.println("Not have!");
+                    return;
+                }
+                selectProductID.add(productID);
+                System.out.println("You have selected: " + slot.getProduct().getName());
 
-    //             double price = slot.getProduct().getPrice();
-    //             if (moneyManager.pay(price)) {
-    //             slot.dispense();
-    //             System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
-    //             }
-    //             return;
-    //         }
-    //     }
-    // }
+                double price = slot.getProduct().getPrice();
+                if (moneyManager.pay(price)) {
+                slot.dispense();
+                System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
+                }
+                return;
+            }
+        }
+    }
 
     // public void returnChange() {
     //     double change = moneyManager.returnChange();
