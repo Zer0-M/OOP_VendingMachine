@@ -1,4 +1,5 @@
-package vendingmachine.payment;
-public interface PaymentReceiver {
-    double receiveFunds();
+package payment;
+
+public class PaymentReceiver {
+    
 }
