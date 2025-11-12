@@ -1,0 +1,23 @@
+package vendingmachine.payment;
+
+/**
+ * คลาสผู้ช่วยสำหรับเก็บ "ผลลัพธ์" ของการจ่ายเงิน
+ * (เนื่องจาก Java method คืนค่าได้เพียงค่าเดียว)
+ */
+public class PaymentResult {
+    private boolean success;
+    private double changeDue; // เงินทอนที่เกิดจากช่องทางนี้ (เช่น ใส่แบงค์ 100 ซื้อของ 80)
+
+    public PaymentResult(boolean success, double changeDue) {
+        this.success = success;
+        this.changeDue = changeDue;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public double getChangeDue() {
+        return changeDue;
+    }
+}

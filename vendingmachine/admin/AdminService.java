@@ -4,33 +4,53 @@ package vendingmachine.admin;
 import vendingmachine.products.InventoryManager;
 import vendingmachine.payment.MoneyManager;
 
-// คลาสนี้ "has-a" (Composition) InventoryManager และ CashRegister
-// เพื่อเข้าไปจัดการมัน
+/**
+ * คลาสสำหรับ "โหมดแอดมิน" (Encapsulation)
+ * ห่อหุ้มเมธอดที่อันตราย (เช่น เติมของ, เก็บเงิน) ไว้ที่นี่
+ * VendingMachine (View) จะเข้าถึงเมธอดเหล่านี้ไม่ได้
+ */
 public class AdminService {
-    private InventoryManager inventoryManager;
+    
+    // (Composition) Admin "has-a" (มี) สิทธิ์เข้าถึง...
+    private InventoryManager inventory;
     private MoneyManager moneyManager;
 
-    public AdminService(InventoryManager inventoryManager, MoneyManager moneyManager) {
-        this.inventoryManager = inventoryManager;
+    // Admin ต้องได้รับสิทธิ์ (ถูกฉีด Dependencies)
+    public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
+        this.inventory = inventory;
         this.moneyManager = moneyManager;
     }
 
-    // เมธอดเติมของ
+    /**
+     * (Feature 6) เติมของ
+     */
     public void restockItem(String slotCode, int quantity) {
-        // inventory.restock(slotCode, quantity);
-        System.out.println("Restocked " + slotCode + " with " + quantity + " items.");
+        try {
+            inventory.restockSlot(slotCode, quantity);
+            System.out.println("Admin: Restocked " + slotCode + " with " + quantity + " items.");
+        } catch (Exception e) {
+            System.out.println("Admin Error: " + e.getMessage());
+        }
     }
 
-    // เมธอดเก็บเงิน
+    /**
+     * (Feature 6) เก็บเงิน
+     */
     public double collectCash() {
         double collected = moneyManager.collectAllCash();
-        System.out.println("Collected " + collected + " Baht.");
+        System.out.println("Admin: Collected " + collected + " Baht.");
         return collected;
     }
     
-    // เมธอดปรับราคา
+    /**
+     * (Feature 6) ปรับราคา
+     */
     public void setPrice(String slotCode, double newPrice) {
-        // inventory.updatePrice(slotCode, newPrice);
-        System.out.println("Updated price for " + slotCode + " to " + newPrice);
+        try {
+            inventory.updatePrice(slotCode, newPrice);
+            System.out.println("Admin: Updated price for " + slotCode + " to " + newPrice);
+        } catch (Exception e) {
+            System.out.println("Admin Error: " + e.getMessage());
+        }
     }
 }
