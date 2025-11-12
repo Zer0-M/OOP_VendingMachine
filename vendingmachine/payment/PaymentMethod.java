@@ -1,7 +1,7 @@
 // vendingmachine/payment/PaymentReceiver.java
 package vendingmachine.payment;
 
-public interface PaymentReceiver {
+public interface PaymentMethod {
     // เมธอดสำหรับรับเงิน
     // คืนค่า true ถ้าชำระสำเร็จ
     boolean receivePayment(double amount); 

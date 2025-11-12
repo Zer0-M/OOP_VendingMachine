@@ -1,6 +1,6 @@
 package vendingmachine.payment;
 
-public class BanknoteReceiver implements PaymentReceiver {
+public class BanknoteReceiver implements PaymentMethod {
     @Override
     public boolean receivePayment(double amount) {
         System.out.println("Validating coins... " + amount + " Baht.");

@@ -45,7 +45,7 @@ public class VendingMachineController {
     }
 
     public boolean processPayment(double total, String paymentChoice) {
-        PaymentReceiver method;
+        PaymentMethod method;
         if (paymentChoice.equals("1")) {
             method = new QRReceiver();
         } else {
