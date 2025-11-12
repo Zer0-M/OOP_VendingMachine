@@ -1,7 +1,6 @@
 package vendingmachine.payment;
 import vendingmachine.exceptions.ChangeNotAvailableException;
 import vendingmachine.exceptions.InsufficientFundsException;
-import vendingmachine.exceptions.VendingMachineException;
 
 public class MoneyManager {
     // (Encapsulation) ซ่อนข้อมูลเงินไว้

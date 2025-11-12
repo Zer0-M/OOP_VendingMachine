@@ -64,42 +64,42 @@ public class VendingMachineController {
         return total;
     }
 
-    // public boolean processPayment(double totalAmount, String paymentChoice) {
-    //     PaymentReceiver paymentMethod;
+    public boolean processPayment(double totalAmount, String paymentChoice) {
+        PaymentMethod paymentMethod;
 
-    //     // (Polymorphism) เลือกช่องทางจ่ายเงิน
-    //     switch (paymentChoice) {
-    //         case "1":
-    //             paymentMethod = new QRReceiver();
-    //             break;
-    //         case "2":
-    //             paymentMethod = new CoinReceiver();
-    //             break;
-    //         case "3":
-    //             paymentMethod = new BanknoteReceiver();
-    //             break;
-    //         default:
-    //             System.out.println("Invalid payment method.");
-    //             return false;
-    //     }
+        // (Polymorphism) เลือกช่องทางจ่ายเงิน
+        switch (paymentChoice) {
+            case "1":
+                paymentMethod = new QRReceiver();
+                break;
+            case "2":
+                paymentMethod = new CoinReceiver();
+                break;
+            case "3":
+                paymentMethod = new BanknoteReceiver();
+                break;
+            default:
+                System.out.println("Invalid payment method.");
+                return false;
+        }
 
-    //     try {
-    //         // 2. สั่ง CashRegister จัดการ (Encapsulation)
-    //         // (Logic การรับเงิน/ทอนเงิน/เช็กเงินทอน เกิดในนี้ทั้งหมด)
-    //         boolean success = cashRegister.processPayment(totalAmount, paymentMethod);
+        try {
+            // 2. สั่ง MoneyManager จัดการ (Encapsulation)
+            // (Logic การรับเงิน/ทอนเงิน/เช็กเงินทอน เกิดในนี้ทั้งหมด)
+            boolean success = moneyManager.processPayment(totalAmount, paymentMethod);
 
-    //         if (success) {
-    //             // 3. จ่ายเงินสำเร็จ -> สั่ง InventoryManager "จ่ายของ" (ตัดสต็อก)
-    //             inventoryManager.dispenseCart(shoppingCart);
-    //         }
-    //         return success;
+            if (success) {
+                // 3. จ่ายเงินสำเร็จ -> สั่ง InventoryManager "จ่ายของ" (ตัดสต็อก)
+                inventoryManager.dispenseCart(shoppingCart);
+            }
+            return success;
 
-    //     } catch (InsufficientFundsException | ChangeNotAvailableException e) {
-    //         // 4. จัดการ Error การเงิน
-    //         System.out.println("Payment Failed: " + e.getMessage());
-    //         return false;
-    //     }
-    // }
+        } catch (InsufficientFundsException | ChangeNotAvailableException e) {
+            // 4. จัดการ Error การเงิน
+            System.out.println("Payment Failed: " + e.getMessage());
+            return false;
+        }
+    }
 
     /**
      * (สำหรับ View) สะสมแต้ม

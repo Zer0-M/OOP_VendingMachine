@@ -46,21 +46,21 @@ public class VendingMachine {
         String paymentChoice = scanner.nextLine();
 
         // 3. จ่ายเงิน
-        // boolean ispaid = controller.processPayment(total, paymentChoice);
+        boolean ispaid = controller.processPayment(total, paymentChoice);
 
-        // if (ispaid) {
-        //     // 4. สะสมแต้ม
-        //     System.out.println("Payment Successful!");
-        //     System.out.print("Enter phone number for points (or press Enter to skip): ");
-        //     String phone = scanner.nextLine();
-        //     if (!phone.isEmpty()) { // ถ้ารับแต้ม
-        //         String pointsResult = controller.applyPoints(phone); // ส่งไปเพิ่มคะแนน
-        //         System.out.println(pointsResult); // คะแนนหลังเพิ่ม หรือ Error
-        //     }
-        //     controller.clearCart(); // เคลียร์ตะกร้า
-        // } else {
-        //     System.out.println("Payment Failed. Please try again."); // ถ้าใส่มั่ว
-        // }
+        if (ispaid) {
+            // 4. สะสมแต้ม
+            System.out.println("Payment Successful!");
+            System.out.print("Enter phone number for points (or press Enter to skip): ");
+            String phone = scanner.nextLine();
+            if (!phone.isEmpty()) { // ถ้ารับแต้ม
+                String pointsResult = controller.applyPoints(phone); // ส่งไปเพิ่มคะแนน
+                System.out.println(pointsResult); // คะแนนหลังเพิ่ม หรือ Error
+            }
+            controller.clearCart(); // เคลียร์ตะกร้า
+        } else {
+            System.out.println("Payment Failed. Please try again."); // ถ้าใส่มั่ว
+        }
     }
 
     public static void main(String[] args) {

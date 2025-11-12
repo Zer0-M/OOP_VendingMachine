@@ -1,4 +1,3 @@
-// vendingmachine/payment/PaymentReceiver.java
 package vendingmachine.payment;
 
 import vendingmachine.exceptions.InsufficientFundsException;
@@ -7,7 +6,7 @@ import vendingmachine.exceptions.InsufficientFundsException;
  * Interface "ข้อตกลง" สำหรับช่องทางการชำระเงิน
  * (ตามหลัก Polymorphism ที่คุณวางแผนไว้)
  */
-public interface PaymentReceiver {
+public interface PaymentMethod {
     PaymentResult receivePayment(double totalAmount) throws InsufficientFundsException;
     
     String getPaymentMethodName();

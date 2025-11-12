@@ -1,7 +1,7 @@
 // vendingmachine/payment/QRReceiver.java
 package vendingmachine.payment;
 
-public class QRReceiver implements PaymentReceiver {
+public class QRReceiver implements PaymentMethod {
 
     @Override
     public PaymentResult receivePayment(double totalAmount) {

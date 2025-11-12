@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import vendingmachine.exceptions.InsufficientFundsException;
 
-public class CoinReceiver implements PaymentReceiver {
+public class CoinReceiver implements PaymentMethod {
     @Override
     public PaymentResult receivePayment(double totalAmount) throws InsufficientFundsException {
         // (สำคัญ) เราสร้าง Scanner ของตัวเองชั่วคราว

@@ -1,5 +1,11 @@
+// vendingmachine/exceptions/ChangeNotAvailableException.java
 package vendingmachine.exceptions;
 
-public class ChangeNotAvailableException { //ข้อยกเว้นการเปลี่ยนแปลงไม่พร้อมใช้งาน
-    
+/**
+ * Exception ที่จะ "โยน" (throw) เมื่อตู้ไม่มีเงินทอนเพียงพอ
+ */
+public class ChangeNotAvailableException extends VendingMachineException {
+    public ChangeNotAvailableException(String message) {
+        super(message);
+    }
 }
