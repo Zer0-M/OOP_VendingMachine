@@ -9,15 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VendingMachineController {
-    private final InventoryManager inventoryManager;
-    private final MoneyManager cashRegister;
-    private final MemberDatabase memberDatabase;
+    private final InventoryManager inventoryManager; // ตัวจัดการคลังสินค้า
+    private final MoneyManager moneyManager; // ตัวจัดการเงินต่างๆ
+    private final MemberDatabase memberDatabase; // ส่วนจัดการผู้ใช้
 
     private final List<Product> shoppingCart;
 
     public VendingMachineController() {
         this.inventoryManager = new InventoryManager();
-        this.cashRegister = new MoneyManager(500);
+        this.moneyManager = new MoneyManager(500); // ใส่เงินทอนเริ่มต้นในเครื่อง
         this.memberDatabase = new MemberDatabase();
         this.shoppingCart = new ArrayList<>();
     }
@@ -72,25 +72,29 @@ public class VendingMachineController {
         shoppingCart.clear();
     }
 
-    // (เมธอดสำหรับให้ VendingMachine (View) ดึงไปโชว์)
-    // public String getDisplayProducts() { ... }
     public String getDisplayProducts() {
-        System.out.println("                   === Our Product ===                    ");
-        System.out.println("==========================================================");
+        String outputText = "";
+        outputText += "                   === Our Product ===                    \n";
+        outputText += "==========================================================\n";
 
-        ItemType.forEach((categoryName, slots) -> {
-            System.out.println("--- " + categoryName.toUpperCase() + " ---");
-            System.out.printf("    %-5s | %-38s | %s\n", "Code", "Product Details", "In Stock");
-            System.out.println("    ------|----------------------------------------|--------");
+        // ItemType.forEach((categoryName, slots) -> {
+        //     System.out.println("--- " + categoryName.toUpperCase() + " ---");
+        //     System.out.printf("    %-5s | %-38s | %s\n", "Code", "Product Details", "In Stock");
+        //     System.out.println("    ------|----------------------------------------|--------");
 
-            for (ItemSlot slot : slots) {
-                String slotCode = "[" + "]";
-                String productInfo = slot.getProduct().getInfo();
-                String stockInfo = "Remain: " + slot.getQuantity();
+        //     for (ItemSlot slot : slots) {
+        //         String slotCode = "[" + "]";
+        //         String productInfo = slot.getProduct().getInfo();
+        //         String stockInfo = "Remain: " + slot.getQuantity();
 
-                System.out.printf("    %-5s | %-38s | %s\n", slotCode, productInfo, stockInfo);
-            }
-        });
-        System.out.println("==========================================================");
+        //         System.out.printf("    %-5s | %-38s | %s\n", slotCode, productInfo, stockInfo);
+        //     }
+        // });
+        outputText += "==========================================================";
+        return outputText;
+    }
+
+    public boolean hasProductsID(String productid) {
+        return true;
     }
 }

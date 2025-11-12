@@ -1,5 +1,9 @@
-package exceptions;
+// vendingmachine/exceptions/VendingMachineException.java
+package vendingmachine.exceptions;
 
-public class VendingMachineException { // ข้อยกเว้นเครื่องจำหน่ายสินค้าอัตโนมัติ
-    
+// 1. สร้างคลาสแม่ของเราเองก่อน
+public class VendingMachineException extends Exception {
+    public VendingMachineException(String message) {
+        super(message);
+    }
 }

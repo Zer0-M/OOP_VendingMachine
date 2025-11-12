@@ -13,7 +13,7 @@ public class VendingMachine {
     public void run() {
         boolean isRunning = true;
         System.out.println("\n==================== Vending Mechine =====================");
-        System.out.print(controller.getDisplayProducts()); // โชว์สินค้าทั้งหมด
+        System.out.println(controller.getDisplayProducts()); // โชว์สินค้าทั้งหมด
         System.out.println("Press OK to SubmitOrder");
 
         while (isRunning) {
@@ -23,7 +23,7 @@ public class VendingMachine {
             if (controller.hasProductsID(input)) { // เช็คว่ามีของจริงมั้ย?
                 String shoppingcart = controller.addItemToCart(input);
                 System.out.println(shoppingcart);
-            } else if (input == "OK") { // เลือกสินค้าเสร็จไปขั้นตอนถัดไป
+            } else if (input.equals("OK")) { // เลือกสินค้าเสร็จไปขั้นตอนถัดไป
                 isRunning = false;
                 startPaymentProcess();
             } else {

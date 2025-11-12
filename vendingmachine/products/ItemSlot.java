@@ -1,4 +1,4 @@
-package products;
+package vendingmachine.products;
 
 public class ItemSlot {
     

@@ -1,4 +1,4 @@
-package users;
+package vendingmachine.users;
 
 public class MemberDatabase {
     
