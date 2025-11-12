@@ -1,4 +1,7 @@
+package vendingmachine;
 import java.util.LinkedHashMap;
+import vendingmachine.payment.*;
+import vendingmachine.items.*;
 
 class ItemManager {
     

@@ -1,3 +1,4 @@
+package vendingmachine.items;
 public class ItemSlot {
     private Product product;
     private int quantity;

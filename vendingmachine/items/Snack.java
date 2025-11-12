@@ -1,3 +1,4 @@
+package vendingmachine.items;
 public class Snack extends Product {
     private double weight; // น้ำหนัก (g)
 

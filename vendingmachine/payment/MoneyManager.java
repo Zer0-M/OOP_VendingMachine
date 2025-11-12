@@ -1,3 +1,4 @@
+package vendingmachine.payment;
 public class MoneyManager {
     private double currentBalance = 0.0;
 

@@ -1,3 +1,4 @@
+package vendingmachine.payment;
 import java.util.Scanner;
 
 public class CoinReceiver implements PaymentReceiver {

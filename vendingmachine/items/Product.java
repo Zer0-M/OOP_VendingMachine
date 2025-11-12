@@ -1,3 +1,4 @@
+package vendingmachine.items;
 public abstract class Product {
     private int product_code;
     private String name;

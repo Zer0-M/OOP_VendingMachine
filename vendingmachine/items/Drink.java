@@ -1,3 +1,4 @@
+package vendingmachine.items;
 public class Drink extends Product {
     private double volume; // ปริมาตร (ml)
 
