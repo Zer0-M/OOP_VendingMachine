@@ -1,31 +1,17 @@
 package vendingmachine.users;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 public class MemberDatabase {
     private Map<String, Member> activeMember = new HashMap<>();
 
-    public boolean hasMember(String phoneNumber) {
-        for (Member Member : activeMember) {
-            if (Member.getCustomerId().equals(phoneNumber)) {
-                return true;
-            }
-        }
-        return false;
+    public Member findMemberByPhone(String phoneNumber) {
+        return activeMember.get(phoneNumber); // คืนค่า Member หรือ null ถ้าไม่เจอ
     }
 
     public void deleteMember(String phoneNumber) {
-        int indexMember = 0;
-        for (Member Member : activeMember) {
-            if (Member.getCustomerId().equals(phoneNumber)) {
-                break;
-            }
-            indexMember++;
-        }
-        activeMember.remove(indexMember);
+        activeMember.remove(phoneNumber);
     }
 
     public String addPointsToMember(String phoneNumber, int pointsToAdd) {
