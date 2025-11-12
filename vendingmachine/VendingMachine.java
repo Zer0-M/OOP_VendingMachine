@@ -33,7 +33,6 @@ public class VendingMachine {
     }
 
     private void startPaymentProcess() {
-        // 1. รวมยอด
         double total = controller.getCartTotal(); // รับเงินรวมมา
         if (total == 0) {
             System.out.println("Your cart is empty.");
@@ -42,28 +41,28 @@ public class VendingMachine {
         System.out.println("Total due: " + total + " Baht");
 
         // 2. เลือกวิธีการจ่ายเงิน
-        System.out.print("Select payment \n[1] QR \n[2] Coin \n[3] Banknote");
+        System.out.println("Payment Option \n[1] QR \n[2] Coin \n[3] Banknote");
+        System.out.print("Select payment: ");
         String paymentChoice = scanner.nextLine();
 
         // 3. จ่ายเงิน
-        boolean ispaid = controller.processPayment(total, paymentChoice);
+        // boolean ispaid = controller.processPayment(total, paymentChoice);
 
-        if (ispaid) {
-            // 4. สะสมแต้ม
-            System.out.println("Payment Successful!");
-            System.out.print("Enter phone number for points (or press Enter to skip): ");
-            String phone = scanner.nextLine();
-            if (!phone.isEmpty()) { // ถ้ารับแต้ม
-                String pointsResult = controller.applyPoints(phone); // ส่งไปเพิ่มคะแนน
-                System.out.println(pointsResult); // คะแนนหลังเพิ่ม หรือ Error
-            }
-            controller.clearCart(); // เคลียร์ตะกร้า
-        } else {
-            System.out.println("Payment Failed. Please try again."); // ถ้าใส่มั่ว
-        }
+        // if (ispaid) {
+        //     // 4. สะสมแต้ม
+        //     System.out.println("Payment Successful!");
+        //     System.out.print("Enter phone number for points (or press Enter to skip): ");
+        //     String phone = scanner.nextLine();
+        //     if (!phone.isEmpty()) { // ถ้ารับแต้ม
+        //         String pointsResult = controller.applyPoints(phone); // ส่งไปเพิ่มคะแนน
+        //         System.out.println(pointsResult); // คะแนนหลังเพิ่ม หรือ Error
+        //     }
+        //     controller.clearCart(); // เคลียร์ตะกร้า
+        // } else {
+        //     System.out.println("Payment Failed. Please try again."); // ถ้าใส่มั่ว
+        // }
     }
 
-    // --- นี่คือจุดเริ่มต้นโปรแกรม ---
     public static void main(String[] args) {
         VendingMachine vm = new VendingMachine();
         vm.run(); // สั่งตู้ให้เริ่มทำงาน

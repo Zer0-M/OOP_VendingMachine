@@ -1,9 +1,5 @@
 package vendingmachine.products;
 
-/**
- * คลาส "ช่องเก็บของ" (เช่น A1, A2)
- * ห่อหุ้ม (Encapsulate) สินค้า (Product) และ จำนวนคงเหลือ (Quantity)
- */
 public class ItemSlot {
     private String slotCode;
     private Product product;
@@ -32,19 +28,13 @@ public class ItemSlot {
         return quantity == 0;
     }
 
-    /**
-     * เมธอดสำหรับ "จ่ายของ" (ลดสต็อก)
-     * (Encapsulation: Controller สั่งจ่ายของ แต่การลดสต็อกจริงเกิดขึ้นที่นี่)
-     */
+    // --- Other ---
     public void dispense() {
         if (!isEmpty()) {
             this.quantity--;
         }
     }
-    
-    /**
-     * เมธอดสำหรับ Admin (เติมของ)
-     */
+
     public void restock(int amount) {
         if (amount > 0) {
             this.quantity += amount;
