@@ -2,8 +2,7 @@ package vendingmachine.products;
 
 import vendingmachine.exceptions.OutOfStockException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Map; // ใช้ Map แทน List ในการรับพารามิเตอร์
 
 /**
  * คลาส "ผู้จัดการสต็อก" (Encapsulation)
@@ -48,19 +47,42 @@ public class InventoryManager {
         return slot;
     }
 
-    /* ตรวจสอบสต็อก (Controller เรียกก่อนเพิ่มลงตะกร้า) */
-    public void checkStock(ItemSlot slot) throws OutOfStockException {
-        if (slot.isEmpty()) {
-            throw new OutOfStockException(slot.getProduct().getName() + " is sold out.");
+    /*
+     * * [แก้ไขใหม่] ตรวจสอบสต็อกโดยคำนึงถึงของในตะกร้าด้วย
+     * int pendingInCart = จำนวนที่ลูกค้ารายนี้หยิบใส่ตะกร้าไปแล้ว
+     */
+    public void checkStock(ItemSlot slot, int pendingInCart) throws OutOfStockException {
+        // สต็อกที่เหลือให้หยิบ = สต็อกจริง - ของที่คาอยู่ในตะกร้า
+        int availableToPick = slot.getQuantity() - pendingInCart;
+
+        if (availableToPick <= 0) {
+            throw new OutOfStockException("Not enough stock for " + slot.getProduct().getName()
+                    + " (Stock: " + slot.getQuantity() + ")");
         }
     }
 
-    /* จ่ายของในตะกร้า (Controller เรียก *หลัง* จ่ายเงินสำเร็จ) */
-    public void dispenseCart(List<ItemSlot> shoppingCart) {
+    /**
+     * * [แก้ไขจุดนี้] จ่ายของในตะกร้า (Controller เรียก *หลัง* จ่ายเงินสำเร็จ)
+     * รับค่าเป็น Map<ItemSlot, Integer> แทน List
+     */
+    public void dispenseCart(Map<ItemSlot, Integer> shoppingCart) {
         System.out.println("--- DISPENSING ITEMS ---");
-        for (ItemSlot slot : shoppingCart) {
-            slot.dispense();
-            System.out.println("Dropped: " + slot.getProduct().getName());
+
+        // วนลูปสินค้าแต่ละชนิดใน Map
+        for (Map.Entry<ItemSlot, Integer> entry : shoppingCart.entrySet()) {
+            ItemSlot slot = entry.getKey();
+            int quantityToDispense = entry.getValue(); // จำนวนที่ลูกค้าซื้อ
+
+            // วนลูปจ่ายของตามจำนวนชิ้น (เช่น ซื้อ Lays 2 ห่อ ก็วนลูป 2 รอบ)
+            for (int i = 0; i < quantityToDispense; i++) {
+                if (!slot.isEmpty()) {
+                    slot.dispense(); // ตัดสต็อกจริงใน ItemSlot
+                    System.out.println("Dropped: " + slot.getProduct().getName());
+                } else {
+                    // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
+                    System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
+                }
+            }
         }
         System.out.println("------------------------");
     }
@@ -71,7 +93,7 @@ public class InventoryManager {
      */
     public String getProductDisplay() {
         StringBuilder sb = new StringBuilder();
-        sb.append("                   === Our Product ===                    \n");
+        sb.append("                  === Our Product ===                    \n");
         sb.append("==========================================================\n");
         // (ในโลกจริงควรจัดกลุ่ม แต่ตอนนี้เรียงตามรหัสไปก่อน)
         for (ItemSlot slot : slots.values()) {

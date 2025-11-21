@@ -1,6 +1,5 @@
 package vendingmachine;
 import java.util.Scanner;
-import vendingmachine.products.ItemSlot;
 
 public class VendingMachine {
     private final VendingMachineController controller;
@@ -12,43 +11,56 @@ public class VendingMachine {
     }
 
     public void run() {
-        boolean isRunning = true;
-        System.out.println("\n==================== Vending Mechine =====================");
-        System.out.println(controller.getDisplayProducts()); // โชว์สินค้าทั้งหมด
-        System.out.println("Press OK to SubmitOrder");
+        // Loop ใหญ่: ตู้เปิดทำงานตลอดเวลา (Machine On)
+        while (true) {
+            System.out.println("\n==================== Vending Machine =====================");
+            System.out.println(controller.getDisplayProducts()); // โชว์สินค้าใหม่ทุกรอบ (เผื่อสต็อกลด)
+            System.out.println("Type 'OK' to Confirm Order | Type 'OFF' to Shutdown");
 
-        while (isRunning) {
+            boolean isSelecting = true; // ตัวแปรสำหรับ Loop การเลือกของ (Session)
 
-            if(!controller.getCart().isEmpty()){
-                System.out.print("CurrentCart: [");
+            // Loop เล็ก: ลูกค้าคนปัจจุบันกำลังเลือกของ
+            while (isSelecting) {
+                controller.getCart(); // แสดงตะกร้าปัจจุบัน
 
-                for (ItemSlot item : controller.getCart()) {
-                    System.out.print(item.getProduct().getName() + " | ");
+                System.out.print("Select item (or OK): ");
+                String input = scanner.nextLine().toUpperCase().trim();
+
+                if (input.equals("OFF")) {
+                    System.out.println("Shutting down system...");
+                    return; // จบโปรแกรมทันที
                 }
-                System.out.println("]");
-            }
 
-            System.out.print("Select item: "); // เลือกสินค้า
-            String input = scanner.nextLine().toUpperCase();
-
-            if (controller.hasProductsID(input)) { // เช็คว่ามีของจริงมั้ย?
-                String shoppingcart = controller.addItemToCart(input);
-                System.out.println(shoppingcart);
-            } else if (input.equals("OK")) { // เลือกสินค้าเสร็จไปขั้นตอนถัดไป
-                isRunning = false;
-                startPaymentProcess();
-            } else {
-                System.out.println("Invalid Product.");
+                if (input.equals("OK")) {
+                    // จบการเลือกของ -> ไปจ่ายเงิน
+                    isSelecting = false; 
+                    startPaymentProcess();
+                    // พอจ่ายเงินเสร็จ (หรือจ่ายไม่สำเร็จ) มันจะหลุด Loop นี้ 
+                    // แล้วไปเริ่ม Loop ใหญ่ใหม่ (ต้อนรับลูกค้าคนต่อไป)
+                } 
+                else if (controller.hasProductsID(input)) {
+                    // เลือกสินค้า
+                    String result = controller.addItemToCart(input);
+                    System.out.println(result);
+                } 
+                else {
+                    System.out.println("Invalid Product Code. Please try again.");
+                }
             }
+            
+            // (Optional) อาจจะใส่ Delay หรือเคลียร์หน้าจอนิดหน่อยเพื่อให้รู้ว่าจบรายการแล้ว
+            System.out.println("\n\n--- Next Customer ---\n");
         }
     }
 
     private void startPaymentProcess() {
-        double total = controller.getCartTotal(); // รับเงินรวมมา
+        double total = controller.getCartTotal();
+        
         if (total == 0) {
-            System.out.println("Your cart is empty.");
+            System.out.println("Your cart is empty. Transaction cancelled.");
             return;
         }
+        
         System.out.println("Total due: " + total + " Baht");
 
         // 2. เลือกวิธีการจ่ายเงิน
@@ -60,22 +72,29 @@ public class VendingMachine {
         boolean ispaid = controller.processPayment(total, paymentChoice);
 
         if (ispaid) {
-            // 4. สะสมแต้ม
             System.out.println("Payment Successful!");
+            
+            // 4. สะสมแต้ม
             System.out.print("Enter phone number for points (or press Enter to skip): ");
             String phone = scanner.nextLine();
-            if (!phone.isEmpty()) { // ถ้ารับแต้ม
-                String pointsResult = controller.applyPoints(phone); // ส่งไปเพิ่มคะแนน
-                System.out.println(pointsResult); // คะแนนหลังเพิ่ม หรือ Error
+            if (!phone.isEmpty()) {
+                String pointsResult = controller.applyPoints(phone);
+                System.out.println(pointsResult);
             }
-            controller.clearCart(); // เคลียร์ตะกร้า
+            
+            // *** สำคัญ: ต้องเคลียร์ตะกร้าเสมอหลังจ่ายเสร็จ ***
+            controller.clearCart(); 
+            System.out.println("Thank you! Please come again.");
         } else {
-            System.out.println("Payment Failed. Please try again."); // ถ้าใส่มั่ว
+            System.out.println("Payment Failed. Transaction Cancelled.");
+            // กรณีจ่ายไม่ผ่าน ก็ควรเคลียร์ตะกร้าเพื่อเริ่มใหม่ (หรือจะเก็บไว้ก็ได้ แล้วแต่นโยบาย)
+            // แต่ปกติถ้าจบ Transaction แล้วควรเคลียร์
+            controller.clearCart(); 
         }
     }
 
     public static void main(String[] args) {
         VendingMachine vm = new VendingMachine();
-        vm.run(); // สั่งตู้ให้เริ่มทำงาน
+        vm.run();
     }
 }

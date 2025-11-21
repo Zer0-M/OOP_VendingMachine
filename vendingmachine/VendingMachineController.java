@@ -5,8 +5,11 @@ import vendingmachine.payment.*;
 import vendingmachine.users.*;
 import vendingmachine.admin.AdminService;
 import vendingmachine.exceptions.*;
-import java.util.List;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VendingMachineController {
     private final InventoryManager inventoryManager; // ตัวจัดการคลังสินค้า
@@ -48,27 +51,58 @@ public class VendingMachineController {
     public String addItemToCart(String slotCode) {
         try {
             ItemSlot slot = inventoryManager.findSlotByCode(slotCode); // 1. หาช่องสินค้า
-            inventoryManager.checkStock(slot); // 2. เช็กสต็อก (ถ้าหมด จะโยน OutOfStockException)
 
-            shoppingCart.add(slot); // 3. เพิ่มลงตะกร้า
+            // [เพิ่มใหม่] ดูว่าตอนนี้ในตะกร้ามีสินค้านี้อยู่แล้วกี่ชิ้น
+            int currentQtyInCart = shoppingCart.getOrDefault(slot, 0);
+
+            // 2. เช็กสต็อก (ส่งจำนวนที่อยู่ในตะกร้าไปคำนวณด้วย)
+            // ถ้าของจริงมี 5, ในตะกร้ามี 5 -> จะโยน Exception ทันทีตรงนี้เลย
+            inventoryManager.checkStock(slot, currentQtyInCart);
+
+            // 3. ถ้าผ่าน ก็เพิ่มจำนวนลงตะกร้า (+1)
+            shoppingCart.put(slot, currentQtyInCart + 1);
 
             // 4. ส่งข้อความสถานะกลับไป
-            return "Added: " + slot.getProduct().getName() + " | Current Total: " + getCartTotal() + " Baht";
+            return "Added: " + slot.getProduct().getName()
+                    + " | Current Total: " + getCartTotal() + " Baht";
+
         } catch (OutOfStockException e) {
-            return "Error: " + e.getMessage(); // ส่ง Error กลับไปให้ VendingMachine (View)
+            return "Error: " + e.getMessage(); // แจ้งเตือนทันทีว่าของหมด/ไม่พอ
         } catch (Exception e) {
             return "Error: Invalid slot code.";
         }
     }
 
-    public List<ItemSlot> getCart() {
+    public HashMap<ItemSlot, Integer> getCart() {
+        System.out.print("CurrentCart: ");
+
+        if (shoppingCart.isEmpty()) {
+            System.out.println("[ Empty ]");
+        } else {
+            List<String> items = new ArrayList<>();
+
+            // วนลูปดึงข้อมูลมาเก็บใน List ก่อน
+            for (Map.Entry<ItemSlot, Integer> entry : shoppingCart.entrySet()) {
+                String name = entry.getKey().getProduct().getName();
+                int qty = entry.getValue();
+                items.add(name + " (x" + qty + ")");
+            }
+
+            // แสดงผล: [ Coke (x2), Lays (x1) ]
+            System.out.println("[ " + String.join(", ", items) + " ]");
+        }
+
         return shoppingCart;
     }
 
     public double getCartTotal() {
         double total = 0.0;
-        for (ItemSlot slot : shoppingCart) {
-            total += slot.getProduct().getPrice();
+        // (แก้ไขใหม่) วนลูปผ่าน Entry ของ HashMap
+        for (HashMap.Entry<ItemSlot, Integer> entry : shoppingCart.entrySet()) {
+            ItemSlot slot = entry.getKey();
+            int quantity = entry.getValue();
+            // ราคาของสินค้า x จำนวนชิ้น
+            total += slot.getProduct().getPrice() * quantity;
         }
         return total;
     }
