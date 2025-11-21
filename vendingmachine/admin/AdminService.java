@@ -1,4 +1,3 @@
-// vendingmachine/admin/AdminService.java
 package vendingmachine.admin;
 
 import vendingmachine.products.InventoryManager;
@@ -10,8 +9,6 @@ import vendingmachine.payment.MoneyManager;
  * VendingMachine (View) จะเข้าถึงเมธอดเหล่านี้ไม่ได้
  */
 public class AdminService {
-    
-    // (Composition) Admin "has-a" (มี) สิทธิ์เข้าถึง...
     private InventoryManager inventory;
     private MoneyManager moneyManager;
 
@@ -21,9 +18,6 @@ public class AdminService {
         this.moneyManager = moneyManager;
     }
 
-    /**
-     * (Feature 6) เติมของ
-     */
     public void restockItem(String slotCode, int quantity) {
         try {
             inventory.restockSlot(slotCode, quantity);
@@ -33,18 +27,12 @@ public class AdminService {
         }
     }
 
-    /**
-     * (Feature 6) เก็บเงิน
-     */
     public double collectCash() {
         double collected = moneyManager.collectAllCash();
         System.out.println("Admin: Collected " + collected + " Baht.");
         return collected;
     }
     
-    /**
-     * (Feature 6) ปรับราคา
-     */
     public void setPrice(String slotCode, double newPrice) {
         try {
             inventory.updatePrice(slotCode, newPrice);

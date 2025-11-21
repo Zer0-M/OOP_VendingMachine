@@ -5,27 +5,26 @@ import vendingmachine.payment.*;
 import vendingmachine.users.*;
 import vendingmachine.admin.AdminService;
 import vendingmachine.exceptions.*;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 public class VendingMachineController {
     private final InventoryManager inventoryManager; // ตัวจัดการคลังสินค้า
     private final MoneyManager moneyManager; // ตัวจัดการเงินต่างๆ
     private final MemberDatabase memberDatabase; // ส่วนจัดการผู้ใช้
     private final AdminService adminService;
-
-    private final List<ItemSlot> shoppingCart;
+    // private final List<ItemSlot> shoppingCart;
+    private final HashMap<ItemSlot, Integer> shoppingCart; // ตะกล้าสินค้า
 
     public VendingMachineController() {
         this.inventoryManager = new InventoryManager();
         this.moneyManager = new MoneyManager(500); // ใส่เงินทอนเริ่มต้นในเครื่อง
         this.memberDatabase = new MemberDatabase();
-        
-        // สร้างตะกร้าเปล่า
-        this.shoppingCart = new ArrayList<>();
 
-        // 3. (สำคัญมาก) "ประกอบร่าง" AdminService 
+        // สร้างตะกร้าเปล่า
+        this.shoppingCart = new HashMap<>();
+
+        // 3. (สำคัญมาก) "ประกอบร่าง" AdminService
         // โดย "ฉีด" (inject) inventory และ cashRegister เข้าไป
         this.adminService = new AdminService(this.inventoryManager, this.moneyManager);
     }
@@ -60,6 +59,10 @@ public class VendingMachineController {
         } catch (Exception e) {
             return "Error: Invalid slot code.";
         }
+    }
+
+    public List<ItemSlot> getCart() {
+        return shoppingCart;
     }
 
     public double getCartTotal() {
@@ -126,16 +129,16 @@ public class VendingMachineController {
     // --- 4. (ใหม่) สร้างเมธอด "ส่งต่อ" สำหรับ Admin ---
     // VendingMachine (View) จะเรียกเมธอดนี้
     // Controller จะ "ส่งต่อ" (Delegate) งานไปให้ AdminService
-    
+
     public void adminRestockItem(String slotCode, int quantity) {
         // (เราอาจจะเช็ก Password ก่อนตรงนี้ก็ได้)
         adminService.restockItem(slotCode, quantity);
     }
-    
+
     public void adminCollectCash() {
         adminService.collectCash();
     }
-    
+
     public void adminSetPrice(String slotCode, double newPrice) {
         adminService.setPrice(slotCode, newPrice);
     }

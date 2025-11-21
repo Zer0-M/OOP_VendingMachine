@@ -1,5 +1,6 @@
 package vendingmachine;
 import java.util.Scanner;
+import vendingmachine.products.ItemSlot;
 
 public class VendingMachine {
     private final VendingMachineController controller;
@@ -17,6 +18,16 @@ public class VendingMachine {
         System.out.println("Press OK to SubmitOrder");
 
         while (isRunning) {
+
+            if(!controller.getCart().isEmpty()){
+                System.out.print("CurrentCart: [");
+
+                for (ItemSlot item : controller.getCart()) {
+                    System.out.print(item.getProduct().getName() + " | ");
+                }
+                System.out.println("]");
+            }
+
             System.out.print("Select item: "); // เลือกสินค้า
             String input = scanner.nextLine().toUpperCase();
 
