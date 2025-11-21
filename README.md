@@ -139,3 +139,4 @@ vendingmachine/
 3.  ไปที่ไฟล์ `vendingmachine/VendingMachine.java`
 4.  กดปุ่ม "Run"
 5.  ใช้งานโปรแกรมผ่านหน้าต่าง Console (Terminal) ได้เลย
+6.
