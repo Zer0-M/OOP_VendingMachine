@@ -10,6 +10,6 @@ public class Snack extends Product {
 
     @Override
     public String getInfo() {
-        return getName() + " (" + weight + " g) - " + getPrice() + " Baht";
+        return getName() + " (" + weight + " g)";
     }
 }
