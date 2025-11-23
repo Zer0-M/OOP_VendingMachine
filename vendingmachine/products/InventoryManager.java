@@ -78,6 +78,10 @@ public class InventoryManager {
                 if (!slot.isEmpty()) {
                     slot.dispense(); // ตัดสต็อกจริงใน ItemSlot
                     System.out.println("Dropped: " + slot.getProduct().getName());
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();}
                 } else {
                     // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
                     System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
