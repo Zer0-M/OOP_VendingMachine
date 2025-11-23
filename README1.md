@@ -143,9 +143,9 @@ vendingmachine/
 
 Report : https://docs.google.com/document/d/1HKbb4TnQa1G5QExfCQk4326rQAjhPK5ad2Eu5Tft6L4/edit?usp=sharing
 
-  <!-- เพิ่มเติม -- เลือกวิธีจ่ายผิด ให้ถามใหม่
-              -- มี cancel ตอนจ่ายเงิน
-              -- Have Delay dispensing items
+  <!-- เพิ่มเติม -- เลือกวิธีจ่ายผิด ให้ถามใหม่ ✅
+              -- มี cancel ตอนจ่ายเงิน ✅
+              -- Have Delay dispensing items ✅
               -- เช็ค varidation เบอร์ ตอนนี้มันเป็นstring
               จัด Format ใหม่
               ตอนนี้ เลือกได้แค่ไม่แบงค์ก็เหรียญ ถ้าคนจะใส่ทั้งคู่จะทำไม่ได้
