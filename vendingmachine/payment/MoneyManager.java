@@ -23,10 +23,7 @@ public class MoneyManager {
                 paymentMethod = new QRReceiver();
                 break;
             case "2":
-                paymentMethod = new CoinReceiver();
-                break;
-            case "3":
-                paymentMethod = new BanknoteReceiver();
+                paymentMethod = new CashReceiver();
                 break;
             default:
                 System.out.println("Invalid payment method.");
@@ -41,7 +38,7 @@ public class MoneyManager {
         if (result.isSuccess()) {
 
             if (paymentMethod.isCashPayment()) {
-                // 3. ถ้าเป็นเงินสด (Coin, Banknote)
+                // 3. ถ้าเป็นเงินสด (Cash)
                 double changeDue = result.getChangeDue();
 
                 // 3.1 เช็กว่ามีเงินทอนในตู้พอไหม
