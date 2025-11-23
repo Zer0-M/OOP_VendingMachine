@@ -1,15 +1,15 @@
 package vendingmachine.products;
 
 public class Drink extends Product {
-    private double volume; // ปริมาตร (ml)
+    private int volume;
 
-    public Drink(int product_code, String name, double price, double volume) {
-        super(product_code, name, price);
+    public Drink(int id, String name, double price, int volume) {
+        super(id, name, price);
         this.volume = volume;
     }
 
     @Override
     public String getInfo() {
-        return getName() + " (" + volume + " ml)";
+        return getName() + " (" + volume + "ml)";
     }
 }

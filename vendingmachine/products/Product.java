@@ -1,31 +1,19 @@
-package vendingmachine.products;
+package vendingmachine.products; // 👈 ต้องมี
 
 public abstract class Product {
-    private int productID;
-    private String productName;
-    private double productPrice;
+    private int id; // แก้เป็น int ตาม InventoryManager
+    private String name;
+    private double price;
 
-    public Product(int productID, String productName, double productPrice) {
-        this.productID = productID;
-        this.productName = productName;
-        this.productPrice = productPrice;
+    public Product(int id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
     }
 
-    public String getName() {
-        return productName;
-    }
-
-    public double getPrice() {
-        return productPrice;
-    }
-
-    public int getProductId() {
-        return productID;
-    }
-
-    public void setPrice(double newPrice) {
-        this.productPrice = newPrice;
-    }
-
-    public abstract String getInfo();
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
+    
+    public abstract String getInfo(); // Abstract method
 }

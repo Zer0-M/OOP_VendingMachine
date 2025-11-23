@@ -2,43 +2,77 @@ package vendingmachine.products;
 
 import vendingmachine.exceptions.OutOfStockException;
 import java.util.HashMap;
-import java.util.Map; // ใช้ Map แทน List ในการรับพารามิเตอร์
+import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * คลาส "ผู้จัดการสต็อก" (Encapsulation)
- * Controller จะคุยกับคลาสนี้คลาสเดียวเรื่องสินค้าและสต็อก
- * ใช้ HashMap เก็บช่องสินค้า (Key=A1, Value=ItemSlot)
- */
 public class InventoryManager {
-    private Map<String, ItemSlot> slots = new HashMap<>();
-    private int nextProductId = 000;
+    
+    private static InventoryManager instance;
+    private Map<String, ItemSlot> slots;
+    private Map<ItemSlot, Integer> cart; 
+    
+    // 🔥 แก้ตรงนี้: เปลี่ยนจาก 000 (String format) เป็น int ธรรมดา
+    private int nextProductId = 1;
 
-    public InventoryManager() {
-        initializeInventory(); // โหลดของเข้าตู้
+    private InventoryManager() {
+        slots = new TreeMap<>(); 
+        cart = new HashMap<>();
+        initializeInventory();
+    }
+
+    public static InventoryManager getInstance() {
+        if (instance == null) {
+            instance = new InventoryManager();
+        }
+        return instance;
     }
 
     private void initializeInventory() {
-        // (นี่คือที่ที่เราจะโหลดสินค้าตัวอย่าง)
-        // หมวด A (Snacks)
+        // 🔥 ตอนเรียก nextId() มันจะได้ int แล้ว ไม่แดงแน่นอน
         addSlot("A1", new Snack(nextId(), "Lays", 20.0, 330), 10);
         addSlot("A2", new Snack(nextId(), "Testo", 15.0, 300), 5);
 
-        // หมวด B (Drinks)
         addSlot("B1", new Drink(nextId(), "Coke", 25.0, 500), 10);
         addSlot("B2", new Drink(nextId(), "Water", 10.0, 600), 20);
     }
 
-    // Helper-method
     private void addSlot(String code, Product product, int quantity) {
         ItemSlot slot = new ItemSlot(code, product, quantity);
         this.slots.put(code, slot);
     }
 
+    // 🔥 แก้ตรงนี้: เปลี่ยน Return Type เป็น int
     private int nextId() {
         return nextProductId++;
     }
 
-    // --- เมธอดที่ Controller เรียกใช้ ---
+    public Map<String, ItemSlot> getSlots() {
+        return slots;
+    }
+
+    public Map<ItemSlot, Integer> getCart() {
+        return cart;
+    }
+
+    public void clearCart() {
+        cart.clear();
+    }
+
+    public double calculateTotal() {
+        double total = 0;
+        for (Map.Entry<ItemSlot, Integer> entry : cart.entrySet()) {
+            total += entry.getKey().getProduct().getPrice() * entry.getValue();
+        }
+        return total;
+    }
+
+    public void addToCart(String slotCode) throws Exception {
+        ItemSlot slot = findSlotByCode(slotCode);
+        int currentInCart = cart.getOrDefault(slot, 0);
+        checkStock(slot, currentInCart); 
+        cart.put(slot, currentInCart + 1);
+    }
+
     public ItemSlot findSlotByCode(String slotCode) throws Exception {
         ItemSlot slot = slots.get(slotCode.toUpperCase());
         if (slot == null) {
@@ -47,85 +81,61 @@ public class InventoryManager {
         return slot;
     }
 
-    /*
-     * * [แก้ไขใหม่] ตรวจสอบสต็อกโดยคำนึงถึงของในตะกร้าด้วย
-     * int pendingInCart = จำนวนที่ลูกค้ารายนี้หยิบใส่ตะกร้าไปแล้ว
-     */
     public void checkStock(ItemSlot slot, int pendingInCart) throws OutOfStockException {
-        // สต็อกที่เหลือให้หยิบ = สต็อกจริง - ของที่คาอยู่ในตะกร้า
         int availableToPick = slot.getQuantity() - pendingInCart;
-
         if (availableToPick <= 0) {
-            throw new OutOfStockException("Not enough stock for " + slot.getProduct().getName()
-                    + " (Stock: " + slot.getQuantity() + ")");
+            throw new OutOfStockException("Not enough stock for " + slot.getProduct().getName());
         }
     }
 
-    /**
-     * * [แก้ไขจุดนี้] จ่ายของในตะกร้า (Controller เรียก *หลัง* จ่ายเงินสำเร็จ)
-     * รับค่าเป็น Map<ItemSlot, Integer> แทน List
-     */
     public void dispenseCart(Map<ItemSlot, Integer> shoppingCart) {
         System.out.println("--- DISPENSING ITEMS ---");
-
-        // วนลูปสินค้าแต่ละชนิดใน Map
         for (Map.Entry<ItemSlot, Integer> entry : shoppingCart.entrySet()) {
             ItemSlot slot = entry.getKey();
-            int quantityToDispense = entry.getValue(); // จำนวนที่ลูกค้าซื้อ
-
-            // วนลูปจ่ายของตามจำนวนชิ้น (เช่น ซื้อ Lays 2 ห่อ ก็วนลูป 2 รอบ)
+            int quantityToDispense = entry.getValue();
             for (int i = 0; i < quantityToDispense; i++) {
                 if (!slot.isEmpty()) {
-                    slot.dispense(); // ตัดสต็อกจริงใน ItemSlot
+                    slot.dispense();
                     System.out.println("Dropped: " + slot.getProduct().getName());
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                } else {
-                    // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
-                    System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
                 }
             }
         }
         System.out.println("------------------------");
     }
-
-    /**
-     * (สำหรับ VendingMachine.java)
-     * ดึงรายการสินค้าทั้งหมดเพื่อไปแสดงผลที่หน้าจอ
-     */
-    public String getProductDisplay() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("┌──────┬──────────────────────────────┬─────────────┬───────┐\n");
-        sb.append(String.format("│ %-4s │ %-28s │ %-11s │ %-5s │\n", "CODE", "PRODUCT NAME", "PRICE", "STOCK"));
-        sb.append("├──────┼──────────────────────────────┼─────────────┼───────┤\n");
-        // (ในโลกจริงควรจัดกลุ่ม แต่ตอนนี้เรียงตามรหัสไปก่อน)
-        for (ItemSlot slot : slots.values()) {
-            sb.append(String.format("│ [%s] │ %-28s │ %-11.2f │ %-5d │\n",
-                    slot.getSlotCode(),
-                    slot.getProduct().getInfo(),
-                    slot.getProduct().getPrice(),
-                    slot.getQuantity()));
-        }
-        sb.append("└──────┴──────────────────────────────┴─────────────┴───────┘\n");
-        return sb.toString();
-    }
-
-    // ส่ง Map สินค้าออกไปให้ GUI วาดรูป
-    public java.util.Map<String, ItemSlot> getSlots() {
-        return this.slots;
-    }
-
-    // --- เมธอดสำหรับ AdminService ---
+    
     public void restockSlot(String slotCode, int quantity) throws Exception {
-        ItemSlot slot = findSlotByCode(slotCode); // ใช้เมธอดเดิมหา
-        slot.restock(quantity);
+        if (!slots.containsKey(slotCode)) throw new Exception("Slot not found");
+        slots.get(slotCode).restock(quantity);
     }
 
     public void updatePrice(String slotCode, double newPrice) throws Exception {
-        ItemSlot slot = findSlotByCode(slotCode);
-        slot.getProduct().setPrice(newPrice);
+        if (!slots.containsKey(slotCode)) throw new Exception("Slot not found");
+        slots.get(slotCode).getProduct().setPrice(newPrice);
     }
+    
+    public String getProductDisplay() {
+       StringBuilder sb = new StringBuilder();
+       for (ItemSlot slot : slots.values()) {
+           sb.append(String.format("[%s] %-15s Price: %.2f\n", slot.getSlotCode(), slot.getProduct().getName(), slot.getProduct().getPrice()));
+       }
+       return sb.toString();
+    }
+
+    // 🔥 เมธอดใหม่: ลบรายการออกจากตะกร้า (Remove Item from Cart)
+    public void removeItemFromCart(String slotCode) {
+        try {
+            // 1. ค้นหา ItemSlot จากรหัส (เช่น "A1")
+            ItemSlot slot = findSlotByCode(slotCode);
+        
+            // 2. ถ้าเจอตะกร้าที่มีสินค้านี้อยู่
+            if (cart.containsKey(slot)) {
+                // 3. ลบ Key นี้ออกจาก Map ทันที (ทำให้รายการหายไปทั้งบรรทัด)
+                cart.remove(slot); 
+            
+                // Note: สต็อกจริง (slot.quantity) จะยังเท่าเดิม ไม่ถูกแตะต้องในขั้นตอนนี้
+            }
+        } catch (Exception e) {
+            System.out.println("Error removing item: " + e.getMessage());
+        }
+    }  
 }

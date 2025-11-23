@@ -1,5 +1,6 @@
 package vendingmachine;
 
+import vendingmachine.admin.AdminUI;
 import vendingmachine.products.ItemSlot;
 import vendingmachine.products.Product;
 
@@ -7,7 +8,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -15,8 +16,14 @@ import java.util.TreeMap;
 public class ModernVendingUI extends JFrame {
 
     private VendingMachineController controller;
+    // สร้าง List ไว้เก็บ Object จริงๆ คู่กับที่โชว์บนหน้าจอ (JList เก็บแค่ String)
+    private java.util.List<ItemSlot> displayedCartItems = new ArrayList<>();   
     private JPanel productGridPanel;
     private DefaultListModel<String> cartListModel;
+    
+    // --- FIXED: ประกาศ JList เป็น Field ระดับ Class เพื่อให้มองเห็นทั่วทั้งไฟล์ ---
+    private JList<String> cartList; 
+
     private JLabel totalLabel;
     private JLabel statusLabel;
 
@@ -47,13 +54,26 @@ public class ModernVendingUI extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(ACCENT_CYAN);
         
-        // Status Bar
+        // Right side of header (Status + Admin Btn)
+        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
+        rightHeader.setOpaque(false);
+
         statusLabel = new JLabel("SYSTEM READY", SwingConstants.RIGHT);
         statusLabel.setFont(new Font("Consolas", Font.BOLD, 16));
         statusLabel.setForeground(ACCENT_GREEN);
+
+        JButton adminBtn = new JButton("⚙ ADMIN");
+        adminBtn.setBackground(new Color(60, 60, 70));
+        adminBtn.setForeground(Color.WHITE);
+        adminBtn.setFocusPainted(false);
+        adminBtn.setBorder(new LineBorder(Color.GRAY, 1));
+        adminBtn.addActionListener(e -> handleAdminLogin());
+
+        rightHeader.add(statusLabel);
+        rightHeader.add(adminBtn);
         
         headerPanel.add(title, BorderLayout.WEST);
-        headerPanel.add(statusLabel, BorderLayout.EAST);
+        headerPanel.add(rightHeader, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // --- 2. CENTER (Product Grid) ---
@@ -78,8 +98,15 @@ public class ModernVendingUI extends JFrame {
         cartTitle.setForeground(TEXT_WHITE);
         cartTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
         
+        // ปุ่มลบสินค้า (เพิ่มมาใหม่)
+        JButton removeBtn = createStyledButton("REMOVE SELECTED", new Color(200, 50, 50), TEXT_WHITE);
+        removeBtn.addActionListener(e -> handleRemoveItem()); 
+
         cartListModel = new DefaultListModel<>();
-        JList<String> cartList = new JList<>(cartListModel);
+        
+        // --- FIXED: ใช้ตัวแปร cartList ที่ประกาศข้างบน (ไม่ต้องมี JList<String> นำหน้า) ---
+        cartList = new JList<>(cartListModel);
+        
         cartList.setBackground(new Color(25, 25, 30));
         cartList.setForeground(TEXT_WHITE);
         cartList.setFont(new Font("Consolas", Font.PLAIN, 14));
@@ -88,6 +115,7 @@ public class ModernVendingUI extends JFrame {
         cartPanel.setBackground(BG_PANEL);
         cartPanel.add(cartTitle, BorderLayout.NORTH);
         cartPanel.add(new JScrollPane(cartList), BorderLayout.CENTER);
+        cartPanel.add(removeBtn, BorderLayout.SOUTH); // ใส่ปุ่มลบไว้ใต้ List
         
         sidebar.add(cartPanel, BorderLayout.CENTER);
 
@@ -123,11 +151,26 @@ public class ModernVendingUI extends JFrame {
         setVisible(true);
     }
 
+    // --- ADMIN LOGIC ---
+    private void handleAdminLogin() {
+        JPasswordField pf = new JPasswordField();
+        int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (okCxl == JOptionPane.OK_OPTION) {
+            // Assume any password works as requested
+            new AdminUI(controller, this); // Open Admin Window
+        }
+    }
+    
+    // Public method to allow AdminUI to refresh main screen
+    public void externalRefresh() {
+        refreshUI();
+    }
+
     // --- CORE LOGIC ---
 
     private void refreshUI() {
         productGridPanel.removeAll();
-        // ดึงสินค้าจาก Controller
         Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
 
         for (ItemSlot slot : slots.values()) {
@@ -135,11 +178,18 @@ public class ModernVendingUI extends JFrame {
         }
 
         cartListModel.clear();
+        displayedCartItems.clear(); // Clear List คู่ขนานก่อน
+
         Map<ItemSlot, Integer> cart = controller.getCart();
         for (Map.Entry<ItemSlot, Integer> entry : cart.entrySet()) {
-            String name = entry.getKey().getProduct().getName();
+            ItemSlot slot = entry.getKey();
+            String name = slot.getProduct().getName();
             int qty = entry.getValue();
+            
             cartListModel.addElement(String.format("%-15s x%d", name, qty));
+            
+            // --- FIXED: Add ใส่ List คู่ขนาน เพื่อให้ index ตรงกันตอนกดลบ ---
+            displayedCartItems.add(slot); 
         }
 
         totalLabel.setText(String.format("TOTAL: %.2f ฿", controller.getCartTotal()));
@@ -357,6 +407,26 @@ public class ModernVendingUI extends JFrame {
         btn.setFocusPainted(false);
         btn.setBorder(new EmptyBorder(8, 15, 8, 15));
         return btn;
+    }
+    
+    // --- FIXED: Method สำหรับลบสินค้าออกจากตะกร้า ---
+    private void handleRemoveItem() {
+        int selectedIndex = cartList.getSelectedIndex();
+        
+        // ตรวจสอบว่ามีของใน list และ index ไม่ติดลบ
+        if (selectedIndex != -1 && selectedIndex < displayedCartItems.size()) {
+            
+            // ดึง ItemSlot ตัวจริงออกมา
+            ItemSlot slotToRemove = displayedCartItems.get(selectedIndex);
+            
+            // ลบออกจาก Controller
+            controller.removeItem(slotToRemove.getSlotCode());
+            
+            refreshUI();
+            showStatus("Removed " + slotToRemove.getProduct().getName(), false);
+        } else {
+            showStatus("Please select an item to remove", true);
+        }
     }
 
     public static void main(String[] args) {

@@ -1,15 +1,15 @@
 package vendingmachine.products;
 
 public class Snack extends Product {
-    private double weight; // น้ำหนัก (g)
+    private int weight;
 
-    public Snack(int productID, String name, double price, double weight) {
-        super(productID, name, price);
+    public Snack(int id, String name, double price, int weight) {
+        super(id, name, price);
         this.weight = weight;
     }
 
     @Override
     public String getInfo() {
-        return getName() + " (" + weight + " g)";
+        return getName() + " (" + weight + "g)";
     }
 }

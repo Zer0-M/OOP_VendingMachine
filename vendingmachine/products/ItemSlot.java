@@ -1,6 +1,6 @@
-package vendingmachine.products;
+package vendingmachine.products; // 👈 บรรทัดนี้ต้องมี!
 
-public class ItemSlot {
+public class ItemSlot implements Comparable<ItemSlot> {
     private String slotCode;
     private Product product;
     private int quantity;
@@ -11,33 +11,26 @@ public class ItemSlot {
         this.quantity = quantity;
     }
 
-    // --- Getters ---
-    public String getSlotCode() {
-        return slotCode;
-    }
+    public String getSlotCode() { return slotCode; }
+    public Product getProduct() { return product; }
+    public int getQuantity() { return quantity; }
 
-    public Product getProduct() {
-        return product;
-    }
+    public boolean isEmpty() { return quantity <= 0; }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public boolean isEmpty() {
-        return quantity == 0;
-    }
-
-    // --- Other ---
     public void dispense() {
-        if (!isEmpty()) {
-            this.quantity--;
-        }
+        if (quantity > 0) quantity--;
+    }
+    
+    public void dispense(int amount) {
+        if (quantity >= amount) quantity -= amount;
     }
 
     public void restock(int amount) {
-        if (amount > 0) {
-            this.quantity += amount;
-        }
+        this.quantity += amount;
+    }
+
+    @Override
+    public int compareTo(ItemSlot other) {
+        return this.slotCode.compareTo(other.slotCode);
     }
 }
