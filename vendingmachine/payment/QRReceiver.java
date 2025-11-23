@@ -1,21 +1,19 @@
 // vendingmachine/payment/QRReceiver.java
 package vendingmachine.payment;
 
+import java.util.HashMap;
+import vendingmachine.exceptions.InsufficientFundsException;
+
 public class QRReceiver implements PaymentMethod {
 
     @Override
-    public PaymentResult receivePayment(double totalAmount) {
-        // --- Simulation ---
+    public PaymentResult receivePayment(double totalAmount) throws InsufficientFundsException {
+        // ... Logic การแสดง QR Code ...
         System.out.println("Generating QR Code for " + totalAmount + " Baht...");
-        System.out.println("[Image of a QR Code]"); // (จำลองการแสดง QR)
-        System.out.println("... Waiting for payment confirmation from bank ...");
+        System.out.println("Payment Success!");
         
-        // (จำลองว่าจ่ายสำเร็จเสมอ)
-        System.out.println("... Payment Confirmed!");
-        // --- End Simulation ---
-        
-        // QR Code จะจ่ายพอดีเป๊ะเสมอ เลยไม่มีเงินทอน
-        return new PaymentResult(true, 0.0);
+        // IMPORTANT: ส่ง Map ว่างกลับไป เพราะ QR ไม่มีเงินสดเข้ามา
+        return new PaymentResult(true, 0.0, new HashMap<>());
     }
 
     @Override

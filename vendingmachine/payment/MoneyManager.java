@@ -1,16 +1,24 @@
 package vendingmachine.payment;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import vendingmachine.exceptions.ChangeNotAvailableException;
 import vendingmachine.exceptions.InsufficientFundsException;
 
 public class MoneyManager {
 
-    // (Encapsulation) ซ่อนข้อมูลเงินไว้
-    private double internalCash; // เงินสดในลิ้นชักตู้ (สำหรับทอน)
+    // (Encapsulation) เปลี่ยนจาก double เป็น Map
+    // เพื่อเก็บสต็อกเหรียญ/แบงค์แต่ละชนิด
+    // ใช้ TreeMap + reverseOrder เพื่อให้วนลูปจาก แบงค์ 1000 -> เหรียญ 1 บาท เสมอ
+    // (สำคัญมากสำหรับ Greedy Algo)
+    private TreeMap<Double, Integer> machineMoney;
 
     public MoneyManager(double initialInternalCash) {
-        this.internalCash = initialInternalCash;
-        System.out.println("(Admin) CashRegister initialized with " + initialInternalCash + " Baht.");
+        this.machineMoney = new TreeMap<>(Collections.reverseOrder());
+        initializeDefaultMoney(); // สมมติว่าใส่เงินทอนเริ่มต้นให้ตู้
+        System.out.println("(Admin) CashRegister initialized.");
     }
 
     public boolean processPayment(double totalAmount, String choice)
@@ -19,18 +27,12 @@ public class MoneyManager {
         PaymentMethod paymentMethod;
         // (Polymorphism) เลือกช่องทางจ่ายเงิน
         switch (choice) {
-            case "1":
-                paymentMethod = new QRReceiver();
-                break;
-            case "2":
-                paymentMethod = new CoinReceiver();
-                break;
-            case "3":
-                paymentMethod = new BanknoteReceiver();
-                break;
-            default:
+            case "1" -> paymentMethod = new QRReceiver();
+            case "2" -> paymentMethod = new CashReceiver();
+            default -> {
                 System.out.println("Invalid payment method.");
                 return false;
+            }
         }
 
         // 1. สั่งให้ช่องทางนั้นๆ รับเงิน (Polymorphism)
@@ -41,45 +43,122 @@ public class MoneyManager {
         if (result.isSuccess()) {
 
             if (paymentMethod.isCashPayment()) {
-                // 3. ถ้าเป็นเงินสด (Coin, Banknote)
+                // --- LOGIC ใหม่เริ่มตรงนี้ ---
+
+                Map<Double, Integer> userInserted = result.getInsertedMoney();
                 double changeDue = result.getChangeDue();
 
-                // 3.1 เช็กว่ามีเงินทอนในตู้พอไหม
-                if (changeDue > this.internalCash) {
-                    // ถ้าเงินทอนไม่พอ -> โยน Exception!
-                    throw new ChangeNotAvailableException("Sorry, machine does not have enough change (" + changeDue + " Baht).");
-                }
+                // Step A: เอาเงินลูกค้ามารวมกับเงินตู้ก่อน (เพื่อให้มีแบงค์ย่อยทอน)
+                addMoneyToMachine(userInserted);
 
-                // 3.2 ถ้าทอนพอ
-                this.internalCash -= changeDue; // หักเงินทอนออกจากตู้
-                double cashReceived = totalAmount + changeDue; // เงินที่ผู้ใช้ใส่มาทั้งหมด
-                this.internalCash += cashReceived; // เติมเงินที่ได้มาเข้าตู้
+                // Step B: คำนวณเงินทอน (Greedy Algorithm)
+                Map<Double, Integer> changeToReturn = calculateChange(changeDue);
 
-                if (changeDue > 0) {
-                    System.out.println("Please collect your change: " + changeDue + " Baht.");
+                // Step C: เช็กผลลัพธ์การทอน
+                if (changeToReturn == null) {
+                    // ทอนไม่ได้! (เงินไม่พอ หรือ ไม่มีเศษเหรียญที่แมตช์)
+                    // IMPORTANT: ต้อง Rollback เอาเงินลูกค้าออก เพราะ Transaction ล้มเหลว
+                    removeMoneyFromMachine(userInserted);
+
+                    String sb = "";
+                    for (var entry : result.getInsertedMoney().entrySet()) {
+                        double val = entry.getKey();
+                        int count = entry.getValue();
+
+                        if (count > 0) {
+                            sb += "\n  " + val + " Baht: " + count + " units ";
+                        }
+                    }
+                    throw new ChangeNotAvailableException(sb);
                 }
+                // Step D: ทอนสำเร็จ (ตัดเงินทอนออกจากตู้จริงๆ)
+                removeMoneyFromMachine(changeToReturn);
 
             } else {
-                // 3. ถ้าเป็น QR Payment (ไม่มีเงินทอน)
-                // (ในโลกจริง เงินจะเข้าบัญชี ไม่ได้เข้า internalCash)
+                // QR Payment (ไม่มีเงินทอน)
                 System.out.println("Digital payment received.");
             }
-
-            return true; // จ่ายเงินสำเร็จ
+            return true;
         }
 
         return false; // (ปกติจะโดน Exception ไปก่อนถึงบรรทัดนี้)
     }
 
-    // --- เมธอดสำหรับ AdminService ---
-    public double collectAllCash() {
-        double collected = this.internalCash;
-        this.internalCash = 0; // สมมติ Admin เอาไปหมด
-        System.out.println("Collected " + collected + " Baht from register.");
-        return collected;
+    private void addMoneyToMachine(Map<Double, Integer> money) {
+        if (money == null)
+            return;
+        for (Map.Entry<Double, Integer> entry : money.entrySet()) {
+            machineMoney.merge(entry.getKey(), entry.getValue(), Integer::sum);
+        }
     }
 
-    public double getCurrentInternalCash() {
-        return this.internalCash;
+    private void removeMoneyFromMachine(Map<Double, Integer> money) {
+        if (money == null)
+            return;
+        for (Map.Entry<Double, Integer> entry : money.entrySet()) {
+            if (machineMoney.containsKey(entry.getKey())) {
+                int current = machineMoney.get(entry.getKey());
+                int remove = entry.getValue();
+                // ป้องกันค่าติดลบ
+                machineMoney.put(entry.getKey(), Math.max(0, current - remove));
+            }
+        }
+    }
+
+    // ฟังก์ชันคำนวณเงินทอน (Greedy Algorithm)
+    private Map<Double, Integer> calculateChange(double targetChange) {
+        if (targetChange == 0)
+            return new HashMap<>(); // ไม่ต้องทอน
+
+        Map<Double, Integer> changePlan = new HashMap<>();
+        // สร้าง Temp Inventory จำลอง (Copy มาจากของจริง)
+        Map<Double, Integer> tempStock = new HashMap<>(machineMoney);
+
+        // วนลูปจากมากไปน้อย (1000 -> 1)
+        for (Double denomination : machineMoney.keySet()) {
+            if (targetChange <= 0.001)
+                break;
+
+            int countNeeded = (int) (targetChange / denomination);
+            int countAvailable = tempStock.getOrDefault(denomination, 0);
+
+            // หยิบเท่าที่หยิบได้
+            int countToTake = Math.min(countNeeded, countAvailable);
+
+            if (countToTake > 0) {
+                changePlan.put(denomination, countToTake);
+                targetChange -= (denomination * countToTake);
+                // แก้ปัญหาทศนิยม (Floating point precision)
+                targetChange = Math.round(targetChange * 100.0) / 100.0;
+            }
+        }
+
+        if (targetChange > 0) {
+            return null; // ทอนไม่สำเร็จ (เงินขาด)
+        }
+        return changePlan;
+    }
+
+    // --- Admin & Utils ---
+    public double collectAllCash() {
+        double total = 0;
+        for (Map.Entry<Double, Integer> entry : machineMoney.entrySet()) {
+            total += entry.getKey() * entry.getValue();
+        }
+        machineMoney.clear(); // ล้างตู้
+        initializeDefaultMoney(); // (Optional) อาจจะเหลือเหรียญตั้งต้นไว้หน่อยก็ได้
+        System.out.println("Collected total: " + total + " Baht.");
+        return total;
+    }
+
+    private void initializeDefaultMoney() {
+        // ใส่เงินตั้งต้นไว้ทอนหน่อย
+        machineMoney.put(10.0, 10); // เหรียญสิบ 10 เหรียญ
+        machineMoney.put(5.0, 10);
+        machineMoney.put(1.0, 20);
+    }
+
+    private String formatMoney(double val) {
+        return (val >= 20) ? (int) val + " Bank" : (int) val + " Coin";
     }
 }

@@ -14,7 +14,10 @@ public class VendingMachine {
     public void run() {
         // Loop ใหญ่: ตู้เปิดทำงานตลอดเวลา (Machine On)
         while (true) {
+<<<<<<< HEAD
             System.out.println("\n\n\n\n\n");
+=======
+>>>>>>> 81c48d828de7434872d1ea12230c67bb185e5eb8
             System.out.println("=== Welcome to the Vending Machine ===");
             System.out.println(controller.getDisplayProducts()); // โชว์สินค้าใหม่ทุกรอบ (เผื่อสต็อกลด)
             System.out.println("Type 'OK' to Confirm Order | Type 'OFF' to Shutdown");
