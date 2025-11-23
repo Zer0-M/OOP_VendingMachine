@@ -3,6 +3,8 @@ package vendingmachine.payment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
+
 import vendingmachine.exceptions.InsufficientFundsException;
 
 public class CashReceiver implements PaymentMethod {
@@ -14,7 +16,7 @@ public class CashReceiver implements PaymentMethod {
         double amountInserted = 0.0;
 
         // สร้าง Map เก็บเงินที่ user หยอดมา (Key: ราคา, Value: จำนวน)
-        Map<Double, Integer> insertedMoney = new HashMap<>();
+        TreeMap<Double, Integer> insertedMoney = new TreeMap<>();
         
         System.out.println("--- Cash Payment ---");
         System.out.println("Please insert cash. (Accepted: 1, 2, 5, 10, 20, 50, 100, 500, 1000)");
