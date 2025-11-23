@@ -1,8 +1,9 @@
 package vendingmachine.products;
 
+import vendingmachine.ConsoleUI;
 import vendingmachine.exceptions.OutOfStockException;
-import java.util.HashMap;
 import java.util.Map; // ใช้ Map แทน List ในการรับพารามิเตอร์
+import java.util.TreeMap;
 
 /**
  * คลาส "ผู้จัดการสต็อก" (Encapsulation)
@@ -10,7 +11,7 @@ import java.util.Map; // ใช้ Map แทน List ในการรับ�
  * ใช้ HashMap เก็บช่องสินค้า (Key=A1, Value=ItemSlot)
  */
 public class InventoryManager {
-    private Map<String, ItemSlot> slots = new HashMap<>();
+    private Map<String, ItemSlot> slots = new TreeMap<>();
     private int nextProductId = 000;
 
     public InventoryManager() {
@@ -81,7 +82,8 @@ public class InventoryManager {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();}
+                        Thread.currentThread().interrupt();
+                    }
                 } else {
                     // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
                     System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
@@ -97,18 +99,58 @@ public class InventoryManager {
      */
     public String getProductDisplay() {
         StringBuilder sb = new StringBuilder();
-        sb.append("                  === Our Product ===                    \n");
-        sb.append("==========================================================\n");
-        // (ในโลกจริงควรจัดกลุ่ม แต่ตอนนี้เรียงตามรหัสไปก่อน)
+        // Header ตาราง
+        // ส่วนหัวตู้
+        sb.append(vendingmachine.ConsoleUI.CYAN);
+        sb.append(" ___________________________________________________ \n");
+        sb.append("|  VENDING MACHINE [OOP EDITION]              24/7  |\n");
+        sb.append("|___________________________________________________|\n");
+        sb.append(vendingmachine.ConsoleUI.RESET);
+
+        // วาดชั้นวางสินค้า (Grid Layout)
+        int count = 0;
+        sb.append(vendingmachine.ConsoleUI.YELLOW + "| " + vendingmachine.ConsoleUI.RESET); // เปิดขอบซ้าย
+
         for (ItemSlot slot : slots.values()) {
-            sb.append(String.format("[%s] %-38s (%.2f Baht) [Stock: %d]\n",
-                    slot.getSlotCode(),
-                    slot.getProduct().getInfo(),
-                    slot.getProduct().getPrice(),
-                    slot.getQuantity()));
+            Product p = slot.getProduct();
+            boolean hasStock = slot.getQuantity() > 0;
+
+            // เลือกสี: มีของ=เขียว, หมด=แดง
+            String color = hasStock ? vendingmachine.ConsoleUI.GREEN : vendingmachine.ConsoleUI.RED;
+            String statusIcon = hasStock ? "[ITEM]" : "[ X  ]";
+
+            // จัด Format สินค้าแต่ละชิ้นให้อยู่ในบล็อกขนาดเท่ากัน
+            // รูปแบบ: [ CODE ] ชื่อ.. (ราคา)
+            String itemBlock = String.format(
+                    "%s%s %-4s %s: %-6s (%2.0fB)%s",
+                    color, statusIcon, slot.getSlotCode(), vendingmachine.ConsoleUI.RESET,
+                    p.getName(), p.getPrice(), vendingmachine.ConsoleUI.RESET);
+
+            sb.append(itemBlock).append(" | "); // คั่นช่อง
+
+            count++;
+            // สมมติว่าตู้กว้าง 2 ช่อง (ถ้าครบ 2 ชิ้น ให้ขึ้นบรรทัดใหม่)
+            if (count % 2 == 0) {
+                sb.append("\n"); // จบบรรทัด
+                sb.append(vendingmachine.ConsoleUI.CYAN + "|---------------------------------------------------|\n"
+                        + vendingmachine.ConsoleUI.RESET);
+                if (count < slots.size())
+                    sb.append(vendingmachine.ConsoleUI.YELLOW + "| " + vendingmachine.ConsoleUI.RESET); // เปิดขอบบรรทัดถัดไป
+            }
         }
-        sb.append("==========================================================");
+
+        // ส่วนปิดท้ายตู้ (ช่องรับของ)
+        sb.append(vendingmachine.ConsoleUI.CYAN);
+        sb.append("|      [  PUSH  ]            [  INSERT COIN  ]      |\n");
+        sb.append("|___________________________________________________|\n");
+        sb.append(vendingmachine.ConsoleUI.RESET);
+
         return sb.toString();
+    }
+
+    // ใน InventoryManager.java
+    public Map<String, ItemSlot> getSlots() {
+        return this.slots;
     }
 
     // --- เมธอดสำหรับ AdminService ---
