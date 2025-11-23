@@ -81,7 +81,8 @@ public class InventoryManager {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();}
+                        Thread.currentThread().interrupt();
+                    }
                 } else {
                     // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
                     System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
@@ -110,6 +111,11 @@ public class InventoryManager {
         }
         sb.append("└──────┴──────────────────────────────┴─────────────┴───────┘\n");
         return sb.toString();
+    }
+
+    // ส่ง Map สินค้าออกไปให้ GUI วาดรูป
+    public java.util.Map<String, ItemSlot> getSlots() {
+        return this.slots;
     }
 
     // --- เมธอดสำหรับ AdminService ---

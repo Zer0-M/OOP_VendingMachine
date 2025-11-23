@@ -143,6 +143,11 @@ public class VendingMachineController {
         shoppingCart.clear();
     }
 
+    // เป็นสะพานเชื่อมให้ GUI ดึงข้อมูลสินค้า
+    public java.util.Map<String, vendingmachine.products.ItemSlot> getProductList() {
+        return inventoryManager.getSlots();
+    }
+
     // --- 4. (ใหม่) สร้างเมธอด "ส่งต่อ" สำหรับ Admin ---
     // VendingMachine (View) จะเรียกเมธอดนี้
     // Controller จะ "ส่งต่อ" (Delegate) งานไปให้ AdminService
