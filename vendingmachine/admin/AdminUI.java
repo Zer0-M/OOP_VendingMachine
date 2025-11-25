@@ -6,7 +6,6 @@ import vendingmachine.products.ItemSlot;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -29,6 +28,7 @@ public class AdminUI extends JFrame {
     private final Color PANEL_WHITE = Color.WHITE;
     private final Color PRIMARY_COLOR = new Color(0, 102, 204);
     private final Color TEXT_DARK = new Color(50, 50, 60);
+    private final Color TEXT_GOLD = new Color(255, 172, 51);
 
     public AdminUI(VendingMachineController controller) {
         this.controller = controller;
@@ -52,9 +52,11 @@ public class AdminUI extends JFrame {
         JPanel cashBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         cashBox.setOpaque(false);
         
-        JLabel cashIcon = new JLabel("💳");
+        JLabel cashIcon = new JLabel("🪙");
         cashIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
-        
+        cashIcon.setForeground(TEXT_GOLD);
+        cashIcon.setPreferredSize(new Dimension(35, 50));
+
         cashLabel = new JLabel("Total Cash: Loading...");
         cashLabel.setForeground(Color.WHITE);
         cashLabel.setFont(new Font("Consolas", Font.BOLD, 20));
@@ -146,10 +148,10 @@ public class AdminUI extends JFrame {
         JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 10));
         actionPanel.setOpaque(false);
         
-        JButton collectCashBtn = new JButton("💵 COLLECT ALL CASH");
+        JButton collectCashBtn = new JButton("📤 COLLECT CASH");
         collectCashBtn.setBackground(new Color(40, 167, 69)); // Green
         collectCashBtn.setForeground(Color.WHITE);
-        collectCashBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        collectCashBtn.setFont(new Font("Noto Color Emoji", Font.BOLD, 13));
         
         JButton refreshBtn = new JButton("🔄 REFRESH DATA");
         refreshBtn.setBackground(Color.WHITE);
