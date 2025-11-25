@@ -18,11 +18,11 @@ import java.util.TreeMap;
 public class ModernVendingUI extends JFrame {
 
     private VendingMachineController controller;
-    private JPanel productGridPanel;
-    private DefaultListModel<String> cartListModel;
-    private JList<String> cartList;
-    private JLabel totalLabel;
-    private JLabel statusLabel;
+    private final JPanel productGridPanel;
+    private final DefaultListModel<String> cartListModel;
+    private final JList<String> cartList;
+    private final JLabel totalLabel;
+    private final JLabel statusLabel;
 
     // --- MODERN PALETTE ---
     private final Color BG_MAIN = new Color(18, 18, 24);       // พื้นหลังหลัก
@@ -38,7 +38,7 @@ public class ModernVendingUI extends JFrame {
         controller = new VendingMachineController();
 
         // Setup Main Window
-        setTitle("Vending Machine PRO");
+        setTitle("Virtual Vending Machine");
         setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -54,10 +54,10 @@ public class ModernVendingUI extends JFrame {
                 new EmptyBorder(15, 30, 15, 30)
         ));
 
-        JLabel title = new JLabel(" VENDING OS 3.0");
+        JLabel title = new JLabel(" Virtual Vending Machine ");
         title.setFont(new Font("Segoe UI", Font.BOLD, 26));
         title.setForeground(ACCENT_PRIMARY);
-        title.setIcon(new TextIcon("💎", 28)); // ใส่ไอคอนเก๋ๆ
+        title.setIcon(new TextIcon("🐒", 28)); // ใส่ไอคอนเก๋ๆ
 
         // ปุ่ม Admin แบบ Minimal
         JButton adminBtn = new JButton("ADMIN PANEL");
@@ -65,7 +65,7 @@ public class ModernVendingUI extends JFrame {
         styleGhostButton(adminBtn);
         adminBtn.addActionListener(e -> openAdminPanel());
 
-        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
         rightHeader.setOpaque(false);
         
         statusLabel = new JLabel("SYSTEM ONLINE ●");
