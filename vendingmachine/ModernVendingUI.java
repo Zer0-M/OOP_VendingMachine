@@ -2,6 +2,7 @@ package vendingmachine;
 
 import vendingmachine.products.ItemSlot;
 import vendingmachine.products.Product;
+import vendingmachine.admin.AdminUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,11 +13,13 @@ import java.util.Random;
 import java.util.TreeMap;
 
 public class ModernVendingUI extends JFrame {
-    private final VendingMachineController controller;
-    private final JPanel productGridPanel;
-    private final DefaultListModel<String> cartListModel;
-    private final JLabel totalLabel;
-    private final JLabel statusLabel;
+
+    private VendingMachineController controller;
+    private JPanel productGridPanel;
+    private DefaultListModel<String> cartListModel;
+    private JList<String> cartList; // ประกาศเป็น field เพื่อให้ปุ่ม Remove เรียกใช้ได้
+    private JLabel totalLabel;
+    private JLabel statusLabel;
 
     // --- THEME COLORS ---
     private final Color BG_DARK = new Color(20, 20, 25);
@@ -31,7 +34,7 @@ public class ModernVendingUI extends JFrame {
 
         // Setup Main Window
         setTitle("Vending Machine PRO");
-        setSize(1100, 750);
+        setSize(1150, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BG_DARK);
@@ -45,13 +48,26 @@ public class ModernVendingUI extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(ACCENT_CYAN);
         
-        // Status Bar
-        statusLabel = new JLabel("SYSTEM READY", SwingConstants.RIGHT);
-        statusLabel.setFont(new Font("Consolas", Font.BOLD, 16));
+        // ปุ่ม Admin
+        JButton adminBtn = new JButton("⚙ ADMIN PANEL");
+        adminBtn.setBackground(new Color(50, 50, 50));
+        adminBtn.setForeground(Color.ORANGE);
+        adminBtn.setFocusPainted(false);
+        adminBtn.setBorder(new LineBorder(Color.ORANGE, 1));
+        adminBtn.addActionListener(e -> new AdminUI(controller)); // เปิดหน้า Admin
+
+        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightHeader.setBackground(BG_DARK);
+        
+        statusLabel = new JLabel("SYSTEM READY   ", SwingConstants.RIGHT);
+        statusLabel.setFont(new Font("Consolas", Font.BOLD, 14));
         statusLabel.setForeground(ACCENT_GREEN);
         
+        rightHeader.add(statusLabel);
+        rightHeader.add(adminBtn);
+        
         headerPanel.add(title, BorderLayout.WEST);
-        headerPanel.add(statusLabel, BorderLayout.EAST);
+        headerPanel.add(rightHeader, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // --- 2. CENTER (Product Grid) ---
@@ -66,7 +82,7 @@ public class ModernVendingUI extends JFrame {
 
         // --- 3. RIGHT SIDEBAR (Cart & Controls) ---
         JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setPreferredSize(new Dimension(340, 0));
+        sidebar.setPreferredSize(new Dimension(360, 0));
         sidebar.setBackground(BG_PANEL);
         sidebar.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -77,15 +93,21 @@ public class ModernVendingUI extends JFrame {
         cartTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
         
         cartListModel = new DefaultListModel<>();
-        JList<String> cartList = new JList<>(cartListModel);
+        cartList = new JList<>(cartListModel);
         cartList.setBackground(new Color(25, 25, 30));
         cartList.setForeground(TEXT_WHITE);
         cartList.setFont(new Font("Consolas", Font.PLAIN, 14));
+        cartList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
+        // ปุ่มลบสินค้า (Remove)
+        JButton removeBtn = createStyledButton("REMOVE SELECTED (-1)", new Color(100, 40, 40), TEXT_WHITE);
+        removeBtn.addActionListener(e -> handleRemoveItem());
+
         JPanel cartPanel = new JPanel(new BorderLayout());
         cartPanel.setBackground(BG_PANEL);
         cartPanel.add(cartTitle, BorderLayout.NORTH);
         cartPanel.add(new JScrollPane(cartList), BorderLayout.CENTER);
+        cartPanel.add(removeBtn, BorderLayout.SOUTH);
         
         sidebar.add(cartPanel, BorderLayout.CENTER);
 
@@ -121,29 +143,51 @@ public class ModernVendingUI extends JFrame {
         setVisible(true);
     }
 
-    // --- CORE LOGIC ---
+    // --- LOGIC ---
 
     private void refreshUI() {
+        // Refresh Grid
         productGridPanel.removeAll();
-        // ดึงสินค้าจาก Controller
         Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
 
         for (ItemSlot slot : slots.values()) {
             productGridPanel.add(createProductCard(slot));
         }
 
+        // Refresh Cart (Format: [A1] Name xQty)
         cartListModel.clear();
         Map<ItemSlot, Integer> cart = controller.getCart();
         for (Map.Entry<ItemSlot, Integer> entry : cart.entrySet()) {
+            String code = entry.getKey().getSlotCode();
             String name = entry.getKey().getProduct().getName();
             int qty = entry.getValue();
-            cartListModel.addElement(String.format("%-15s x%d", name, qty));
+            cartListModel.addElement(String.format("[%s] %-14s x%d", code, name, qty));
         }
 
         totalLabel.setText(String.format("TOTAL: %.2f ฿", controller.getCartTotal()));
         
         productGridPanel.revalidate();
         productGridPanel.repaint();
+    }
+    
+    // ฟังก์ชันลบสินค้า
+    private void handleRemoveItem() {
+        String selected = cartList.getSelectedValue();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this, "Please select an item to remove.");
+            return;
+        }
+        try {
+            // ดึง Code จาก String "[A1] ..."
+            int start = selected.indexOf("[") + 1;
+            int end = selected.indexOf("]");
+            String slotCode = selected.substring(start, end);
+
+            controller.removeOneItemFromCart(slotCode);
+            refreshUI();
+        } catch (Exception e) {
+            showStatus("Error removing item", true);
+        }
     }
 
     private JPanel createProductCard(ItemSlot slot) {
@@ -241,16 +285,13 @@ public class ModernVendingUI extends JFrame {
                 super.paintComponent(g);
                 g.setColor(Color.WHITE);
                 g.fillRect(0, 0, getWidth(), getHeight());
-                
                 g.setColor(Color.BLACK);
                 int size = 10;
                 Random rand = new Random();
                 for (int y = 50; y < 300; y += size) {
                     for (int x = 50; x < 300; x += size) {
                         boolean isCorner = (x<120 && y<120) || (x>230 && y<120) || (x<120 && y>230);
-                        if (isCorner || rand.nextBoolean()) {
-                            g.fillRect(x, y, size, size);
-                        }
+                        if (isCorner || rand.nextBoolean()) g.fillRect(x, y, size, size);
                     }
                 }
                 g.clearRect(60, 60, 50, 50); g.drawRect(60, 60, 50, 50); g.fillRect(70, 70, 30, 30);
@@ -319,7 +360,6 @@ public class ModernVendingUI extends JFrame {
     private void processPaymentResult(String method) {
         double total = controller.getCartTotal();
         boolean success = controller.processPayment(total, method);
-        
         if (success) {
             JOptionPane.showMessageDialog(this, "Payment Successful!\nDispensing items...");
             controller.clearCart();
@@ -357,6 +397,7 @@ public class ModernVendingUI extends JFrame {
         return btn;
     }
 
+    // MAIN METHOD
     public static void main(String[] args) {
         System.setProperty("awt.useSystemAAFontSettings", "on");
         SwingUtilities.invokeLater(() -> new ModernVendingUI());

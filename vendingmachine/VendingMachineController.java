@@ -164,4 +164,28 @@ public class VendingMachineController {
     public void adminSetPrice(String slotCode, double newPrice) {
         adminService.setPrice(slotCode, newPrice);
     }
+
+    // [ใหม่] ลบสินค้าออกจากตะกร้าทีละ 1 ชิ้น
+    public void removeOneItemFromCart(String slotCode) {
+        ItemSlot slot = null;
+        try {
+            slot = inventoryManager.findSlotByCode(slotCode);
+        } catch (Exception e) {
+            System.out.println("Error: Invalid slot code.");
+            return;
+        }
+        if (slot != null && shoppingCart.containsKey(slot)) {
+            int currentQty = shoppingCart.get(slot);
+            if (currentQty > 1) {
+                shoppingCart.put(slot, currentQty - 1); // ลดจำนวนลง 1
+            } else {
+                shoppingCart.remove(slot); // ถ้าเหลือ 1 ให้ลบทิ้งเลย
+            }
+        }
+    }
+
+    // [ใหม่] ขอข้อมูลเงินสดที่มีในตู้ (สำหรับ Admin)
+    public double getMachineCurrentCash() {
+        return moneyManager.getCurrentInternalCash();
+    }
 }

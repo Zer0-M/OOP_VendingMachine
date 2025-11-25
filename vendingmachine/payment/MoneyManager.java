@@ -132,6 +132,13 @@ public class MoneyManager {
     }
 
     // --- Admin & Utils ---
+    public double getCurrentInternalCash() {
+        double total = 0;
+        for (Map.Entry<Double, Integer> entry : machineMoney.entrySet()) {
+            total += entry.getKey() * entry.getValue();
+        }
+        return total;
+    }
     public double collectAllCash() {
         double total = 0;
         for (Map.Entry<Double, Integer> entry : machineMoney.entrySet()) {
