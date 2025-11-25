@@ -141,6 +141,11 @@ vendingmachine/
 5.  ใช้งานโปรแกรมผ่านหน้าต่าง Console (Terminal) ได้เลย
 6.
 
+
+## ❌ ขีดจำกัดของงาน (Scope)
+- ตะกร้าจะอัพเดต UI ข้อมูลจากAdminเมื่อกดadd to cart
+- ไม่รองรับการทอนเงินสตางค์
+
 Report : https://docs.google.com/document/d/1HKbb4TnQa1G5QExfCQk4326rQAjhPK5ad2Eu5Tft6L4/edit?usp=sharing
 
   <!-- เพิ่มเติม ✓ เลือกวิธีจ่ายผิด ให้ถามใหม่
@@ -152,5 +157,5 @@ Report : https://docs.google.com/document/d/1HKbb4TnQa1G5QExfCQk4326rQAjhPK5ad2E
               ทอนเงิน คำนวณรายละเอียดการทอน(เช่น เหรียญจะออกมา 5บาทกี่เหรียญ 10กี่ 1กี่)
               handle กรณีอ่านแบงค์ เหรียญไม่ออก return กลับมา
               ทอนเงินไม่พอ ยังไม่คืนเงินให้ return กลับมา
-
+              ลดค่าในstockไม่ได้ เพิ่มได้อย่างเดียว
               แสดงว่าปัจจุบันใส่เงินเท่าไหร่แล้ว  -->
