@@ -39,7 +39,7 @@ public class ModernVendingUI extends JFrame {
 
         // Setup Main Window
         setTitle("Virtual Vending Machine");
-        setSize(1280, 800);
+        setSize(1365, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BG_MAIN);
@@ -71,7 +71,8 @@ public class ModernVendingUI extends JFrame {
         statusLabel = new JLabel("SYSTEM ONLINE ●");
         statusLabel.setFont(new Font("Consolas", Font.BOLD, 22));
         statusLabel.setForeground(ACCENT_SUCCESS);
-        
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
         rightHeader.add(statusLabel);
         rightHeader.add(adminBtn);
         
@@ -243,7 +244,7 @@ public class ModernVendingUI extends JFrame {
         card.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 60), 1));
 
         // 1. Image/Icon Area
-        JLabel iconLbl = new JLabel(isOutOfStock ? "❌" : "🥤", SwingConstants.CENTER);
+        JLabel iconLbl = new JLabel(isOutOfStock ? "❌" : "🍜", SwingConstants.CENTER);
         iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 60));
         iconLbl.setPreferredSize(new Dimension(210, 140));
         
