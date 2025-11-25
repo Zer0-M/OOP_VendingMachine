@@ -1,128 +1,120 @@
 package vendingmachine;
-import vendingmachine.payment.*;
-import vendingmachine.items.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Scanner;
-import java.util.List;
 
 public class VendingMachine {
-    private MoneyManager moneyManager = new MoneyManager(); // สร้างมาเพื่อจัดการเกี่ยวกับเงิน
-    private List<Integer> selectProductID = new ArrayList<>(); // ไว้เก็บสินค้าที่ผู้ใช้เลือก
-    private LinkedHashMap<String, ItemSlot[]> ItemType = ItemManager.Initialize(); // เก็บสินค้าเป็นกลุ่มๆ จะได้ง่ายเวลาจะเพิ่มสินค้า
-    private List<ItemSlot> allSlots = new ArrayList<>(); // เก็บสินค้าทั้งหมดโดยไม่จัดกลุ่ม จะได้ใช้ง่าย
+    private final VendingMachineController controller;
+    private final Scanner scanner;
 
     public VendingMachine() {
-        for (ItemSlot[] categoryList : ItemType.values()) { // นำสิรค้าทั้งหมดมาใส่ใน allSlots เพื่อจะได้ใช้ง่ายๆ
-            allSlots.addAll(List.of(categoryList));
+        this.controller = new VendingMachineController();
+        this.scanner = new Scanner(System.in);
+    }
+
+    public void run() {
+        // Loop ใหญ่: ตู้เปิดทำงานตลอดเวลา (Machine On)
+        while (true) {
+<<<<<<< HEAD
+            System.out.println("\n\n\n\n\n");
+=======
+>>>>>>> 81c48d828de7434872d1ea12230c67bb185e5eb8
+            System.out.println("=== Welcome to the Vending Machine ===");
+            System.out.println(controller.getDisplayProducts()); // โชว์สินค้าใหม่ทุกรอบ (เผื่อสต็อกลด)
+            System.out.println("Type 'OK' to Confirm Order | Type 'OFF' to Shutdown");
+
+            boolean isSelecting = true; // ตัวแปรสำหรับ Loop การเลือกของ (Session)
+
+            // Loop เล็ก: ลูกค้าคนปัจจุบันกำลังเลือกของ
+            while (isSelecting) {
+                controller.getCart(); // แสดงตะกร้าปัจจุบัน
+
+                System.out.print("Select item (or OK): ");
+                String input = scanner.nextLine().toUpperCase().trim();
+
+                if (input.equals("OFF")) {
+                    System.out.println("Shutting down system...");
+                    return; // จบโปรแกรมทันที
+                }
+
+                if (input.equals("OK")) {
+                    // จบการเลือกของ -> ไปจ่ายเงิน
+                    isSelecting = false;
+                    startPaymentProcess();
+                    // พอจ่ายเงินเสร็จ (หรือจ่ายไม่สำเร็จ) มันจะหลุด Loop นี้
+                    // แล้วไปเริ่ม Loop ใหญ่ใหม่ (ต้อนรับลูกค้าคนต่อไป)
+                } else if (controller.hasProductsID(input)) {
+                    // เลือกสินค้า
+                    String result = controller.addItemToCart(input);
+                    System.out.println(result);
+                } else {
+                    System.out.println("Invalid Product Code. Please try again.");
+                }
+            }
+
+            // (Optional) อาจจะใส่ Delay หรือเคลียร์หน้าจอนิดหน่อยเพื่อให้รู้ว่าจบรายการแล้ว
+            System.out.println("\n\n--- Next Customer ---\n");
         }
     }
 
-    public void displayProducts() {
-        System.out.println("                   === Our Product ===                    ");
-        System.out.println("==========================================================");
+    private void startPaymentProcess() {
+        double total = controller.getCartTotal();
 
-        ItemType.forEach((categoryName, slots) -> {
-            System.out.println("--- " + categoryName.toUpperCase() + " ---");
+        if (total == 0) {
+            System.out.println("Your cart is empty. Transaction cancelled.");
+            return;
+        }
 
-            // v-- ปรับ Format ให้แสดง SlotCode
-            System.out.printf("    %-5s | %-38s | %s\n", "Code", "Product Details", "In Stock");
-            System.out.println("    ------|----------------------------------------|--------");
+        System.out.println("Total due: " + total + " Baht");
 
-            for (ItemSlot slot : slots) {
-                String slotCode = "["  + "]";
-                String productInfo = slot.getProduct().getInfo();
-                String stockInfo = "Remain: " + slot.getQuantity();
-
-                System.out.printf("    %-5s | %-38s | %s\n", slotCode, productInfo, stockInfo);
+        while (true) {
+            // 2. เลือกวิธีการจ่ายเงิน
+            System.out.println("Payment Option \n[1] QR \n[2] Coin \n[3] Banknote \n[0] Cancel Transaction");
+            System.out.print("Select payment: ");
+            String paymentChoice = scanner.nextLine();
+            if (!paymentChoice.equals("1") && !paymentChoice.equals("2") && !paymentChoice.equals("3")
+                    && !paymentChoice.equals("0")) {
+                System.out.println("Invalid payment option. Please try again.");
+                continue; // กลับไปเลือกใหม่
             }
-        });
-        System.out.println("==========================================================");
+            if (paymentChoice.equals("0")) {
+                System.out.println("Transaction cancelled.");
+                return;
+            }
+            // 3. จ่ายเงิน
+            boolean ispaid = controller.processPayment(total, paymentChoice);
+
+            if (ispaid) {
+                System.out.println("Payment Successful!");
+
+                String phoneformat = "^[0][0-9]{9}$";
+                while (true) {
+                    System.out.print("Enter phone number for points (or press Enter to skip): ");
+                    String phone = scanner.nextLine().trim();
+                    // 4. สะสมแต้ม
+                    if (phone.equals("")) {
+                        break; // ข้ามการสะสมแต้ม
+                    }
+                    if (!phone.isEmpty() && phone.matches(phoneformat)) {
+                        String pointsResult = controller.applyPoints(phone);
+                        System.out.println(pointsResult);
+                        break;
+                    }
+                }
+
+                // *** สำคัญ: ต้องเคลียร์ตะกร้าเสมอหลังจ่ายเสร็จ ***
+                controller.clearCart();
+                System.out.println("Thank you! Please come again.");
+                return;
+            } else {
+                System.out.println("Payment Failed. Transaction Cancelled.");
+                controller.clearCart();
+                return;
+            }
+        }
     }
-
-    // public void selectProduct(int productID) {
-    //     // เช็คว่าสินค้านั้นมีอยู่จริงมั้ย
-    //     for (ItemSlot slot : allSlots) {
-    //         if (slot.getProduct().product_code() == productID) {
-    //             // เช็คว่าของมันยังมีอยู่มั้ย
-    //             if (slot.isEmpty()) {
-    //                 System.out.println("Not have!");
-    //                 return;
-    //             }
-    //             selectProductID.add(productID);
-    //             System.out.println("You have selected: " + slot.getProduct().getName());
-
-    //             double price = slot.getProduct().getPrice();
-    //             if (moneyManager.pay(price)) {
-    //             slot.dispense();
-    //             System.out.println("Buy " + slot.getProduct().getName() + " Successfull!");
-    //             }
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // public void returnChange() {
-    //     double change = moneyManager.returnChange();
-    //     if (change > 0) {
-    //         System.out.println("Receive Change: " + change + " Baht");
-    //     } else {
-    //         System.out.println("No money left.");
-    //     }
-    // }
 
     public static void main(String[] args) {
         VendingMachine vm = new VendingMachine();
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n==================== Vending Mechine =====================");
-        vm.displayProducts();
-        System.out.println("\n=== Step for Using Mechine ===");
-        System.out.println("[1] Pick Product");
-        System.out.println("[2] Select Payment Method");
-        System.out.println("[3] Insert Money");
-        System.out.println("[4] Receive Change");
-        System.out.println("[5] Log Out\n");
-
-        // เลือกสินค้า
-        // while (true) {
-        //     System.out.print("Select ID of Product Code: ");
-        //     int productID = sc.nextInt();
-        //     vm.selectProduct(productID);
-        //     if(productID == 000) break;
-        // }
-
-        // // รับเงิน
-        // System.out.println("Please select payment method to add funds:");
-        // System.out.println("  [1] Coins");
-        // System.out.println("  [2] Banknote");
-        // System.out.println("  [3] QR Scan (Top-up)");
-        // System.out.print("Select method: ");
-        // int choice = sc.nextInt();
-
-        // PaymentReceiver selectedPaymentMethod; // สร้างตัวแปร Interface
-
-        // if (choice == 1) {
-        //     selectedPaymentMethod = new CoinReceiver();
-        // } else if (choice == 2) {
-        //     selectedPaymentMethod = new BanknoteReceiver();
-        // } else if (choice == 3) {
-        //     selectedPaymentMethod = new QRPaymentReceiver();
-        // } else {
-        //     System.out.println("Invalid method.");
-        //     sc.close();
-        //     return;
-        // }
-        // vm.addFunds(selectedPaymentMethod);
-
-        // vm.returnChange();
-
-        // System.out.println("Thank you!");
-        // sc.close();
-        // return;
+        vm.run();
     }
-
-    // public void addFunds(PaymentReceiver method) {
-    //     moneyManager.addFunds(method);
-    // }
 }
