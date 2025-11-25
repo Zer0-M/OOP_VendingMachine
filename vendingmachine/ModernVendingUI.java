@@ -44,10 +44,9 @@ public class ModernVendingUI extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(BG_MAIN);
 
-        // --- 1. HEADER (Top Bar) ---
+        // --- 1. HEADER (Top Bar) - FIX: Vertical Alignment ---
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(BG_SIDEBAR);
-        headerPanel.setBorder(new EmptyBorder(15, 30, 15, 30));
         // เพิ่มเงาใต้ Header เล็กน้อย
         headerPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(45, 45, 55)),
@@ -65,19 +64,27 @@ public class ModernVendingUI extends JFrame {
         styleGhostButton(adminBtn);
         adminBtn.addActionListener(e -> openAdminPanel());
 
-        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
-        rightHeader.setOpaque(false);
-        
+        // Status Label (จัดเตรียมไว้ก่อน)
         statusLabel = new JLabel("SYSTEM ONLINE ●");
         statusLabel.setFont(new Font("Consolas", Font.BOLD, 22));
         statusLabel.setForeground(ACCENT_SUCCESS);
-        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        rightHeader.add(statusLabel);
-        rightHeader.add(adminBtn);
+        // [FIXED] ใช้ GridBagLayout สำหรับ Panel ขวาเพื่อจัดกึ่งกลางแกน Y
+        JPanel rightActionPanel = new JPanel(new GridBagLayout()); 
+        rightActionPanel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        // 1. จัดวาง SYSTEM ONLINE: ดันลง 5px เพื่อให้ระนาบตรงกับ Title ฝั่งซ้าย
+        gbc.insets = new Insets(5, 0, 0, 20); // Top 5px, Right 20px
+        rightActionPanel.add(statusLabel, gbc);
+
+        // 2. จัดวางปุ่ม Admin
+        gbc.insets = new Insets(0, 0, 0, 0); // รีเซ็ตเป็น 0
+        rightActionPanel.add(adminBtn, gbc);
         
         headerPanel.add(title, BorderLayout.WEST);
-        headerPanel.add(rightHeader, BorderLayout.EAST);
+        headerPanel.add(rightActionPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // --- 2. CENTER (Product Grid) ---
@@ -231,6 +238,7 @@ public class ModernVendingUI extends JFrame {
         }
     }
 
+    // [FIXED] createProductCard: ใช้ null Layout สำหรับ Badge A1
     private JPanel createProductCard(ItemSlot slot) {
         Product p = slot.getProduct();
         boolean isOutOfStock = slot.getQuantity() <= 0;
@@ -240,28 +248,33 @@ public class ModernVendingUI extends JFrame {
         card.setPreferredSize(new Dimension(210, 280));
         card.setBackground(CARD_BG);
         card.setLayout(new BorderLayout());
-        // Rounded border styling
         card.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 60), 1));
 
-        // 1. Image/Icon Area
+        // --- 1. Top Section (Image & Badge) ---
+        // ใช้ null layout เพื่อกำหนดพิกัดเอง
+        JPanel topPanel = new JPanel(null); 
+        topPanel.setPreferredSize(new Dimension(210, 140));
+        topPanel.setBackground(CARD_BG);
+
+        // Icon รูปสินค้า (อยู่ด้านหลัง)
         JLabel iconLbl = new JLabel(isOutOfStock ? "❌" : "🍜", SwingConstants.CENTER);
         iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 60));
-        iconLbl.setPreferredSize(new Dimension(210, 140));
-        
-        // Code Badge (Overlay trick using layout not easy in Swing without layers, using North for now)
-        JLabel codeLbl = new JLabel(" " + slot.getSlotCode() + " ");
+        iconLbl.setBounds(0, 0, 210, 140); // เต็มพื้นที่
+
+        // Badge รหัสสินค้า A1 (อยู่ด้านหน้า มุมซ้ายบน)
+        JLabel codeLbl = new JLabel(slot.getSlotCode());
         codeLbl.setOpaque(true);
         codeLbl.setBackground(ACCENT_PRIMARY);
         codeLbl.setForeground(Color.WHITE);
-        codeLbl.setFont(new Font("Consolas", Font.BOLD, 14));
+        codeLbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
         codeLbl.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(CARD_BG);
-        topPanel.add(codeLbl, BorderLayout.WEST);
-        topPanel.add(iconLbl, BorderLayout.CENTER);
+        codeLbl.setBounds(0, 0, 32, 32); // สี่เหลี่ยมจัตุรัสเล็กๆ
 
-        // 2. Info Area
+        // ลำดับการ add: codeLbl (บน) -> iconLbl (ล่าง)
+        topPanel.add(codeLbl);
+        topPanel.add(iconLbl);
+
+        // --- 2. Info Area ---
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(CARD_BG);
@@ -288,7 +301,7 @@ public class ModernVendingUI extends JFrame {
         infoPanel.add(Box.createVerticalStrut(5));
         infoPanel.add(stockLbl);
 
-        // 3. Button
+        // --- 3. Button (FIX: Ensure addBtn is defined) ---
         JButton addBtn = createModernButton(isOutOfStock ? "SOLD OUT" : "ADD TO CART", 
                 isOutOfStock ? new Color(60, 30, 30) : ACCENT_PRIMARY, 
                 Color.WHITE);
@@ -305,6 +318,7 @@ public class ModernVendingUI extends JFrame {
             refreshUI();
         });
 
+        // ประกอบร่าง
         card.add(topPanel, BorderLayout.NORTH);
         card.add(infoPanel, BorderLayout.CENTER);
         card.add(addBtn, BorderLayout.SOUTH);
