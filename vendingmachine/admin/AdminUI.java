@@ -1,4 +1,5 @@
 package vendingmachine.admin;
+import vendingmachine.products.ItemSlot;
 
 import vendingmachine.*;
 import javax.swing.*;
