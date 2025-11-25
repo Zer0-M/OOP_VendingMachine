@@ -152,29 +152,30 @@ public class MoneyManager {
 
     private void initializeDefaultMoney() {
         // ใส่เงินตั้งต้นไว้ทอนหน่อย
+        machineMoney.put(1000.0, 10); // เหรียญสิบ 10 เหรียญ
+        machineMoney.put(500.0, 10);
+        machineMoney.put(100.0, 10); // เหรียญสิบ 10 เหรียญ
+        machineMoney.put(50.0, 10);
+        machineMoney.put(20.0, 20);
         machineMoney.put(10.0, 10); // เหรียญสิบ 10 เหรียญ
         machineMoney.put(5.0, 10);
         machineMoney.put(1.0, 20);
     }
-    
-    private String formatMoney(double val) {
-        return (val >= 20) ? (int)val + " Bank" : (int)val + " Coin";
-    }
 
-    // [NEW] ฟังก์ชันถอนเงินออกจากตู้แบบระบุจำนวน (สำหรับ Admin)
-    public double withdrawSpecificCash(double amount) {
-        if (amount <= 0) return 0;
+    // [UPDATED] ฟังก์ชันถอนเงินแบบแจกแจงรายละเอียด
+    public Map<Double, Integer> withdrawSpecificCash(double amount) {
+        if (amount <= 0) return null;
         double currentCash = getCurrentInternalCash();
         
         if (amount > currentCash) {
-            return -1; // เงินในตู้ไม่พอ
+            return null; // เงินไม่พอ
         }
 
         // ใช้ Greedy Algorithm คำนวณว่าจะดึงแบงค์ไหนออกไปบ้าง
         Map<Double, Integer> toWithdraw = new HashMap<>();
         double remaining = amount;
 
-        for (Double denom : machineMoney.keySet()) {
+        for (Double denom : machineMoney.keySet()) { // machineMoney เรียงมากไปน้อยอยู่แล้ว
             if (remaining < denom) continue;
             int countAvailable = machineMoney.get(denom);
             int countNeeded = (int) (remaining / denom);
@@ -188,12 +189,11 @@ public class MoneyManager {
         }
 
         if (remaining > 0) {
-            return -2; // มีเศษย่อยไม่พอให้ถอน (เช่น มีแต่แบงค์พัน จะถอน 500)
+            return null; // จับคู่แบงค์ไม่ได้ (เช่น จะถอน 50 แต่มีแต่แบงค์ 100)
         }
 
         // ตัดเงินออกจากตู้จริง
         removeMoneyFromMachine(toWithdraw);
-        System.out.println("Admin Withdrawn: " + amount);
-        return amount;
+        return toWithdraw; // ส่งรายการที่ถอนกลับไป
     }
 }

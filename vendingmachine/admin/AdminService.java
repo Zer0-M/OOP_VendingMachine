@@ -42,8 +42,8 @@ public class AdminService {
         }
     }
 
-    // [NEW]
-    public double withdrawCash(double amount) {
+    // [UPDATED]
+    public java.util.Map<Double, Integer> withdrawCash(double amount) {
         return moneyManager.withdrawSpecificCash(amount);
     }
 

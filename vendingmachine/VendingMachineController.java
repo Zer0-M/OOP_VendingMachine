@@ -201,11 +201,33 @@ public class VendingMachineController {
         }
     }
 
-    // [NEW] ให้ Admin ถอนเงินแบบระบุจำนวน
+    // [UPDATED] ถอนเงินและสร้างข้อความสรุปรายการ
     public String adminWithdrawCash(double amount) {
-        double result = adminService.withdrawCash(amount);
-        if (result == -1) return "Error: Not enough cash in machine.";
-        if (result == -2) return "Error: Cannot match exact change.";
-        return "Success: Collected " + result + " THB.";
+        Map<Double, Integer> result = adminService.withdrawCash(amount);
+        
+        if (result == null) {
+            return "Error: Cannot withdraw that amount (Insufficient funds or no suitable change).";
+        }
+
+        // สร้างข้อความสรุป (String Builder)
+        StringBuilder sb = new StringBuilder();
+        sb.append("Withdraw Success! Total: ").append(amount).append(" THB\n");
+        sb.append("--------------------------------\n");
+        
+        // เรียงลำดับจากแบงค์ใหญ่ไปเล็ก (TreeMap) เพื่อความสวยงาม
+        Map<Double, Integer> sortedResult = new java.util.TreeMap<>(java.util.Collections.reverseOrder());
+        sortedResult.putAll(result);
+
+        for (Map.Entry<Double, Integer> entry : sortedResult.entrySet()) {
+            double val = entry.getKey();
+            int count = entry.getValue();
+            String type = (val >= 20) ? "Bank" : "Coin"; // แยกแบงค์/เหรียญ
+            
+            // Format: 1000.0 (Bank) : 5 units
+            sb.append(String.format("%-6.0f (%s) : x%d\n", val, type, count));
+        }
+        sb.append("--------------------------------");
+        
+        return sb.toString();
     }
 }
