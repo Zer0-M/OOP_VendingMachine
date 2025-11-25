@@ -52,7 +52,7 @@ public class AdminUI extends JFrame {
         JPanel cashBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         cashBox.setOpaque(false);
         
-        JLabel cashIcon = new JLabel("💰 ");
+        JLabel cashIcon = new JLabel("💳");
         cashIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         
         cashLabel = new JLabel("Total Cash: Loading...");
