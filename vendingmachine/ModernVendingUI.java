@@ -190,7 +190,9 @@ public class ModernVendingUI extends JFrame {
         if (okCxl == JOptionPane.OK_OPTION) {
             String password = new String(pf.getPassword());
             if (AdminService.authenticate(password)) {
-                new AdminUI(controller);
+                // [แก้ไขตรงนี้] ส่ง this::refreshUI เข้าไปเป็น Callback
+                // ความหมายคือ: "ถ้ามีอะไรเปลี่ยนแปลง ให้กลับมาเรียก refreshUI() ของฉันนะ"
+                new AdminUI(controller, this::refreshUI);
             } else {
                 JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert",
                         JOptionPane.ERROR_MESSAGE);

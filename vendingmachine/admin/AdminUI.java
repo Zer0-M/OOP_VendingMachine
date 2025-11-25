@@ -16,6 +16,7 @@ import java.util.TreeMap;
 public class AdminUI extends JFrame {
 
     private VendingMachineController controller;
+    private Runnable onUpdateCallback;
     private JTable productTable;
     private DefaultTableModel tableModel;
     private JLabel cashLabel;
@@ -30,8 +31,9 @@ public class AdminUI extends JFrame {
     private final Color TEXT_DARK = new Color(50, 50, 60);
     private final Color TEXT_GOLD = new Color(255, 172, 51);
 
-    public AdminUI(VendingMachineController controller) {
+    public AdminUI(VendingMachineController controller, Runnable onUpdateCallback) {
         this.controller = controller;
+        this.onUpdateCallback = onUpdateCallback;
 
         setTitle("Admin Dashboard - Vending Machine System");
         setSize(900, 650);
@@ -51,7 +53,7 @@ public class AdminUI extends JFrame {
         // Cash Display Box
         JPanel cashBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         cashBox.setOpaque(false);
-        
+
         JLabel cashIcon = new JLabel("🪙");
         cashIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         cashIcon.setForeground(TEXT_GOLD);
@@ -60,7 +62,7 @@ public class AdminUI extends JFrame {
         cashLabel = new JLabel("Total Cash: Loading...");
         cashLabel.setForeground(Color.WHITE);
         cashLabel.setFont(new Font("Consolas", Font.BOLD, 20));
-        
+
         cashBox.add(cashIcon);
         cashBox.add(cashLabel);
 
@@ -69,10 +71,12 @@ public class AdminUI extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
 
         // --- 2. TABLE (Inventory List) ---
-        String[] columnNames = {"SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY"};
+        String[] columnNames = { "SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         productTable = new JTable(tableModel);
@@ -84,7 +88,7 @@ public class AdminUI extends JFrame {
                 int row = productTable.getSelectedRow();
                 String name = tableModel.getValueAt(row, 1).toString();
                 String price = tableModel.getValueAt(row, 2).toString();
-                
+
                 selectedItemLabel.setText("Editing: " + name);
                 selectedItemLabel.setForeground(PRIMARY_COLOR);
                 priceField.setText(price);
@@ -107,9 +111,8 @@ public class AdminUI extends JFrame {
         editPanel.setBackground(PANEL_WHITE);
         editPanel.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(new Color(200, 200, 200), 1, true),
-                new EmptyBorder(15, 20, 15, 20)
-        ));
-        
+                new EmptyBorder(15, 20, 15, 20)));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -120,7 +123,7 @@ public class AdminUI extends JFrame {
 
         priceField = new JTextField(10);
         stockField = new JTextField(10);
-        
+
         JButton updateBtn = new JButton("SAVE CHANGES");
         updateBtn.setBackground(PRIMARY_COLOR);
         updateBtn.setForeground(Color.WHITE);
@@ -128,51 +131,58 @@ public class AdminUI extends JFrame {
         updateBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         // Form Layout
-        gbc.gridx=0; gbc.gridy=0; gbc.gridwidth=2; 
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
         editPanel.add(selectedItemLabel, gbc);
-        
-        gbc.gridwidth=1; gbc.gridy++;
+
+        gbc.gridwidth = 1;
+        gbc.gridy++;
         editPanel.add(new JLabel("Set Price:"), gbc);
-        gbc.gridx=1; 
+        gbc.gridx = 1;
         editPanel.add(priceField, gbc);
 
-        gbc.gridx=0; gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridy++;
         editPanel.add(new JLabel("Add Stock (+):"), gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         editPanel.add(stockField, gbc);
-        
-        gbc.gridx=0; gbc.gridy++; gbc.gridwidth=2;
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
         editPanel.add(updateBtn, gbc);
 
         // RIGHT: Global Actions
         JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 10));
         actionPanel.setOpaque(false);
-        
+
         JButton collectCashBtn = new JButton("📤 COLLECT CASH");
         collectCashBtn.setBackground(new Color(40, 167, 69)); // Green
         collectCashBtn.setForeground(Color.WHITE);
         collectCashBtn.setFont(new Font("Noto Color Emoji", Font.BOLD, 13));
-        
+
         JButton refreshBtn = new JButton("🔄 REFRESH DATA");
         refreshBtn.setBackground(Color.WHITE);
         refreshBtn.setForeground(TEXT_DARK);
-        
+
         actionPanel.add(collectCashBtn);
         actionPanel.add(refreshBtn);
 
         bottomPanel.add(editPanel, BorderLayout.CENTER);
         bottomPanel.add(actionPanel, BorderLayout.EAST);
-        
+
         add(bottomPanel, BorderLayout.SOUTH);
 
         // --- LOGIC BINDING ---
-        
+
         updateBtn.addActionListener(e -> updateSelectedItem());
-        
+
         collectCashBtn.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, 
-                "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n" +
-                "Enter amount to collect:", "Withdraw Cash", JOptionPane.QUESTION_MESSAGE);
+            String input = JOptionPane.showInputDialog(this,
+                    "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n" +
+                            "Enter amount to collect:",
+                    "Withdraw Cash", JOptionPane.QUESTION_MESSAGE);
 
             if (input != null && !input.isEmpty()) {
                 try {
@@ -185,7 +195,7 @@ public class AdminUI extends JFrame {
                 }
             }
         });
-        
+
         refreshBtn.addActionListener(e -> refreshData());
 
         // Initial Data Load
@@ -198,18 +208,19 @@ public class AdminUI extends JFrame {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        
+
         // Header Style
         JTableHeader header = table.getTableHeader();
         header.setBackground(new Color(230, 230, 235));
         header.setForeground(TEXT_DARK);
         header.setFont(new Font("Segoe UI", Font.BOLD, 12));
         header.setPreferredSize(new Dimension(0, 40));
-        
+
         // Zebra Striping
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
                     c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
@@ -217,7 +228,7 @@ public class AdminUI extends JFrame {
                     c.setBackground(new Color(220, 240, 255));
                     c.setForeground(Color.BLACK);
                 }
-                ((JLabel)c).setBorder(new EmptyBorder(0, 10, 0, 10)); // Padding
+                ((JLabel) c).setBorder(new EmptyBorder(0, 10, 0, 10)); // Padding
                 return c;
             }
         });
@@ -229,13 +240,13 @@ public class AdminUI extends JFrame {
 
         tableModel.setRowCount(0);
         Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
-        
+
         for (ItemSlot slot : slots.values()) {
-            tableModel.addRow(new Object[]{
-                slot.getSlotCode(),
-                slot.getProduct().getName(),
-                slot.getProduct().getPrice(),
-                slot.getQuantity()
+            tableModel.addRow(new Object[] {
+                    slot.getSlotCode(),
+                    slot.getProduct().getName(),
+                    slot.getProduct().getPrice(),
+                    slot.getQuantity()
             });
         }
     }
@@ -248,18 +259,24 @@ public class AdminUI extends JFrame {
         }
 
         String code = (String) tableModel.getValueAt(row, 0);
-        
+
         try {
             double newPrice = Double.parseDouble(priceField.getText());
             int stockToAdd = Integer.parseInt(stockField.getText());
 
             controller.adminSetPrice(code, newPrice);
             if (stockToAdd > 0) {
-                 controller.adminRestockItem(code, stockToAdd);
+                controller.adminRestockItem(code, stockToAdd);
             }
 
             JOptionPane.showMessageDialog(this, "Update Success!");
             refreshData();
+            // [3] เพิ่มส่วนนี้: สั่งให้หน้าหลักอัปเดตด้วย!
+            if (onUpdateCallback != null) {
+                onUpdateCallback.run();
+            }
+            // ------------------------------------
+            
             // Clear input
             stockField.setText("0");
 
