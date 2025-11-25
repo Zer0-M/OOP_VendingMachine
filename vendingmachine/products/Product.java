@@ -11,6 +11,10 @@ public abstract class Product {
         this.productPrice = productPrice;
     }
 
+    public void setName(String newName) {
+        this.productName = newName;
+    }
+
     public String getName() {
         return productName;
     }

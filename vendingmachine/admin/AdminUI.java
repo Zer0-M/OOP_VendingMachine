@@ -20,6 +20,7 @@ public class AdminUI extends JFrame {
     private JTable productTable;
     private DefaultTableModel tableModel;
     private JLabel cashLabel;
+    private JTextField nameField;
     private JTextField priceField;
     private JTextField stockField;
     private JLabel selectedItemLabel; // โชว์ว่ากำลังแก้ตัวไหน
@@ -91,6 +92,8 @@ public class AdminUI extends JFrame {
 
                 selectedItemLabel.setText("Editing: " + name);
                 selectedItemLabel.setForeground(PRIMARY_COLOR);
+
+                nameField.setText(name);
                 priceField.setText(price);
                 stockField.setText("0"); // Reset stock add input
             }
@@ -136,23 +139,33 @@ public class AdminUI extends JFrame {
         gbc.gridwidth = 2;
         editPanel.add(selectedItemLabel, gbc);
 
+        // 2. [เพิ่มใหม่] ช่องแก้ชื่อ (Edit Name)
+        nameField = new JTextField(15); // สร้าง TextField
         gbc.gridwidth = 1;
+        gbc.gridy++; // ขยับลง 1 บรรทัด (เป็นบรรทัดที่ 1)
+
+        gbc.gridx = 0;
+        editPanel.add(new JLabel("Edit Name:"), gbc);
+        gbc.gridx = 1;
+        editPanel.add(nameField, gbc);
+
         gbc.gridy++;
+        gbc.gridx = 0;
         editPanel.add(new JLabel("Set Price:"), gbc);
         gbc.gridx = 1;
         editPanel.add(priceField, gbc);
 
+        gbc.gridy++; // ขยับลง (เป็นบรรทัดที่ 3)
         gbc.gridx = 0;
-        gbc.gridy++;
         editPanel.add(new JLabel("Add Stock (+):"), gbc);
         gbc.gridx = 1;
         editPanel.add(stockField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 2; // บรรทัดที่ 4
         editPanel.add(updateBtn, gbc);
-
+        
         // RIGHT: Global Actions
         JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 10));
         actionPanel.setOpaque(false);
@@ -261,9 +274,13 @@ public class AdminUI extends JFrame {
         String code = (String) tableModel.getValueAt(row, 0);
 
         try {
+            String newName = nameField.getText();
             double newPrice = Double.parseDouble(priceField.getText());
             int stockToAdd = Integer.parseInt(stockField.getText());
 
+            if (!newName.trim().isEmpty()) {
+                controller.adminSetName(code, newName); // [2] สั่ง Controller เปลี่ยนชื่อ
+            }
             controller.adminSetPrice(code, newPrice);
             if (stockToAdd > 0) {
                 controller.adminRestockItem(code, stockToAdd);
@@ -276,7 +293,7 @@ public class AdminUI extends JFrame {
                 onUpdateCallback.run();
             }
             // ------------------------------------
-            
+
             // Clear input
             stockField.setText("0");
 

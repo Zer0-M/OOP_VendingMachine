@@ -28,6 +28,11 @@ public class InventoryManager {
         addSlot("B2", new Drink(nextId(), "Water", 10.0, 600), 20);
     }
 
+    public void updateName(String slotCode, String newName) throws Exception {
+        ItemSlot slot = findSlotByCode(slotCode);
+        slot.getProduct().setName(newName);
+    }
+
     // Helper-method
     private void addSlot(String code, Product product, int quantity) {
         ItemSlot slot = new ItemSlot(code, product, quantity);

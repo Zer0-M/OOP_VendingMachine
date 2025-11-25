@@ -12,6 +12,7 @@ public class AdminService {
     private InventoryManager inventory;
     private MoneyManager moneyManager;
     private static final String ADMIN_PASSWORD = ""; // รหัสผ่านแอดมิน
+
     public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
         this.inventory = inventory;
         this.moneyManager = moneyManager;
@@ -31,7 +32,7 @@ public class AdminService {
         System.out.println("Admin: Collected " + collected + " Baht.");
         return collected;
     }
-    
+
     public void setPrice(String slotCode, double newPrice) {
         try {
             inventory.updatePrice(slotCode, newPrice);
@@ -41,7 +42,15 @@ public class AdminService {
         }
     }
 
-    // [UPDATED]
+    public void setName(String slotCode, String newName) {
+        try {
+            inventory.updateName(slotCode, newName);
+            System.out.println("Admin: Updated name for " + slotCode + " to " + newName);
+        } catch (Exception e) {
+            System.out.println("Admin Error: " + e.getMessage());
+        }
+    }
+
     public java.util.Map<Double, Integer> withdrawCash(double amount) {
         return moneyManager.withdrawSpecificCash(amount);
     }
