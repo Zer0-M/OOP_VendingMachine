@@ -7,18 +7,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 public class ModernVendingUI extends JFrame {
-
-    private VendingMachineController controller;
-    private JPanel productGridPanel;
-    private DefaultListModel<String> cartListModel;
-    private JLabel totalLabel;
-    private JLabel statusLabel;
+    private final VendingMachineController controller;
+    private final JPanel productGridPanel;
+    private final DefaultListModel<String> cartListModel;
+    private final JLabel totalLabel;
+    private final JLabel statusLabel;
 
     // --- THEME COLORS ---
     private final Color BG_DARK = new Color(20, 20, 25);
