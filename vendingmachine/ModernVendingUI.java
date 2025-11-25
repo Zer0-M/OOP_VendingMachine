@@ -100,7 +100,7 @@ public class ModernVendingUI extends JFrame {
         cartList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // ปุ่มลบสินค้า (Remove)
-        JButton removeBtn = createStyledButton("REMOVE SELECTED (-1)", new Color(100, 40, 40), TEXT_WHITE);
+        JButton removeBtn = createStyledButton("REMOVE ITEM!", new Color(100, 40, 40), TEXT_WHITE);
         removeBtn.addActionListener(e -> handleRemoveItem());
 
         JPanel cartPanel = new JPanel(new BorderLayout());
@@ -171,6 +171,7 @@ public class ModernVendingUI extends JFrame {
     }
     
     // ฟังก์ชันลบสินค้า
+    // [MODIFIED] แก้ให้เรียกใช้ removeProductFromCart แทน removeOneItemFromCart
     private void handleRemoveItem() {
         String selected = cartList.getSelectedValue();
         if (selected == null) {
@@ -178,12 +179,13 @@ public class ModernVendingUI extends JFrame {
             return;
         }
         try {
-            // ดึง Code จาก String "[A1] ..."
             int start = selected.indexOf("[") + 1;
             int end = selected.indexOf("]");
             String slotCode = selected.substring(start, end);
 
-            controller.removeOneItemFromCart(slotCode);
+            // เรียกใช้ Method ใหม่ที่เพิ่งสร้างใน Controller
+            controller.removeProductFromCart(slotCode); 
+            
             refreshUI();
         } catch (Exception e) {
             showStatus("Error removing item", true);

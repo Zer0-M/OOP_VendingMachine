@@ -188,4 +188,24 @@ public class VendingMachineController {
     public double getMachineCurrentCash() {
         return moneyManager.getCurrentInternalCash();
     }
+
+    // [NEW] ลบสินค้าออกจากตะกร้าทั้ง Slot (ไม่สนจำนวน)
+    public void removeProductFromCart(String slotCode) {
+        try {
+            ItemSlot slot = inventoryManager.findSlotByCode(slotCode);
+            if (shoppingCart.containsKey(slot)) {
+                shoppingCart.remove(slot); // ลบทิ้งทั้ง Key เลย
+            }
+        } catch (Exception e) {
+            System.out.println("Error removing item: " + e.getMessage());
+        }
+    }
+
+    // [NEW] ให้ Admin ถอนเงินแบบระบุจำนวน
+    public String adminWithdrawCash(double amount) {
+        double result = adminService.withdrawCash(amount);
+        if (result == -1) return "Error: Not enough cash in machine.";
+        if (result == -2) return "Error: Cannot match exact change.";
+        return "Success: Collected " + result + " THB.";
+    }
 }

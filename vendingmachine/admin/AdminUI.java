@@ -105,10 +105,22 @@ public class AdminUI extends JFrame {
         
         updateBtn.addActionListener(e -> updateSelectedItem());
         
+        // [MODIFIED] เปลี่ยนจากกดแล้วเก็บหมด เป็นเด้งถามจำนวนเงิน
         collectCashBtn.addActionListener(e -> {
-            controller.adminCollectCash();
-            JOptionPane.showMessageDialog(this, "Cash collected from machine!");
-            refreshData();
+            String input = JOptionPane.showInputDialog(this, 
+                "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n" +
+                "Enter amount to collect:", "Collect Cash", JOptionPane.QUESTION_MESSAGE);
+
+            if (input != null && !input.isEmpty()) {
+                try {
+                    double amount = Double.parseDouble(input);
+                    String result = controller.adminWithdrawCash(amount);
+                    JOptionPane.showMessageDialog(this, result);
+                    refreshData(); // อัปเดตตัวเลขหน้าจอ
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid number!");
+                }
+            }
         });
         
         refreshBtn.addActionListener(e -> refreshData());

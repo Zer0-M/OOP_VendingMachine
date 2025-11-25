@@ -160,4 +160,40 @@ public class MoneyManager {
     private String formatMoney(double val) {
         return (val >= 20) ? (int)val + " Bank" : (int)val + " Coin";
     }
+
+    // [NEW] ฟังก์ชันถอนเงินออกจากตู้แบบระบุจำนวน (สำหรับ Admin)
+    public double withdrawSpecificCash(double amount) {
+        if (amount <= 0) return 0;
+        double currentCash = getCurrentInternalCash();
+        
+        if (amount > currentCash) {
+            return -1; // เงินในตู้ไม่พอ
+        }
+
+        // ใช้ Greedy Algorithm คำนวณว่าจะดึงแบงค์ไหนออกไปบ้าง
+        Map<Double, Integer> toWithdraw = new HashMap<>();
+        double remaining = amount;
+
+        for (Double denom : machineMoney.keySet()) {
+            if (remaining < denom) continue;
+            int countAvailable = machineMoney.get(denom);
+            int countNeeded = (int) (remaining / denom);
+            int countToTake = Math.min(countAvailable, countNeeded);
+
+            if (countToTake > 0) {
+                toWithdraw.put(denom, countToTake);
+                remaining -= (countToTake * denom);
+                remaining = Math.round(remaining * 100.0) / 100.0;
+            }
+        }
+
+        if (remaining > 0) {
+            return -2; // มีเศษย่อยไม่พอให้ถอน (เช่น มีแต่แบงค์พัน จะถอน 500)
+        }
+
+        // ตัดเงินออกจากตู้จริง
+        removeMoneyFromMachine(toWithdraw);
+        System.out.println("Admin Withdrawn: " + amount);
+        return amount;
+    }
 }

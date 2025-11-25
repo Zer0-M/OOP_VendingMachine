@@ -41,4 +41,9 @@ public class AdminService {
             System.out.println("Admin Error: " + e.getMessage());
         }
     }
+
+    // [NEW]
+    public double withdrawCash(double amount) {
+        return moneyManager.withdrawSpecificCash(amount);
+    }
 }
