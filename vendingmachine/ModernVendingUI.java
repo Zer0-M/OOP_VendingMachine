@@ -3,6 +3,7 @@ package vendingmachine;
 import vendingmachine.products.ItemSlot;
 import vendingmachine.products.Product;
 import vendingmachine.admin.AdminUI;
+import vendingmachine.admin.AdminService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -54,7 +55,22 @@ public class ModernVendingUI extends JFrame {
         adminBtn.setForeground(Color.ORANGE);
         adminBtn.setFocusPainted(false);
         adminBtn.setBorder(new LineBorder(Color.ORANGE, 1));
-        adminBtn.addActionListener(e -> new AdminUI(controller)); // เปิดหน้า Admin
+        // [MODIFIED] เพิ่มระบบเช็ครหัสผ่านก่อนเข้า Admin
+        adminBtn.addActionListener(e -> {
+            // สร้าง Panel หลอกๆ เพื่อใส่ช่องกรอกรหัสแบบมี * ปิดบัง
+            JPasswordField pf = new JPasswordField();
+            int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (okCxl == JOptionPane.OK_OPTION) {
+                String password = new String(pf.getPassword());
+                // ตั้งรหัสผ่านตรงนี้ (สมมติว่าเป็น 1234)
+                if (AdminService.authenticate(password)) {
+                    new AdminUI(controller); // รหัสถูก -> เปิดหน้า Admin
+                } else {
+                    JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightHeader.setBackground(BG_DARK);

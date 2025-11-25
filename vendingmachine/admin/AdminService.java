@@ -11,7 +11,7 @@ import vendingmachine.payment.MoneyManager;
 public class AdminService {
     private InventoryManager inventory;
     private MoneyManager moneyManager;
-
+    private static final String ADMIN_PASSWORD = "admin1234"; // รหัสผ่านแอดมิน
     // Admin ต้องได้รับสิทธิ์ (ถูกฉีด Dependencies)
     public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
         this.inventory = inventory;
@@ -45,5 +45,9 @@ public class AdminService {
     // [NEW]
     public double withdrawCash(double amount) {
         return moneyManager.withdrawSpecificCash(amount);
+    }
+
+    public static boolean authenticate(String password) {
+        return ADMIN_PASSWORD.equals(password);
     }
 }
