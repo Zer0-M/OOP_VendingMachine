@@ -25,12 +25,12 @@ public class ModernVendingUI extends JFrame {
     private final JLabel statusLabel;
 
     // --- MODERN PALETTE ---
-    private final Color BG_MAIN = new Color(18, 18, 24);       // พื้นหลังหลัก
-    private final Color BG_SIDEBAR = new Color(28, 28, 36);    // พื้นหลัง Sidebar
-    private final Color CARD_BG = new Color(35, 35, 45);       // สีการ์ดสินค้า
+    private final Color BG_MAIN = new Color(18, 18, 24); // พื้นหลังหลัก
+    private final Color BG_SIDEBAR = new Color(28, 28, 36); // พื้นหลัง Sidebar
+    private final Color CARD_BG = new Color(35, 35, 45); // สีการ์ดสินค้า
     private final Color ACCENT_PRIMARY = new Color(88, 101, 242); // สีม่วงฟ้า (Add/Primary)
-    private final Color ACCENT_SUCCESS = new Color(59, 165, 93);  // สีเขียว (Pay)
-    private final Color ACCENT_DANGER = new Color(237, 66, 69);   // สีแดง (Remove/Error)
+    private final Color ACCENT_SUCCESS = new Color(59, 165, 93); // สีเขียว (Pay)
+    private final Color ACCENT_DANGER = new Color(237, 66, 69); // สีแดง (Remove/Error)
     private final Color TEXT_PRIMARY = new Color(255, 255, 255);
     private final Color TEXT_SECONDARY = new Color(185, 187, 190);
 
@@ -50,8 +50,7 @@ public class ModernVendingUI extends JFrame {
         // เพิ่มเงาใต้ Header เล็กน้อย
         headerPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(45, 45, 55)),
-                new EmptyBorder(15, 30, 15, 30)
-        ));
+                new EmptyBorder(15, 30, 15, 30)));
 
         JLabel title = new JLabel(" Virtual Vending Machine ");
         title.setFont(new Font("Segoe UI", Font.BOLD, 26));
@@ -70,11 +69,11 @@ public class ModernVendingUI extends JFrame {
         statusLabel.setForeground(ACCENT_SUCCESS);
 
         // [FIXED] ใช้ GridBagLayout สำหรับ Panel ขวาเพื่อจัดกึ่งกลางแกน Y
-        JPanel rightActionPanel = new JPanel(new GridBagLayout()); 
+        JPanel rightActionPanel = new JPanel(new GridBagLayout());
         rightActionPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        
+
         // 1. จัดวาง SYSTEM ONLINE: ดันลง 5px เพื่อให้ระนาบตรงกับ Title ฝั่งซ้าย
         gbc.insets = new Insets(5, 0, 0, 20); // Top 5px, Right 20px
         rightActionPanel.add(statusLabel, gbc);
@@ -82,7 +81,7 @@ public class ModernVendingUI extends JFrame {
         // 2. จัดวางปุ่ม Admin
         gbc.insets = new Insets(0, 0, 0, 0); // รีเซ็ตเป็น 0
         rightActionPanel.add(adminBtn, gbc);
-        
+
         headerPanel.add(title, BorderLayout.WEST);
         headerPanel.add(rightActionPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
@@ -91,7 +90,7 @@ public class ModernVendingUI extends JFrame {
         productGridPanel = new JPanel();
         productGridPanel.setBackground(BG_MAIN);
         productGridPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 25, 25)); // Grid สวยๆ
-        
+
         JScrollPane scrollPane = new JScrollPane(productGridPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -121,7 +120,7 @@ public class ModernVendingUI extends JFrame {
         cartList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         cartList.setFixedCellHeight(35);
         cartList.setBorder(new LineBorder(new Color(45, 45, 55), 1));
-        
+
         // Custom Scrollbar for Cart
         JScrollPane cartScroll = new JScrollPane(cartList);
         cartScroll.setBorder(null);
@@ -130,17 +129,17 @@ public class ModernVendingUI extends JFrame {
         cartContainer.setOpaque(false);
         cartContainer.add(cartHeaderPanel, BorderLayout.NORTH);
         cartContainer.add(cartScroll, BorderLayout.CENTER);
-        
+
         JButton removeBtn = createModernButton("REMOVE SELECTED", new Color(60, 40, 40), ACCENT_DANGER);
         removeBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         removeBtn.setPreferredSize(new Dimension(0, 40));
         removeBtn.addActionListener(e -> handleRemoveItem());
-        
+
         JPanel cartActionPanel = new JPanel(new BorderLayout());
         cartActionPanel.setOpaque(false);
         cartActionPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
         cartActionPanel.add(removeBtn, BorderLayout.CENTER);
-        
+
         cartContainer.add(cartActionPanel, BorderLayout.SOUTH);
 
         sidebar.add(cartContainer, BorderLayout.CENTER);
@@ -171,7 +170,7 @@ public class ModernVendingUI extends JFrame {
         checkoutPanel.add(totalLabel);
         checkoutPanel.add(payBtn);
         checkoutPanel.add(clearBtn);
-        
+
         sidebar.add(checkoutPanel, BorderLayout.SOUTH);
         add(sidebar, BorderLayout.EAST);
 
@@ -185,14 +184,16 @@ public class ModernVendingUI extends JFrame {
 
     private void openAdminPanel() {
         JPasswordField pf = new JPasswordField();
-        int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
 
         if (okCxl == JOptionPane.OK_OPTION) {
             String password = new String(pf.getPassword());
             if (AdminService.authenticate(password)) {
-                new AdminUI(controller); 
+                new AdminUI(controller);
             } else {
-                JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -216,11 +217,11 @@ public class ModernVendingUI extends JFrame {
         }
 
         totalLabel.setText(String.format("%.2f ฿", controller.getCartTotal()));
-        
+
         productGridPanel.revalidate();
         productGridPanel.repaint();
     }
-    
+
     private void handleRemoveItem() {
         String selected = cartList.getSelectedValue();
         if (selected == null) {
@@ -231,10 +232,39 @@ public class ModernVendingUI extends JFrame {
             int start = selected.indexOf("[") + 1;
             int end = selected.indexOf("]");
             String slotCode = selected.substring(start, end);
-            controller.removeProductFromCart(slotCode); 
+            controller.removeProductFromCart(slotCode);
             refreshUI();
         } catch (Exception e) {
             showStatus("Error removing item", true);
+        }
+    }
+
+    // เพิ่ม Method นี้ลงใน ModernVendingUI.java
+    private void handleMemberPoints() {
+        while (true) {
+            // แสดง Dialog ถามเบอร์โทร
+            String phone = JOptionPane.showInputDialog(this,
+                    "Payment Completed!\n\nEnter phone number to collect points:\n(Leave empty or Cancel to skip)",
+                    "Member Points",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            // 1. กรณีข้าม: ถ้าเป็น null (กด Cancel) หรือว่างเปล่า ("") -> ออกจาก Loop ทันที
+            if (phone == null || phone.trim().isEmpty()) {
+                break;
+            }
+
+            // 2. กรณีถูกต้อง: เช็ค Format (ขึ้นต้นด้วย 0 และเป็นตัวเลข 9 ตัวตามหลัง)
+            if (phone.matches("^[0][0-9]{9}$")) {
+                String result = controller.applyPoints(phone);
+                JOptionPane.showMessageDialog(this, result, "Points Added", JOptionPane.INFORMATION_MESSAGE);
+                break; // ทำรายการสำเร็จ -> ออกจาก Loop
+            }
+
+            // 3. กรณีผิด: แจ้งเตือน แล้ววนกลับไปถามใหม่ (เพราะยังอยู่ใน while true)
+            JOptionPane.showMessageDialog(this,
+                    "Invalid Phone Number Format!\nMust be 10 digits starting with 0.\nExample: 0812345678",
+                    "Error",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -252,7 +282,7 @@ public class ModernVendingUI extends JFrame {
 
         // --- 1. Top Section (Image & Badge) ---
         // ใช้ null layout เพื่อกำหนดพิกัดเอง
-        JPanel topPanel = new JPanel(null); 
+        JPanel topPanel = new JPanel(null);
         topPanel.setPreferredSize(new Dimension(210, 140));
         topPanel.setBackground(CARD_BG);
 
@@ -289,7 +319,7 @@ public class ModernVendingUI extends JFrame {
         priceLbl.setForeground(ACCENT_SUCCESS);
         priceLbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
         priceLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+
         JLabel stockLbl = new JLabel("In Stock: " + slot.getQuantity());
         stockLbl.setForeground(isOutOfStock ? ACCENT_DANGER : TEXT_SECONDARY);
         stockLbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -302,12 +332,12 @@ public class ModernVendingUI extends JFrame {
         infoPanel.add(stockLbl);
 
         // --- 3. Button (FIX: Ensure addBtn is defined) ---
-        JButton addBtn = createModernButton(isOutOfStock ? "SOLD OUT" : "ADD TO CART", 
-                isOutOfStock ? new Color(60, 30, 30) : ACCENT_PRIMARY, 
+        JButton addBtn = createModernButton(isOutOfStock ? "SOLD OUT" : "ADD TO CART",
+                isOutOfStock ? new Color(60, 30, 30) : ACCENT_PRIMARY,
                 Color.WHITE);
         addBtn.setPreferredSize(new Dimension(210, 40));
         addBtn.setEnabled(!isOutOfStock);
-        
+
         addBtn.addActionListener(e -> {
             String result = controller.addItemToCart(slot.getSlotCode());
             if (result.startsWith("Error")) {
@@ -333,11 +363,11 @@ public class ModernVendingUI extends JFrame {
             return;
         }
 
-        String[] options = {"Scan QR Code", "Cash Payment"};
-        int choice = JOptionPane.showOptionDialog(this, "Amount Due: " + total + " THB\nChoose payment method:", 
+        String[] options = { "Scan QR Code", "Cash Payment" };
+        int choice = JOptionPane.showOptionDialog(this, "Amount Due: " + total + " THB\nChoose payment method:",
                 "Checkout", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
-        if (choice == 0) { 
+        if (choice == 0) {
             showQRCodeDialog(total);
         } else if (choice == 1) {
             simulateLoading("Processing Cash...", () -> processPaymentResult("2"));
@@ -351,7 +381,7 @@ public class ModernVendingUI extends JFrame {
         dialog.setLayout(new BorderLayout());
         dialog.setLocationRelativeTo(this);
         dialog.setUndecorated(true);
-        dialog.getRootPane().setBorder(new LineBorder(new Color(60,60,60), 2));
+        dialog.getRootPane().setBorder(new LineBorder(new Color(60, 60, 60), 2));
 
         JPanel qrPanel = new JPanel() {
             @Override
@@ -364,7 +394,8 @@ public class ModernVendingUI extends JFrame {
                 Random rand = new Random();
                 for (int y = 50; y < 280; y += size) {
                     for (int x = 50; x < 280; x += size) {
-                        if(rand.nextBoolean()) g.fillRect(x, y, size, size);
+                        if (rand.nextBoolean())
+                            g.fillRect(x, y, size, size);
                     }
                 }
                 // Corners
@@ -380,7 +411,7 @@ public class ModernVendingUI extends JFrame {
         info.setOpaque(true);
         info.setBackground(BG_SIDEBAR);
         info.setForeground(TEXT_PRIMARY);
-        info.setBorder(new EmptyBorder(20,0,20,0));
+        info.setBorder(new EmptyBorder(20, 0, 20, 0));
 
         JButton confirmBtn = createModernButton("CONFIRM PAYMENT", ACCENT_SUCCESS, Color.WHITE);
         confirmBtn.addActionListener(e -> {
@@ -406,28 +437,28 @@ public class ModernVendingUI extends JFrame {
         loadingDialog.setUndecorated(true);
         loadingDialog.setSize(350, 120);
         loadingDialog.setLocationRelativeTo(this);
-        
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_SIDEBAR);
         panel.setBorder(new LineBorder(ACCENT_PRIMARY, 1));
-        
+
         JLabel lbl = new JLabel(msg, SwingConstants.CENTER);
         lbl.setForeground(TEXT_PRIMARY);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lbl.setBorder(new EmptyBorder(20,0,10,0));
-        
+        lbl.setBorder(new EmptyBorder(20, 0, 10, 0));
+
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        progressBar.setBackground(new Color(40,40,50));
+        progressBar.setBackground(new Color(40, 40, 50));
         progressBar.setForeground(ACCENT_PRIMARY);
         progressBar.setBorder(new EmptyBorder(0, 20, 20, 20));
-        
+
         panel.add(lbl, BorderLayout.CENTER);
         panel.add(progressBar, BorderLayout.SOUTH);
         loadingDialog.add(panel);
 
         new Timer(1500, e -> {
-            ((Timer)e.getSource()).stop();
+            ((Timer) e.getSource()).stop();
             loadingDialog.dispose();
             onComplete.run();
         }).start();
@@ -439,6 +470,10 @@ public class ModernVendingUI extends JFrame {
         double total = controller.getCartTotal();
         boolean success = controller.processPayment(total, method);
         if (success) {
+            // --- เรียกใช้ฟังก์ชันสะสมแต้มแบบใหม่ ---
+            handleMemberPoints();
+            // ------------------------------------
+
             JOptionPane.showMessageDialog(this, "Payment Successful!\nDispensing items...");
             controller.clearCart();
             refreshUI();
@@ -455,7 +490,7 @@ public class ModernVendingUI extends JFrame {
             Timer blink = new Timer(200, null);
             blink.addActionListener(e -> {
                 statusLabel.setVisible(!statusLabel.isVisible());
-                if(blink.getDelay() > 1000) {
+                if (blink.getDelay() > 1000) {
                     statusLabel.setVisible(true);
                     blink.stop();
                 }
@@ -466,7 +501,7 @@ public class ModernVendingUI extends JFrame {
     }
 
     // --- HELPER UI METHODS ---
-    
+
     private JButton createModernButton(String text, Color bg, Color fg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -475,12 +510,13 @@ public class ModernVendingUI extends JFrame {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         // Hover Effect
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
                 btn.setBackground(bg.brighter());
             }
+
             public void mouseExited(MouseEvent evt) {
                 btn.setBackground(bg);
             }
@@ -496,12 +532,13 @@ public class ModernVendingUI extends JFrame {
         btn.setFocusPainted(false);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
                 btn.setBorder(new LineBorder(ACCENT_PRIMARY));
                 btn.setForeground(ACCENT_PRIMARY);
             }
+
             public void mouseExited(MouseEvent evt) {
                 btn.setBorder(new LineBorder(TEXT_SECONDARY));
                 btn.setForeground(TEXT_SECONDARY);
@@ -513,13 +550,24 @@ public class ModernVendingUI extends JFrame {
     private static class TextIcon implements Icon {
         private String text;
         private int size;
-        public TextIcon(String text, int size) { this.text = text; this.size = size; }
+
+        public TextIcon(String text, int size) {
+            this.text = text;
+            this.size = size;
+        }
+
         public void paintIcon(Component c, Graphics g, int x, int y) {
             g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, size));
             g.drawString(text, x, y + size - 5);
         }
-        public int getIconWidth() { return size; }
-        public int getIconHeight() { return size; }
+
+        public int getIconWidth() {
+            return size;
+        }
+
+        public int getIconHeight() {
+            return size;
+        }
     }
 
     public static void main(String[] args) {

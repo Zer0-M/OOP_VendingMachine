@@ -12,7 +12,6 @@ public class AdminService {
     private InventoryManager inventory;
     private MoneyManager moneyManager;
     private static final String ADMIN_PASSWORD = ""; // รหัสผ่านแอดมิน
-    // Admin ต้องได้รับสิทธิ์ (ถูกฉีด Dependencies)
     public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
         this.inventory = inventory;
         this.moneyManager = moneyManager;
