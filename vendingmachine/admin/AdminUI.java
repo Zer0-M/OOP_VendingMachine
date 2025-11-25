@@ -179,7 +179,7 @@ public class AdminUI extends JFrame {
         JButton addProductBtn = new JButton("➕ ADD NEW ITEM");
         addProductBtn.setBackground(PRIMARY_COLOR);
         addProductBtn.setForeground(Color.WHITE);
-        addProductBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        addProductBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
         JButton refreshBtn = new JButton("🔄 REFRESH DATA");
         refreshBtn.setBackground(Color.WHITE);
