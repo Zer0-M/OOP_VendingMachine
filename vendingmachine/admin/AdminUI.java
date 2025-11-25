@@ -1,10 +1,15 @@
 package vendingmachine.admin;
+
+import vendingmachine.VendingMachineController;
 import vendingmachine.products.ItemSlot;
 
-import vendingmachine.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,106 +22,162 @@ public class AdminUI extends JFrame {
     private JLabel cashLabel;
     private JTextField priceField;
     private JTextField stockField;
+    private JLabel selectedItemLabel; // โชว์ว่ากำลังแก้ตัวไหน
+
+    // --- ADMIN THEME ---
+    private final Color BG_ADMIN = new Color(240, 242, 245);
+    private final Color PANEL_WHITE = Color.WHITE;
+    private final Color PRIMARY_COLOR = new Color(0, 102, 204);
+    private final Color TEXT_DARK = new Color(50, 50, 60);
 
     public AdminUI(VendingMachineController controller) {
         this.controller = controller;
 
-        setTitle("ADMIN CONTROL PANEL");
-        setSize(850, 600);
+        setTitle("Admin Dashboard - Vending Machine System");
+        setSize(900, 650);
         setLayout(new BorderLayout());
-        setLocationRelativeTo(null); // กลางจอ
-        
-        // --- Header ---
+        setLocationRelativeTo(null);
+        getContentPane().setBackground(BG_ADMIN);
+
+        // --- 1. HEADER (Dashboard Stats) ---
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(40, 40, 40));
-        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        headerPanel.setBackground(PRIMARY_COLOR);
+        headerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+
+        JLabel title = new JLabel("ADMIN CONTROL PANEL");
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+
+        // Cash Display Box
+        JPanel cashBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        cashBox.setOpaque(false);
         
-        JLabel title = new JLabel("SYSTEM ADMINISTRATION");
-        title.setForeground(Color.ORANGE);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        JLabel cashIcon = new JLabel("💰 ");
+        cashIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         
-        cashLabel = new JLabel("Machine Cash: Loading...");
-        cashLabel.setForeground(Color.CYAN);
-        cashLabel.setFont(new Font("Consolas", Font.BOLD, 18));
+        cashLabel = new JLabel("Total Cash: Loading...");
+        cashLabel.setForeground(Color.WHITE);
+        cashLabel.setFont(new Font("Consolas", Font.BOLD, 20));
         
+        cashBox.add(cashIcon);
+        cashBox.add(cashLabel);
+
         headerPanel.add(title, BorderLayout.WEST);
-        headerPanel.add(cashLabel, BorderLayout.EAST);
+        headerPanel.add(cashBox, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // --- Table (Center) ---
-        String[] columnNames = {"Slot Code", "Product Name", "Price (THB)", "Stock Qty"};
+        // --- 2. TABLE (Inventory List) ---
+        String[] columnNames = {"SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // ห้ามแก้ในตารางตรงๆ
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
+
         productTable = new JTable(tableModel);
-        productTable.setRowHeight(30);
-        productTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
-        // Event: คลิกแถวแล้วดึงข้อมูลมาใส่ช่อง Input
+        styleTable(productTable); // เรียกฟังก์ชันแต่งตาราง
+
+        // Selection Logic
         productTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && productTable.getSelectedRow() != -1) {
                 int row = productTable.getSelectedRow();
-                priceField.setText(tableModel.getValueAt(row, 2).toString());
-                stockField.setText("0"); // รีเซ็ตช่องเติมของเป็น 0
+                String name = tableModel.getValueAt(row, 1).toString();
+                String price = tableModel.getValueAt(row, 2).toString();
+                
+                selectedItemLabel.setText("Editing: " + name);
+                selectedItemLabel.setForeground(PRIMARY_COLOR);
+                priceField.setText(price);
+                stockField.setText("0"); // Reset stock add input
             }
         });
 
-        add(new JScrollPane(productTable), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(productTable);
+        scrollPane.setBorder(new EmptyBorder(10, 20, 10, 20));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        add(scrollPane, BorderLayout.CENTER);
 
-        // --- Controls (Bottom) ---
-        JPanel controlPanel = new JPanel(new GridLayout(2, 1));
+        // --- 3. CONTROLS (Bottom Panel) ---
+        JPanel bottomPanel = new JPanel(new BorderLayout(20, 0));
+        bottomPanel.setBackground(BG_ADMIN);
+        bottomPanel.setBorder(new EmptyBorder(10, 20, 20, 20));
+
+        // LEFT: Edit Form
+        JPanel editPanel = new JPanel(new GridBagLayout());
+        editPanel.setBackground(PANEL_WHITE);
+        editPanel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(200, 200, 200), 1, true),
+                new EmptyBorder(15, 20, 15, 20)
+        ));
         
-        // Row 1: Edit Inputs
-        JPanel editPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        editPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        selectedItemLabel = new JLabel("Select an item to edit");
+        selectedItemLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        selectedItemLabel.setForeground(Color.GRAY);
+
+        priceField = new JTextField(10);
+        stockField = new JTextField(10);
         
-        priceField = new JTextField(8);
-        stockField = new JTextField(8);
-        JButton updateBtn = new JButton("UPDATE ITEM");
-        updateBtn.setBackground(new Color(0, 150, 200));
+        JButton updateBtn = new JButton("SAVE CHANGES");
+        updateBtn.setBackground(PRIMARY_COLOR);
         updateBtn.setForeground(Color.WHITE);
+        updateBtn.setFocusPainted(false);
+        updateBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        editPanel.add(new JLabel("Set Price:"));
-        editPanel.add(priceField);
-        editPanel.add(new JLabel("Add Stock (+):")); 
-        editPanel.add(stockField);
-        editPanel.add(updateBtn);
+        // Form Layout
+        gbc.gridx=0; gbc.gridy=0; gbc.gridwidth=2; 
+        editPanel.add(selectedItemLabel, gbc);
         
-        // Row 2: Global Actions
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        JButton collectCashBtn = new JButton("COLLECT ALL CASH");
-        collectCashBtn.setBackground(new Color(200, 50, 50));
+        gbc.gridwidth=1; gbc.gridy++;
+        editPanel.add(new JLabel("Set Price:"), gbc);
+        gbc.gridx=1; 
+        editPanel.add(priceField, gbc);
+
+        gbc.gridx=0; gbc.gridy++;
+        editPanel.add(new JLabel("Add Stock (+):"), gbc);
+        gbc.gridx=1;
+        editPanel.add(stockField, gbc);
+        
+        gbc.gridx=0; gbc.gridy++; gbc.gridwidth=2;
+        editPanel.add(updateBtn, gbc);
+
+        // RIGHT: Global Actions
+        JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 10));
+        actionPanel.setOpaque(false);
+        
+        JButton collectCashBtn = new JButton("💵 COLLECT ALL CASH");
+        collectCashBtn.setBackground(new Color(40, 167, 69)); // Green
         collectCashBtn.setForeground(Color.WHITE);
+        collectCashBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         
-        JButton refreshBtn = new JButton("Refresh Data");
+        JButton refreshBtn = new JButton("🔄 REFRESH DATA");
+        refreshBtn.setBackground(Color.WHITE);
+        refreshBtn.setForeground(TEXT_DARK);
         
         actionPanel.add(collectCashBtn);
         actionPanel.add(refreshBtn);
 
-        controlPanel.add(editPanel);
-        controlPanel.add(actionPanel);
-        add(controlPanel, BorderLayout.SOUTH);
+        bottomPanel.add(editPanel, BorderLayout.CENTER);
+        bottomPanel.add(actionPanel, BorderLayout.EAST);
+        
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        // --- Actions Logic ---
+        // --- LOGIC BINDING ---
         
         updateBtn.addActionListener(e -> updateSelectedItem());
         
-        // [MODIFIED] เปลี่ยนจากกดแล้วเก็บหมด เป็นเด้งถามจำนวนเงิน
         collectCashBtn.addActionListener(e -> {
             String input = JOptionPane.showInputDialog(this, 
                 "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n" +
-                "Enter amount to collect:", "Collect Cash", JOptionPane.QUESTION_MESSAGE);
+                "Enter amount to collect:", "Withdraw Cash", JOptionPane.QUESTION_MESSAGE);
 
             if (input != null && !input.isEmpty()) {
                 try {
                     double amount = Double.parseDouble(input);
                     String result = controller.adminWithdrawCash(amount);
                     JOptionPane.showMessageDialog(this, result);
-                    refreshData(); // อัปเดตตัวเลขหน้าจอ
+                    refreshData();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Invalid number!");
                 }
@@ -125,17 +186,45 @@ public class AdminUI extends JFrame {
         
         refreshBtn.addActionListener(e -> refreshData());
 
-        // Load Initial Data
+        // Initial Data Load
         refreshData();
         setVisible(true);
     }
 
-    private void refreshData() {
-        // 1. อัปเดตเงินสด
-        double currentCash = controller.getMachineCurrentCash();
-        cashLabel.setText(String.format("Machine Cash: %.2f THB", currentCash));
+    private void styleTable(JTable table) {
+        table.setRowHeight(35);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        
+        // Header Style
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(230, 230, 235));
+        header.setForeground(TEXT_DARK);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        header.setPreferredSize(new Dimension(0, 40));
+        
+        // Zebra Striping
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
+                } else {
+                    c.setBackground(new Color(220, 240, 255));
+                    c.setForeground(Color.BLACK);
+                }
+                ((JLabel)c).setBorder(new EmptyBorder(0, 10, 0, 10)); // Padding
+                return c;
+            }
+        });
+    }
 
-        // 2. อัปเดตตาราง
+    private void refreshData() {
+        double currentCash = controller.getMachineCurrentCash();
+        cashLabel.setText(String.format("%.2f THB", currentCash));
+
         tableModel.setRowCount(0);
         Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
         
@@ -152,7 +241,7 @@ public class AdminUI extends JFrame {
     private void updateSelectedItem() {
         int row = productTable.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an item first.");
+            JOptionPane.showMessageDialog(this, "Please select an item from the table first.");
             return;
         }
 
@@ -162,19 +251,18 @@ public class AdminUI extends JFrame {
             double newPrice = Double.parseDouble(priceField.getText());
             int stockToAdd = Integer.parseInt(stockField.getText());
 
-            // 1. แก้ราคา
             controller.adminSetPrice(code, newPrice);
-            
-            // 2. เติมของ (ถ้ากรอกตัวเลขมากกว่า 0)
             if (stockToAdd > 0) {
                  controller.adminRestockItem(code, stockToAdd);
             }
 
             JOptionPane.showMessageDialog(this, "Update Success!");
             refreshData();
+            // Clear input
+            stockField.setText("0");
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid Number Format. Please enter valid numbers.");
+            JOptionPane.showMessageDialog(this, "Invalid Number Format.");
         }
     }
 }

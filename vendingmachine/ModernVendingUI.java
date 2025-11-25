@@ -9,6 +9,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -18,66 +20,56 @@ public class ModernVendingUI extends JFrame {
     private VendingMachineController controller;
     private JPanel productGridPanel;
     private DefaultListModel<String> cartListModel;
-    private JList<String> cartList; // ประกาศเป็น field เพื่อให้ปุ่ม Remove เรียกใช้ได้
+    private JList<String> cartList;
     private JLabel totalLabel;
     private JLabel statusLabel;
 
-    // --- THEME COLORS ---
-    private final Color BG_DARK = new Color(20, 20, 25);
-    private final Color BG_PANEL = new Color(35, 35, 40);
-    private final Color ACCENT_CYAN = new Color(0, 220, 220);
-    private final Color ACCENT_RED = new Color(255, 60, 60);
-    private final Color ACCENT_GREEN = new Color(0, 200, 100);
-    private final Color TEXT_WHITE = new Color(240, 240, 240);
+    // --- MODERN PALETTE ---
+    private final Color BG_MAIN = new Color(18, 18, 24);       // พื้นหลังหลัก
+    private final Color BG_SIDEBAR = new Color(28, 28, 36);    // พื้นหลัง Sidebar
+    private final Color CARD_BG = new Color(35, 35, 45);       // สีการ์ดสินค้า
+    private final Color ACCENT_PRIMARY = new Color(88, 101, 242); // สีม่วงฟ้า (Add/Primary)
+    private final Color ACCENT_SUCCESS = new Color(59, 165, 93);  // สีเขียว (Pay)
+    private final Color ACCENT_DANGER = new Color(237, 66, 69);   // สีแดง (Remove/Error)
+    private final Color TEXT_PRIMARY = new Color(255, 255, 255);
+    private final Color TEXT_SECONDARY = new Color(185, 187, 190);
 
     public ModernVendingUI() {
         controller = new VendingMachineController();
 
         // Setup Main Window
-        setTitle("Vending Machine PRO");
-        setSize(1150, 750);
+        setTitle("Vending Machine PRO 2024");
+        setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_DARK);
+        getContentPane().setBackground(BG_MAIN);
 
         // --- 1. HEADER (Top Bar) ---
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(BG_DARK);
+        headerPanel.setBackground(BG_SIDEBAR);
         headerPanel.setBorder(new EmptyBorder(15, 30, 15, 30));
-        
+        // เพิ่มเงาใต้ Header เล็กน้อย
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(45, 45, 55)),
+                new EmptyBorder(15, 30, 15, 30)
+        ));
+
         JLabel title = new JLabel("VENDING OS 3.0");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        title.setForeground(ACCENT_CYAN);
-        
-        // ปุ่ม Admin
-        JButton adminBtn = new JButton("⚙ ADMIN PANEL");
-        adminBtn.setBackground(new Color(50, 50, 50));
-        adminBtn.setForeground(Color.ORANGE);
-        adminBtn.setFocusPainted(false);
-        adminBtn.setBorder(new LineBorder(Color.ORANGE, 1));
-        // [MODIFIED] เพิ่มระบบเช็ครหัสผ่านก่อนเข้า Admin
-        adminBtn.addActionListener(e -> {
-            // สร้าง Panel หลอกๆ เพื่อใส่ช่องกรอกรหัสแบบมี * ปิดบัง
-            JPasswordField pf = new JPasswordField();
-            int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        title.setForeground(ACCENT_PRIMARY);
+        title.setIcon(new TextIcon("💎", 28)); // ใส่ไอคอนเก๋ๆ
 
-            if (okCxl == JOptionPane.OK_OPTION) {
-                String password = new String(pf.getPassword());
-                // ตั้งรหัสผ่านตรงนี้ (สมมติว่าเป็น 1234)
-                if (AdminService.authenticate(password)) {
-                    new AdminUI(controller); // รหัสถูก -> เปิดหน้า Admin
-                } else {
-                    JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
+        // ปุ่ม Admin แบบ Minimal
+        JButton adminBtn = new JButton("⚙ ADMIN");
+        styleGhostButton(adminBtn);
+        adminBtn.addActionListener(e -> openAdminPanel());
 
-        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightHeader.setBackground(BG_DARK);
+        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 5));
+        rightHeader.setOpaque(false);
         
-        statusLabel = new JLabel("SYSTEM READY   ", SwingConstants.RIGHT);
-        statusLabel.setFont(new Font("Consolas", Font.BOLD, 14));
-        statusLabel.setForeground(ACCENT_GREEN);
+        statusLabel = new JLabel("SYSTEM ONLINE ●");
+        statusLabel.setFont(new Font("Consolas", Font.BOLD, 24));
+        statusLabel.setForeground(ACCENT_SUCCESS);
         
         rightHeader.add(statusLabel);
         rightHeader.add(adminBtn);
@@ -88,58 +80,79 @@ public class ModernVendingUI extends JFrame {
 
         // --- 2. CENTER (Product Grid) ---
         productGridPanel = new JPanel();
-        productGridPanel.setBackground(BG_DARK);
-        productGridPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 20));
+        productGridPanel.setBackground(BG_MAIN);
+        productGridPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 25, 25)); // Grid สวยๆ
         
         JScrollPane scrollPane = new JScrollPane(productGridPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getViewport().setBackground(BG_MAIN);
         add(scrollPane, BorderLayout.CENTER);
 
         // --- 3. RIGHT SIDEBAR (Cart & Controls) ---
         JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setPreferredSize(new Dimension(360, 0));
-        sidebar.setBackground(BG_PANEL);
-        sidebar.setBorder(new EmptyBorder(20, 20, 20, 20));
+        sidebar.setPreferredSize(new Dimension(380, 0));
+        sidebar.setBackground(BG_SIDEBAR);
+        sidebar.setBorder(new EmptyBorder(25, 25, 25, 25));
 
         // Cart Section
-        JLabel cartTitle = new JLabel("SHOPPING CART");
+        JPanel cartHeaderPanel = new JPanel(new BorderLayout());
+        cartHeaderPanel.setOpaque(false);
+        JLabel cartTitle = new JLabel("YOUR CART");
         cartTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        cartTitle.setForeground(TEXT_WHITE);
-        cartTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
-        
+        cartTitle.setForeground(TEXT_PRIMARY);
+        cartHeaderPanel.add(cartTitle, BorderLayout.WEST);
+        cartHeaderPanel.setBorder(new EmptyBorder(0, 0, 15, 0));
+
         cartListModel = new DefaultListModel<>();
         cartList = new JList<>(cartListModel);
-        cartList.setBackground(new Color(25, 25, 30));
-        cartList.setForeground(TEXT_WHITE);
-        cartList.setFont(new Font("Consolas", Font.PLAIN, 14));
+        cartList.setBackground(new Color(22, 22, 28));
+        cartList.setForeground(TEXT_PRIMARY);
+        cartList.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         cartList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        cartList.setFixedCellHeight(35);
+        cartList.setBorder(new LineBorder(new Color(45, 45, 55), 1));
         
-        // ปุ่มลบสินค้า (Remove)
-        JButton removeBtn = createStyledButton("REMOVE ITEM!", new Color(100, 40, 40), TEXT_WHITE);
+        // Custom Scrollbar for Cart
+        JScrollPane cartScroll = new JScrollPane(cartList);
+        cartScroll.setBorder(null);
+
+        JPanel cartContainer = new JPanel(new BorderLayout());
+        cartContainer.setOpaque(false);
+        cartContainer.add(cartHeaderPanel, BorderLayout.NORTH);
+        cartContainer.add(cartScroll, BorderLayout.CENTER);
+        
+        JButton removeBtn = createModernButton("REMOVE SELECTED", new Color(60, 40, 40), ACCENT_DANGER);
+        removeBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        removeBtn.setPreferredSize(new Dimension(0, 40));
         removeBtn.addActionListener(e -> handleRemoveItem());
-
-        JPanel cartPanel = new JPanel(new BorderLayout());
-        cartPanel.setBackground(BG_PANEL);
-        cartPanel.add(cartTitle, BorderLayout.NORTH);
-        cartPanel.add(new JScrollPane(cartList), BorderLayout.CENTER);
-        cartPanel.add(removeBtn, BorderLayout.SOUTH);
         
-        sidebar.add(cartPanel, BorderLayout.CENTER);
+        JPanel cartActionPanel = new JPanel(new BorderLayout());
+        cartActionPanel.setOpaque(false);
+        cartActionPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        cartActionPanel.add(removeBtn, BorderLayout.CENTER);
+        
+        cartContainer.add(cartActionPanel, BorderLayout.SOUTH);
 
-        // Bottom Controls
-        JPanel checkoutPanel = new JPanel(new GridLayout(3, 1, 0, 10));
-        checkoutPanel.setBackground(BG_PANEL);
-        checkoutPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
+        sidebar.add(cartContainer, BorderLayout.CENTER);
 
-        totalLabel = new JLabel("TOTAL: 0.00 THB", SwingConstants.RIGHT);
-        totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        totalLabel.setForeground(ACCENT_GREEN);
+        // Bottom Checkout Section
+        JPanel checkoutPanel = new JPanel(new GridLayout(4, 1, 0, 12));
+        checkoutPanel.setOpaque(false);
+        checkoutPanel.setBorder(new EmptyBorder(30, 0, 0, 0));
 
-        JButton payBtn = createStyledButton("CHECKOUT & PAY", ACCENT_GREEN, Color.BLACK);
+        // Divider
+        checkoutPanel.add(new JSeparator(JSeparator.HORIZONTAL));
+
+        totalLabel = new JLabel("0.00 ฿", SwingConstants.RIGHT);
+        totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 42));
+        totalLabel.setForeground(ACCENT_SUCCESS);
+
+        JButton payBtn = createModernButton("CHECKOUT & PAY", ACCENT_SUCCESS, Color.WHITE);
+        payBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         payBtn.addActionListener(e -> handleCheckout());
 
-        JButton clearBtn = createStyledButton("CLEAR CART", new Color(60, 60, 60), TEXT_WHITE);
+        JButton clearBtn = createModernButton("CLEAR ALL", new Color(45, 45, 50), TEXT_SECONDARY);
         clearBtn.addActionListener(e -> {
             controller.clearCart();
             refreshUI();
@@ -159,10 +172,23 @@ public class ModernVendingUI extends JFrame {
         setVisible(true);
     }
 
-    // --- LOGIC ---
+    // --- LOGIC (ยังคงเดิม 100%) ---
+
+    private void openAdminPanel() {
+        JPasswordField pf = new JPasswordField();
+        int okCxl = JOptionPane.showConfirmDialog(null, pf, "Enter Admin Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (okCxl == JOptionPane.OK_OPTION) {
+            String password = new String(pf.getPassword());
+            if (AdminService.authenticate(password)) {
+                new AdminUI(controller); 
+            } else {
+                JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     private void refreshUI() {
-        // Refresh Grid
         productGridPanel.removeAll();
         Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
 
@@ -170,24 +196,22 @@ public class ModernVendingUI extends JFrame {
             productGridPanel.add(createProductCard(slot));
         }
 
-        // Refresh Cart (Format: [A1] Name xQty)
         cartListModel.clear();
         Map<ItemSlot, Integer> cart = controller.getCart();
         for (Map.Entry<ItemSlot, Integer> entry : cart.entrySet()) {
             String code = entry.getKey().getSlotCode();
             String name = entry.getKey().getProduct().getName();
             int qty = entry.getValue();
-            cartListModel.addElement(String.format("[%s] %-14s x%d", code, name, qty));
+            // Format ต้องคงไว้ให้มี [CODE] เพื่อให้ฟังก์ชัน remove ทำงานได้
+            cartListModel.addElement(String.format(" [%s] %-15s x%d", code, name, qty));
         }
 
-        totalLabel.setText(String.format("TOTAL: %.2f ฿", controller.getCartTotal()));
+        totalLabel.setText(String.format("%.2f ฿", controller.getCartTotal()));
         
         productGridPanel.revalidate();
         productGridPanel.repaint();
     }
     
-    // ฟังก์ชันลบสินค้า
-    // [MODIFIED] แก้ให้เรียกใช้ removeProductFromCart แทน removeOneItemFromCart
     private void handleRemoveItem() {
         String selected = cartList.getSelectedValue();
         if (selected == null) {
@@ -198,10 +222,7 @@ public class ModernVendingUI extends JFrame {
             int start = selected.indexOf("[") + 1;
             int end = selected.indexOf("]");
             String slotCode = selected.substring(start, end);
-
-            // เรียกใช้ Method ใหม่ที่เพิ่งสร้างใน Controller
             controller.removeProductFromCart(slotCode); 
-            
             refreshUI();
         } catch (Exception e) {
             showStatus("Error removing item", true);
@@ -212,41 +233,64 @@ public class ModernVendingUI extends JFrame {
         Product p = slot.getProduct();
         boolean isOutOfStock = slot.getQuantity() <= 0;
 
+        // Card Container
         JPanel card = new JPanel();
-        card.setPreferredSize(new Dimension(200, 250));
-        card.setBackground(BG_PANEL);
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(60, 60, 70), 1),
-                new EmptyBorder(10, 10, 10, 10)
-        ));
+        card.setPreferredSize(new Dimension(210, 280));
+        card.setBackground(CARD_BG);
+        card.setLayout(new BorderLayout());
+        // Rounded border styling
+        card.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 60), 1));
 
-        JLabel codeLbl = new JLabel(slot.getSlotCode());
-        codeLbl.setForeground(ACCENT_CYAN);
-        codeLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // 1. Image/Icon Area
+        JLabel iconLbl = new JLabel(isOutOfStock ? "❌" : "🥤", SwingConstants.CENTER);
+        iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 60));
+        iconLbl.setPreferredSize(new Dimension(210, 140));
+        
+        // Code Badge (Overlay trick using layout not easy in Swing without layers, using North for now)
+        JLabel codeLbl = new JLabel(" " + slot.getSlotCode() + " ");
+        codeLbl.setOpaque(true);
+        codeLbl.setBackground(ACCENT_PRIMARY);
+        codeLbl.setForeground(Color.WHITE);
+        codeLbl.setFont(new Font("Consolas", Font.BOLD, 14));
+        codeLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(CARD_BG);
+        topPanel.add(codeLbl, BorderLayout.WEST);
+        topPanel.add(iconLbl, BorderLayout.CENTER);
 
-        JLabel iconLbl = new JLabel(isOutOfStock ? "❌" : "🥤");
-        iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 50));
-        iconLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // 2. Info Area
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(CARD_BG);
+        infoPanel.setBorder(new EmptyBorder(0, 15, 15, 15));
 
         JLabel nameLbl = new JLabel(p.getName());
-        nameLbl.setForeground(TEXT_WHITE);
-        nameLbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        nameLbl.setForeground(TEXT_PRIMARY);
+        nameLbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
         nameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel priceLbl = new JLabel(p.getPrice() + " THB");
-        priceLbl.setForeground(Color.LIGHT_GRAY);
+        priceLbl.setForeground(ACCENT_SUCCESS);
+        priceLbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
         priceLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        JLabel stockLbl = new JLabel("Stock: " + slot.getQuantity());
-        stockLbl.setForeground(isOutOfStock ? ACCENT_RED : Color.GRAY);
-        stockLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        JLabel stockLbl = new JLabel("In Stock: " + slot.getQuantity());
+        stockLbl.setForeground(isOutOfStock ? ACCENT_DANGER : TEXT_SECONDARY);
+        stockLbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         stockLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton addBtn = createStyledButton(isOutOfStock ? "OUT OF STOCK" : "ADD", 
-                isOutOfStock ? new Color(50, 20, 20) : ACCENT_CYAN, 
-                isOutOfStock ? Color.GRAY : Color.BLACK);
-        addBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        infoPanel.add(nameLbl);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(priceLbl);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(stockLbl);
+
+        // 3. Button
+        JButton addBtn = createModernButton(isOutOfStock ? "SOLD OUT" : "ADD TO CART", 
+                isOutOfStock ? new Color(60, 30, 30) : ACCENT_PRIMARY, 
+                Color.WHITE);
+        addBtn.setPreferredSize(new Dimension(210, 40));
         addBtn.setEnabled(!isOutOfStock);
         
         addBtn.addActionListener(e -> {
@@ -259,15 +303,9 @@ public class ModernVendingUI extends JFrame {
             refreshUI();
         });
 
-        card.add(codeLbl);
-        card.add(Box.createVerticalStrut(10));
-        card.add(iconLbl);
-        card.add(Box.createVerticalStrut(10));
-        card.add(nameLbl);
-        card.add(priceLbl);
-        card.add(stockLbl);
-        card.add(Box.createVerticalGlue());
-        card.add(addBtn);
+        card.add(topPanel, BorderLayout.NORTH);
+        card.add(infoPanel, BorderLayout.CENTER);
+        card.add(addBtn, BorderLayout.SOUTH);
 
         return card;
     }
@@ -279,9 +317,9 @@ public class ModernVendingUI extends JFrame {
             return;
         }
 
-        String[] options = {"Scan QR Code", "Cash (Coins/Bank notes)"};
-        int choice = JOptionPane.showOptionDialog(this, "Total: " + total + " THB\nSelect Payment Method:", 
-                "Payment", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        String[] options = {"Scan QR Code", "Cash Payment"};
+        int choice = JOptionPane.showOptionDialog(this, "Amount Due: " + total + " THB\nChoose payment method:", 
+                "Checkout", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
         if (choice == 0) { 
             showQRCodeDialog(total);
@@ -290,12 +328,14 @@ public class ModernVendingUI extends JFrame {
         }
     }
 
+    // (Code ส่วน QR และ Loading ยังเหมือนเดิม แต่ปรับ UI เล็กน้อย)
     private void showQRCodeDialog(double amount) {
         JDialog dialog = new JDialog(this, "Scan QR to Pay", true);
-        dialog.setSize(350, 450);
+        dialog.setSize(350, 480);
         dialog.setLayout(new BorderLayout());
         dialog.setLocationRelativeTo(this);
         dialog.setUndecorated(true);
+        dialog.getRootPane().setBorder(new LineBorder(new Color(60,60,60), 2));
 
         JPanel qrPanel = new JPanel() {
             @Override
@@ -304,33 +344,35 @@ public class ModernVendingUI extends JFrame {
                 g.setColor(Color.WHITE);
                 g.fillRect(0, 0, getWidth(), getHeight());
                 g.setColor(Color.BLACK);
-                int size = 10;
+                int size = 12; // ใหญ่ขึ้น
                 Random rand = new Random();
-                for (int y = 50; y < 300; y += size) {
-                    for (int x = 50; x < 300; x += size) {
-                        boolean isCorner = (x<120 && y<120) || (x>230 && y<120) || (x<120 && y>230);
-                        if (isCorner || rand.nextBoolean()) g.fillRect(x, y, size, size);
+                for (int y = 50; y < 280; y += size) {
+                    for (int x = 50; x < 280; x += size) {
+                        if(rand.nextBoolean()) g.fillRect(x, y, size, size);
                     }
                 }
-                g.clearRect(60, 60, 50, 50); g.drawRect(60, 60, 50, 50); g.fillRect(70, 70, 30, 30);
-                g.clearRect(240, 60, 50, 50); g.drawRect(240, 60, 50, 50); g.fillRect(250, 70, 30, 30);
-                g.clearRect(60, 240, 50, 50); g.drawRect(60, 240, 50, 50); g.fillRect(70, 250, 30, 30);
+                // Corners
+                g.fillRect(50, 50, 40, 40);
+                g.fillRect(240, 50, 40, 40);
+                g.fillRect(50, 240, 40, 40);
             }
         };
+        qrPanel.setBackground(Color.WHITE);
 
-        JLabel info = new JLabel("Scan to pay " + amount + " THB", SwingConstants.CENTER);
-        info.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        info.setBorder(new EmptyBorder(10,0,10,0));
+        JLabel info = new JLabel("SCAN TO PAY: " + amount + " ฿", SwingConstants.CENTER);
+        info.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        info.setOpaque(true);
+        info.setBackground(BG_SIDEBAR);
+        info.setForeground(TEXT_PRIMARY);
+        info.setBorder(new EmptyBorder(20,0,20,0));
 
-        JButton confirmBtn = new JButton("SIMULATE SCAN SUCCESS");
-        confirmBtn.setBackground(ACCENT_GREEN);
-        confirmBtn.setForeground(Color.BLACK);
+        JButton confirmBtn = createModernButton("CONFIRM PAYMENT", ACCENT_SUCCESS, Color.WHITE);
         confirmBtn.addActionListener(e -> {
             dialog.dispose();
             simulateLoading("Verifying Payment...", () -> processPaymentResult("1"));
         });
 
-        JButton cancelBtn = new JButton("CANCEL");
+        JButton cancelBtn = createModernButton("CANCEL", BG_SIDEBAR, TEXT_SECONDARY);
         cancelBtn.addActionListener(e -> dialog.dispose());
 
         JPanel btnPanel = new JPanel(new GridLayout(1, 2));
@@ -346,27 +388,29 @@ public class ModernVendingUI extends JFrame {
     private void simulateLoading(String msg, Runnable onComplete) {
         JDialog loadingDialog = new JDialog(this, "Processing", true);
         loadingDialog.setUndecorated(true);
-        loadingDialog.setSize(300, 100);
+        loadingDialog.setSize(350, 120);
         loadingDialog.setLocationRelativeTo(this);
         
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(BG_DARK);
-        panel.setBorder(new LineBorder(ACCENT_CYAN, 2));
+        panel.setBackground(BG_SIDEBAR);
+        panel.setBorder(new LineBorder(ACCENT_PRIMARY, 1));
         
         JLabel lbl = new JLabel(msg, SwingConstants.CENTER);
-        lbl.setForeground(TEXT_WHITE);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lbl.setForeground(TEXT_PRIMARY);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lbl.setBorder(new EmptyBorder(20,0,10,0));
         
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        progressBar.setBackground(BG_DARK);
-        progressBar.setForeground(ACCENT_CYAN);
+        progressBar.setBackground(new Color(40,40,50));
+        progressBar.setForeground(ACCENT_PRIMARY);
+        progressBar.setBorder(new EmptyBorder(0, 20, 20, 20));
         
         panel.add(lbl, BorderLayout.CENTER);
         panel.add(progressBar, BorderLayout.SOUTH);
         loadingDialog.add(panel);
 
-        new Timer(2000, e -> {
+        new Timer(1500, e -> {
             ((Timer)e.getSource()).stop();
             loadingDialog.dispose();
             onComplete.run();
@@ -390,7 +434,7 @@ public class ModernVendingUI extends JFrame {
 
     private void showStatus(String msg, boolean isError) {
         statusLabel.setText(msg.toUpperCase());
-        statusLabel.setForeground(isError ? ACCENT_RED : ACCENT_GREEN);
+        statusLabel.setForeground(isError ? ACCENT_DANGER : ACCENT_SUCCESS);
         if (isError) {
             Timer blink = new Timer(200, null);
             blink.addActionListener(e -> {
@@ -405,17 +449,63 @@ public class ModernVendingUI extends JFrame {
         }
     }
 
-    private JButton createStyledButton(String text, Color bg, Color fg) {
+    // --- HELPER UI METHODS ---
+    
+    private JButton createModernButton(String text, Color bg, Color fg) {
         JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBackground(bg);
         btn.setForeground(fg);
         btn.setFocusPainted(false);
-        btn.setBorder(new EmptyBorder(8, 15, 8, 15));
+        btn.setBorderPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Hover Effect
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                btn.setBackground(bg.brighter());
+            }
+            public void mouseExited(MouseEvent evt) {
+                btn.setBackground(bg);
+            }
+        });
         return btn;
     }
 
-    // MAIN METHOD
+    private void styleGhostButton(JButton btn) {
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorder(new LineBorder(TEXT_SECONDARY));
+        btn.setForeground(TEXT_SECONDARY);
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                btn.setBorder(new LineBorder(ACCENT_PRIMARY));
+                btn.setForeground(ACCENT_PRIMARY);
+            }
+            public void mouseExited(MouseEvent evt) {
+                btn.setBorder(new LineBorder(TEXT_SECONDARY));
+                btn.setForeground(TEXT_SECONDARY);
+            }
+        });
+    }
+
+    // ไอคอนหลอกๆ (ใช้ Text paint เอา)
+    private static class TextIcon implements Icon {
+        private String text;
+        private int size;
+        public TextIcon(String text, int size) { this.text = text; this.size = size; }
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, size));
+            g.drawString(text, x, y + size - 5);
+        }
+        public int getIconWidth() { return size; }
+        public int getIconHeight() { return size; }
+    }
+
     public static void main(String[] args) {
         System.setProperty("awt.useSystemAAFontSettings", "on");
         SwingUtilities.invokeLater(() -> new ModernVendingUI());
