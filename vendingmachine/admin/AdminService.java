@@ -58,4 +58,11 @@ public class AdminService {
     public static boolean authenticate(String password) {
         return ADMIN_PASSWORD.equals(password);
     }
+
+    // เพิ่มเมธอดนี้ใน AdminService.java
+    public void addProduct(String slotCode, String name, double price, int quantity, String type, double size)
+            throws Exception {
+        inventory.addNewProduct(slotCode, name, price, quantity, type, size);
+        System.out.println("Admin: Added new product " + name + " to slot " + slotCode);
+    }
 }

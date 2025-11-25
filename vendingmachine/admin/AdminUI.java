@@ -165,9 +165,9 @@ public class AdminUI extends JFrame {
         gbc.gridy++;
         gbc.gridwidth = 2; // บรรทัดที่ 4
         editPanel.add(updateBtn, gbc);
-        
+
         // RIGHT: Global Actions
-        JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 10));
+        JPanel actionPanel = new JPanel(new GridLayout(3, 1, 0, 10));
         actionPanel.setOpaque(false);
 
         JButton collectCashBtn = new JButton("📤 COLLECT CASH");
@@ -175,11 +175,18 @@ public class AdminUI extends JFrame {
         collectCashBtn.setForeground(Color.WHITE);
         collectCashBtn.setFont(new Font("Noto Color Emoji", Font.BOLD, 13));
 
+        // [เพิ่มปุ่มใหม่]
+        JButton addProductBtn = new JButton("➕ ADD NEW ITEM");
+        addProductBtn.setBackground(PRIMARY_COLOR);
+        addProductBtn.setForeground(Color.WHITE);
+        addProductBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
         JButton refreshBtn = new JButton("🔄 REFRESH DATA");
         refreshBtn.setBackground(Color.WHITE);
         refreshBtn.setForeground(TEXT_DARK);
 
         actionPanel.add(collectCashBtn);
+        actionPanel.add(addProductBtn);
         actionPanel.add(refreshBtn);
 
         bottomPanel.add(editPanel, BorderLayout.CENTER);
@@ -208,6 +215,8 @@ public class AdminUI extends JFrame {
                 }
             }
         });
+
+        addProductBtn.addActionListener(e -> showAddProductDialog());
 
         refreshBtn.addActionListener(e -> refreshData());
 
@@ -299,6 +308,73 @@ public class AdminUI extends JFrame {
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid Number Format.");
+        }
+    }
+
+    private void showAddProductDialog() {
+        // สร้าง Panel สำหรับกรอกข้อมูล
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+
+        JTextField slotField = new JTextField();
+        JTextField nameField = new JTextField();
+        JTextField priceField = new JTextField();
+        JTextField qtyField = new JTextField();
+
+        String[] types = { "Snack", "Drink" };
+        JComboBox<String> typeBox = new JComboBox<>(types);
+
+        JTextField sizeField = new JTextField(); // Weight or Volume
+
+        panel.add(new JLabel("Slot Code (e.g. C1):"));
+        panel.add(slotField);
+
+        panel.add(new JLabel("Product Name:"));
+        panel.add(nameField);
+
+        panel.add(new JLabel("Price (THB):"));
+        panel.add(priceField);
+
+        panel.add(new JLabel("Initial Stock:"));
+        panel.add(qtyField);
+
+        panel.add(new JLabel("Type:"));
+        panel.add(typeBox);
+
+        panel.add(new JLabel("Size (g / ml):"));
+        panel.add(sizeField);
+
+        int result = JOptionPane.showConfirmDialog(this, panel,
+                "Add New Product", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                String slot = slotField.getText().trim();
+                String name = nameField.getText().trim();
+                double price = Double.parseDouble(priceField.getText());
+                int qty = Integer.parseInt(qtyField.getText());
+                String type = (String) typeBox.getSelectedItem();
+                double size = Double.parseDouble(sizeField.getText());
+
+                if (slot.isEmpty() || name.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+                    return;
+                }
+
+                // เรียก Controller
+                controller.adminAddProduct(slot, name, price, qty, type, size);
+
+                JOptionPane.showMessageDialog(this, "Product Added Successfully!");
+                refreshData(); // อัปเดตตาราง Admin
+
+                // สั่งหน้าหลักอัปเดตด้วย (Callback)
+                if (onUpdateCallback != null)
+                    onUpdateCallback.run();
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid Number Format!", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }

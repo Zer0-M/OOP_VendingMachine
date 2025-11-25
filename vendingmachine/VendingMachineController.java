@@ -235,4 +235,9 @@ public class VendingMachineController {
         return sb.toString();
     }
 
+    // เพิ่มเมธอดนี้ใน VendingMachineController.java
+    public void adminAddProduct(String slotCode, String name, double price, int quantity, String type, double size)
+            throws Exception {
+        adminService.addProduct(slotCode, name, price, quantity, type, size);
+    }
 }

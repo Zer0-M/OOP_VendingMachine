@@ -133,4 +133,24 @@ public class InventoryManager {
         ItemSlot slot = findSlotByCode(slotCode);
         slot.getProduct().setPrice(newPrice);
     }
+
+    // เพิ่มเมธอดนี้ใน InventoryManager.java
+    public void addNewProduct(String slotCode, String name, double price, int quantity, String type, double size)
+            throws Exception {
+        slotCode = slotCode.toUpperCase();
+        if (slots.containsKey(slotCode)) {
+            throw new Exception("Slot " + slotCode + " already exists!");
+        }
+
+        Product product;
+        if (type.equalsIgnoreCase("Snack")) {
+            product = new Snack(nextId(), name, price, size);
+        } else if (type.equalsIgnoreCase("Drink")) {
+            product = new Drink(nextId(), name, price, size);
+        } else {
+            throw new Exception("Invalid product type");
+        }
+
+        addSlot(slotCode, product, quantity);
+    }
 }
