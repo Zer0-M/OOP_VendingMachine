@@ -89,9 +89,17 @@ public class ModernVendingUI extends JFrame {
         // --- 2. CENTER (Product Grid) ---
         productGridPanel = new JPanel();
         productGridPanel.setBackground(BG_MAIN);
-        productGridPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 25, 25)); // Grid สวยๆ
 
-        JScrollPane scrollPane = new JScrollPane(productGridPanel);
+        // กำหนด GridLayout 4 คอลัมน์เหมือนเดิม
+        productGridPanel.setLayout(new GridLayout(0, 4, 20, 20));
+        productGridPanel.setBorder(new EmptyBorder(0, 0, 0, 0)); // ลบขอบออก เพราะจะไปใส่ที่ Wrapper แทน
+
+        // [เพิ่มใหม่] สร้าง Wrapper Panel มาหุ้มเพื่อกันไม่ให้ยืด
+        JPanel gridWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20)); // จัดกึ่งกลาง (CENTER) หรือซ้าย
+        gridWrapper.setBackground(BG_MAIN);
+        gridWrapper.add(productGridPanel);
+
+        JScrollPane scrollPane = new JScrollPane(gridWrapper);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getViewport().setBackground(BG_MAIN);
