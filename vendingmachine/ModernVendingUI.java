@@ -38,7 +38,7 @@ public class ModernVendingUI extends JFrame {
         controller = new VendingMachineController();
 
         // Setup Main Window
-        setTitle("Vending Machine PRO 2024");
+        setTitle("Vending Machine PRO");
         setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -54,21 +54,22 @@ public class ModernVendingUI extends JFrame {
                 new EmptyBorder(15, 30, 15, 30)
         ));
 
-        JLabel title = new JLabel("VENDING OS 3.0");
+        JLabel title = new JLabel(" VENDING OS 3.0");
         title.setFont(new Font("Segoe UI", Font.BOLD, 26));
         title.setForeground(ACCENT_PRIMARY);
         title.setIcon(new TextIcon("💎", 28)); // ใส่ไอคอนเก๋ๆ
 
         // ปุ่ม Admin แบบ Minimal
-        JButton adminBtn = new JButton("⚙ ADMIN");
+        JButton adminBtn = new JButton("ADMIN PANEL");
+        adminBtn.setPreferredSize(new Dimension(120, 40));
         styleGhostButton(adminBtn);
         adminBtn.addActionListener(e -> openAdminPanel());
 
-        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 5));
+        JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         rightHeader.setOpaque(false);
         
         statusLabel = new JLabel("SYSTEM ONLINE ●");
-        statusLabel.setFont(new Font("Consolas", Font.BOLD, 24));
+        statusLabel.setFont(new Font("Consolas", Font.BOLD, 22));
         statusLabel.setForeground(ACCENT_SUCCESS);
         
         rightHeader.add(statusLabel);
