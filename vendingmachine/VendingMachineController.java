@@ -97,8 +97,33 @@ public class VendingMachineController {
         return ">> Points added to " + phoneNumber + ". Current Points: 10"; 
     }
 
+<<<<<<< HEAD
     // 🔥 เมธอดใหม่: รับคำสั่งลบจาก UI ส่งต่อให้ Inventory
     public void removeItem(String slotCode) {
         inventoryManager.removeItemFromCart(slotCode);
+=======
+    /**
+     * (สำหรับ View) เคลียร์ตะกร้า (เมื่อจ่ายเงินเสร็จ)
+     */
+    public void clearCart() {
+        shoppingCart.clear();
+    }
+
+    // --- 4. (ใหม่) สร้างเมธอด "ส่งต่อ" สำหรับ Admin ---
+    // VendingMachine (View) จะเรียกเมธอดนี้
+    // Controller จะ "ส่งต่อ" (Delegate) งานไปให้ AdminService
+
+    public void adminRestockItem(String slotCode, int quantity) {
+        // (เราอาจจะเช็ก Password ก่อนตรงนี้ก็ได้)
+        adminService.restockItem(slotCode, quantity);
+    }
+
+    public void adminCollectCash() {
+        adminService.collectCash();
+    }
+
+    public void adminSetPrice(String slotCode, double newPrice) {
+        adminService.setPrice(slotCode, newPrice);
+>>>>>>> parent of b6be2d7 (Add GUI integration for product display and implement payment processing features)
     }
 }

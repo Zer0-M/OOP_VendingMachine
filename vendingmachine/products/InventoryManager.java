@@ -97,12 +97,48 @@ public class InventoryManager {
                 if (!slot.isEmpty()) {
                     slot.dispense();
                     System.out.println("Dropped: " + slot.getProduct().getName());
+<<<<<<< HEAD
+=======
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();}
+                } else {
+                    // (เผื่อกรณี Error แปลกๆ ที่สต็อกหมดกลางคัน)
+                    System.out.println("Error: " + slot.getProduct().getName() + " is out of stock during dispense.");
+>>>>>>> parent of b6be2d7 (Add GUI integration for product display and implement payment processing features)
                 }
             }
         }
         System.out.println("------------------------");
     }
+<<<<<<< HEAD
     
+=======
+
+    /**
+     * (สำหรับ VendingMachine.java)
+     * ดึงรายการสินค้าทั้งหมดเพื่อไปแสดงผลที่หน้าจอ
+     */
+    public String getProductDisplay() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("┌──────┬──────────────────────────────┬─────────────┬───────┐\n");
+        sb.append(String.format("│ %-4s │ %-28s │ %-11s │ %-5s │\n", "CODE", "PRODUCT NAME", "PRICE", "STOCK"));
+        sb.append("├──────┼──────────────────────────────┼─────────────┼───────┤\n");
+        // (ในโลกจริงควรจัดกลุ่ม แต่ตอนนี้เรียงตามรหัสไปก่อน)
+        for (ItemSlot slot : slots.values()) {
+            sb.append(String.format("│ [%s] │ %-28s │ %-11.2f │ %-5d │\n",
+                    slot.getSlotCode(),
+                    slot.getProduct().getInfo(),
+                    slot.getProduct().getPrice(),
+                    slot.getQuantity()));
+        }
+        sb.append("└──────┴──────────────────────────────┴─────────────┴───────┘\n");
+        return sb.toString();
+    }
+
+    // --- เมธอดสำหรับ AdminService ---
+>>>>>>> parent of b6be2d7 (Add GUI integration for product display and implement payment processing features)
     public void restockSlot(String slotCode, int quantity) throws Exception {
         if (!slots.containsKey(slotCode)) throw new Exception("Slot not found");
         slots.get(slotCode).restock(quantity);
