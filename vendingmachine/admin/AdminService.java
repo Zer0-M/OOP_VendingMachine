@@ -9,9 +9,9 @@ import vendingmachine.payment.MoneyManager;
  * VendingMachine (View) จะเข้าถึงเมธอดเหล่านี้ไม่ได้
  */
 public class AdminService {
-    private InventoryManager inventory;
-    private MoneyManager moneyManager;
-    private static final String ADMIN_PASSWORD = ""; // รหัสผ่านแอดมิน
+    private final InventoryManager inventory;
+    private final MoneyManager moneyManager;
+    private static final String ADMIN_PASSWORD = "1234"; // รหัสผ่านแอดมิน
 
     public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
         this.inventory = inventory;
