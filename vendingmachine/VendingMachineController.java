@@ -7,11 +7,9 @@ import vendingmachine.admin.AdminService;
 import vendingmachine.exceptions.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class VendingMachineController {
 
@@ -28,7 +26,12 @@ public class VendingMachineController {
         this.moneyManager = new MoneyManager();
         this.memberDatabase = new MemberDatabase();
         this.shoppingCart = new HashMap<>();
-        this.adminService = new AdminService(this.inventoryManager, this.moneyManager);
+        this.adminService = new AdminService(this.inventoryManager, this.moneyManager, this.memberDatabase);
+    }
+
+    // [New] เมธอดสำหรับส่ง AdminService ให้ UI
+    public AdminService getAdminService() {
+        return adminService;
     }
 
     // เช็กว่ารหัสสินค้านี้มีอยู่จริงในตู้หรือไม่
@@ -120,24 +123,6 @@ public class VendingMachineController {
         return inventoryManager.getActiveSlots();
     }
 
-
-    // ---------------- Admin Operations ----------------
-    public void adminRestockItem(String slotCode, int quantity) {
-        adminService.restockItem(slotCode, quantity);
-    }
-
-    public void adminSetName(String slotCode, String newName) {
-        adminService.setName(slotCode, newName);
-    }
-
-    public void adminSetPrice(String slotCode, double newPrice) {
-        adminService.setPrice(slotCode, newPrice);
-    }
-
-    public double getMachineCurrentCash() {
-        return moneyManager.getCurrentInternalCash();
-    }
-
     public void removeProductFromCart(String slotCode) {
         try {
             ItemSlot slot = inventoryManager.findSlotByCode(slotCode);
@@ -149,53 +134,12 @@ public class VendingMachineController {
         }
     }
 
-    // ดึงเงินสดออกจากตู้ (Admin)
-    public String adminWithdrawCash(double amount) {
-        Map<Double, Integer> result = adminService.collectCashAmount(amount);
-
-        if (result == null)
-            return "Error: Cannot withdraw that amount (Insufficient funds or no suitable change).";
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Withdraw Success! Total: ").append(amount).append(" THB\n");
-        sb.append("--------------------------------\n");
-
-        Map<Double, Integer> sortedResult = new TreeMap<>(Collections.reverseOrder());
-        sortedResult.putAll(result);
-
-        for (Map.Entry<Double, Integer> entry : sortedResult.entrySet()) {
-            double value = entry.getKey();
-            int count = entry.getValue();
-            String type = (value >= 20) ? "Bank" : "Coin";
-
-            // Format: 1000.0 (Bank) : 5 units
-            sb.append(String.format("%-6.0f (%s) : x%d\n", value, type, count));
-        }
-        sb.append("--------------------------------");
-
-        return sb.toString();
-    }
-
-    public void adminAddProduct(String slotCode, String name, double price, int quantity, String type, double size)
-            throws Exception {
-        adminService.addProduct(slotCode, name, price, quantity, type, size);
-    }
-
     public boolean isValidThaiMobilePhone(String phoneNumber) {
         if (phoneNumber == null) {
             return false;
         }
-        
         String thaiMobilePattern = "^0[689][0-9]{8}$";
         return phoneNumber.matches(thaiMobilePattern);
-    }
-
-    public void adminSaveStock() {
-        adminService.saveStock();
-    }
-
-    public void adminLoadStock() {
-        adminService.loadStock();
     }
 
     public MemberDatabase getMemberDatabase() {

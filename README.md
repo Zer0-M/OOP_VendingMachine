@@ -116,16 +116,4 @@ vendingmachine/
 - ไม่รองรับการทอนเงินสตางค์
 
 -----
-
-## สิ่งที่ต้องทำเพิ่มเติม (TODO List)
-
-สิ่งที่ต้องทำเพิ่มเติมเพื่อให้โค้ดนี้ **จึ้งกว่าเดิม** (Take it to the next level):
-
-| รายการ | สถานะปัจจุบัน | สิ่งที่ต้องทำ |
-
-| **Clean up all code** | 
-โค้ดปุ่ม saveMemberBtn และ Logic ถูกคอมเมนต์ทิ้งไว้ใน AdminUI.java และที่อื่นๆ รวมถึงการจัด format ระเบียบต่างๆ |
-Cleanup|
-
------
 Report : https://docs.google.com/document/d/1HKbb4TnQa1G5QExfCQk4326rQAjhPK5ad2Eu5Tft6L4/edit?usp=sharing

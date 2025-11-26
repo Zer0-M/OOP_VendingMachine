@@ -200,7 +200,7 @@ public class VendingUI extends JFrame {
             if (AdminService.authenticate(password)) {
                 // [แก้ไขตรงนี้] ส่ง this::refreshUI เข้าไปเป็น Callback
                 // ความหมายคือ: "ถ้ามีอะไรเปลี่ยนแปลง ให้กลับมาเรียก refreshUI() ของฉันนะ"
-                new AdminUI(controller, this::refreshUI);
+                new AdminUI(controller.getAdminService(), this::refreshUI);
             } else {
                 JOptionPane.showMessageDialog(this, "Wrong Password! Access Denied.", "Security Alert",
                         JOptionPane.ERROR_MESSAGE);

@@ -1,7 +1,5 @@
 package vendingmachine.admin;
 
-import vendingmachine.VendingMachineController;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -11,7 +9,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class AdminUI extends JFrame {
-    private VendingMachineController controller;
+    private AdminService controller;
     private Runnable onUpdateCallback;
     private JTable productTable;
     private DefaultTableModel tableModel;
@@ -29,7 +27,7 @@ public class AdminUI extends JFrame {
     private final Color TEXT_GOLD = new Color(255, 172, 51);
 
     // Constructor
-    public AdminUI(VendingMachineController controller, Runnable onUpdateCallback) {
+    public AdminUI(AdminService controller, Runnable onUpdateCallback) {
         this.controller = controller;
         this.onUpdateCallback = onUpdateCallback;
 
@@ -191,7 +189,7 @@ public class AdminUI extends JFrame {
         saveStockBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
         saveStockBtn.addActionListener(e -> {
-            controller.adminSaveStock();
+            controller.saveStock();
             JOptionPane.showMessageDialog(this, "Inventory Saved Successfully!", "System",
                     JOptionPane.INFORMATION_MESSAGE);
         });
@@ -208,11 +206,8 @@ public class AdminUI extends JFrame {
                     "Warning", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                controller.adminLoadStock();
-                if (onUpdateCallback != null) {
-                    onUpdateCallback.run(); // รีเฟรชหน้าหลัก
-
-                }
+                controller.loadStock();
+                loadDataToTable();
                 JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
             }
         });
@@ -242,7 +237,7 @@ public class AdminUI extends JFrame {
             if (input != null && !input.isEmpty()) {
                 try {
                     double amount = Double.parseDouble(input);
-                    String result = controller.adminWithdrawCash(amount);
+                    String result = controller.withdrawCash(amount);
                     JOptionPane.showMessageDialog(this, result);
 
                     // [NEW] ต้องอัปเดตยอดเงินสดและตารางหลังจากถอนเงิน
@@ -258,7 +253,7 @@ public class AdminUI extends JFrame {
 
         // [NEW LOGIC BINDING] ให้วางโค้ดนี้ต่อจากบรรทัดด้านบนสุด
         viewMemberBtn.addActionListener(e -> {
-            String members = controller.getMemberDatabase().getAllMembersDisplay();
+            String members = controller.getAllMembersDisplay();
             JOptionPane.showMessageDialog(this, members, "Member List", JOptionPane.PLAIN_MESSAGE);
         });
 
@@ -314,18 +309,16 @@ public class AdminUI extends JFrame {
             int stockToAdd = Integer.parseInt(stockField.getText());
 
             if (!newName.trim().isEmpty()) {
-                controller.adminSetName(code, newName); // [2] สั่ง Controller เปลี่ยนชื่อ
+                controller.setName(code, newName); // [2] สั่ง Controller เปลี่ยนชื่อ
             }
-            controller.adminSetPrice(code, newPrice);
+            controller.setPrice(code, newPrice);
             if (stockToAdd > 0) {
-                controller.adminRestockItem(code, stockToAdd);
+                controller.restockItem(code, stockToAdd);
             }
 
             JOptionPane.showMessageDialog(this, "Update Success!");
             // [3] เพิ่มส่วนนี้: สั่งให้หน้าหลักอัปเดตด้วย!
-            if (onUpdateCallback != null) {
-                onUpdateCallback.run();
-            }
+            loadDataToTable();
             // ------------------------------------
 
             // Clear input
@@ -386,7 +379,7 @@ public class AdminUI extends JFrame {
                 }
 
                 // เรียก Controller
-                controller.adminAddProduct(slot, name, price, qty, type, size);
+                controller.addProduct(slot, name, price, qty, type, size);
 
                 JOptionPane.showMessageDialog(this, "Product Added Successfully!");
 
