@@ -191,17 +191,17 @@ public class AdminUI extends JFrame {
         viewMemberBtn.setForeground(Color.WHITE);
         viewMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
-        JButton saveMemberBtn = new JButton("💾 SAVE MEMBER DATA");
-        saveMemberBtn.setBackground(new Color(255, 172, 51));
-        saveMemberBtn.setForeground(Color.WHITE);
-        saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        // JButton saveMemberBtn = new JButton("💾 SAVE MEMBER DATA");
+        // saveMemberBtn.setBackground(new Color(255, 172, 51));
+        // saveMemberBtn.setForeground(Color.WHITE);
+        // saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
         // -----------------
 
         actionPanel.add(collectCashBtn);
         actionPanel.add(addProductBtn);
         // [เพิ่มปุ่มใหม่ 2 ปุ่มตรงนี้]
         actionPanel.add(viewMemberBtn); 
-        actionPanel.add(saveMemberBtn);
+        // actionPanel.add(saveMemberBtn);
         // -----------------------------
         actionPanel.add(refreshBtn);
 
@@ -248,10 +248,10 @@ public class AdminUI extends JFrame {
             JOptionPane.showMessageDialog(this, members, "Member List", JOptionPane.PLAIN_MESSAGE);
         });
 
-        saveMemberBtn.addActionListener(e -> {
-            controller.adminSaveMemberData();
-            JOptionPane.showMessageDialog(this, "Member data successfully saved to member_data.txt!", "Save Complete", JOptionPane.INFORMATION_MESSAGE);
-        });
+        // saveMemberBtn.addActionListener(e -> {
+        //     controller.adminSaveMemberData();
+        //     JOptionPane.showMessageDialog(this, "Member data successfully saved to member_data.txt!", "Save Complete", JOptionPane.INFORMATION_MESSAGE);
+        // });
         // ----------------------
 
         // Initial Data Load
