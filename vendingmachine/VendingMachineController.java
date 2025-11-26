@@ -17,7 +17,6 @@ public class VendingMachineController {
     private final MoneyManager moneyManager; // ตัวจัดการเงินต่างๆ
     private final MemberDatabase memberDatabase; // ส่วนจัดการผู้ใช้
     private final AdminService adminService;
-    // private final List<ItemSlot> shoppingCart;
     private final HashMap<ItemSlot, Integer> shoppingCart; // ตะกล้าสินค้า
 
     public VendingMachineController() {

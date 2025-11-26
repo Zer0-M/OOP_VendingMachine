@@ -1,17 +1,15 @@
 package vendingmachine.payment;
 
 import java.util.Map;
-/**
- * คลาสผู้ช่วยสำหรับเก็บ "ผลลัพธ์" ของการจ่ายเงิน
- * (เนื่องจาก Java method คืนค่าได้เพียงค่าเดียว)
- */
+
+// คลาส Format เก็บ "ผลลัพธ์" ของการจ่ายเงิน
 public class PaymentResult {
-    private boolean success;
-    private double changeDue; // เงินทอนที่เกิดจากช่องทางนี้ (เช่น ใส่แบงค์ 100 ซื้อของ 80)
-
-    // ส่วนที่เพิ่มเข้ามา: เก็บรายละเอียดเงินที่หยอดมา (เพื่อให้ MoneyManager เอาไปเติมตู้)
-    private Map<Double, Integer> insertedMoney; 
-
+    private final boolean success;
+    private final double changeDue; // เงินทอนที่ต้องคืน
+    // เช่น <1000, 2> หมายถึง ใส่แบงค์ 1000 จำนวน 2 ใบ
+    private final Map<Double, Integer> insertedMoney;
+    
+    // Constructor
     public PaymentResult(boolean success, double changeDue, Map<Double, Integer> insertedMoney) {
         this.success = success;
         this.changeDue = changeDue;
