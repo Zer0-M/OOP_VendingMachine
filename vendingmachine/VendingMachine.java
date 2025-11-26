@@ -82,7 +82,7 @@ public class VendingMachine {
             if (ispaid) {
                 System.out.println("Payment Successful!");
 
-                String phoneformat = "^[0][0-9]{9}$";
+                // String phoneformat = "^[0][0-9]{9}$"; // <-- ลบ Regex เก่าออก
                 while (true) {
                     System.out.print("Enter phone number for points (or press Enter to skip): ");
                     String phone = scanner.nextLine().trim();
@@ -90,10 +90,13 @@ public class VendingMachine {
                     if (phone.equals("")) {
                         break; // ข้ามการสะสมแต้ม
                     }
-                    if (!phone.isEmpty() && phone.matches(phoneformat)) {
+                    // if (!phone.isEmpty() && phone.matches(phoneformat)) { // <-- โค้ดเดิม
+                    if (controller.isValidThaiMobilePhone(phone)) { // <-- โค้ดใหม่
                         String pointsResult = controller.applyPoints(phone);
                         System.out.println(pointsResult);
                         break;
+                    } else { // <-- เพิ่ม else block เพื่อแจ้ง Error 
+                        System.out.println("Invalid Phone Number Format! Must be a valid 10-digit Thai Mobile (starting with 06, 08, or 09). Example: 0812345678");
                     }
                 }
 

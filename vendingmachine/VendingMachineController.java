@@ -249,5 +249,20 @@ public class VendingMachineController {
     // [NEW] เมธอด "ส่งต่อ" สำหรับ Admin: ดูข้อมูลสมาชิกทั้งหมด
     public String adminViewMemberData() {
         return memberDatabase.getAllMembersDisplay();
+        
+    }
+
+    /**
+     * [NEW] ตรวจสอบความถูกต้องของเบอร์โทรศัพท์มือถือไทย
+     * ต้องเป็น 10 หลัก และขึ้นต้นด้วย 06, 08, หรือ 09 เท่านั้น 
+     */
+    public boolean isValidThaiMobilePhone(String phoneNumber) {
+        if (phoneNumber == null) {
+            return false;
+        }
+        // Regex Pattern: 10 digits, starting with 0, followed by [6, 8, or 9]
+        // ^0[689][0-9]{8}$
+        String thaiMobilePattern = "^0[689][0-9]{8}$"; 
+        return phoneNumber.matches(thaiMobilePattern);
     }
 }

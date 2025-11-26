@@ -263,8 +263,8 @@ public class ModernVendingUI extends JFrame {
                 break;
             }
 
-            // 2. กรณีถูกต้อง: เช็ค Format (ขึ้นต้นด้วย 0 และเป็นตัวเลข 9 ตัวตามหลัง)
-            if (phone.matches("^[0][0-9]{9}$")) {
+            // 2. กรณีถูกต้อง: เช็ค Format (ใช้เมธอดใหม่)
+            if (controller.isValidThaiMobilePhone(phone)) { // <-- โค้ดใหม่
                 String result = controller.applyPoints(phone);
                 JOptionPane.showMessageDialog(this, result, "Points Added", JOptionPane.INFORMATION_MESSAGE);
                 break; // ทำรายการสำเร็จ -> ออกจาก Loop
