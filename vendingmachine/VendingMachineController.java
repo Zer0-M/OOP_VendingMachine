@@ -241,15 +241,9 @@ public class VendingMachineController {
         adminService.addProduct(slotCode, name, price, quantity, type, size);
     }
 
-    // [NEW] เมธอด "ส่งต่อ" สำหรับ Admin: บันทึกข้อมูลสมาชิก
-    public void adminSaveMemberData() {
-        memberDatabase.saveMembersToFile();
-    }
-
-    // [NEW] เมธอด "ส่งต่อ" สำหรับ Admin: ดูข้อมูลสมาชิกทั้งหมด
-    public String adminViewMemberData() {
-        return memberDatabase.getAllMembersDisplay();
-        
+    // [NEW] Getter สำหรับ MemberDatabase เพื่อเข้าถึงโดยตรง (ตามหลัก Composition)
+    public MemberDatabase getMemberDatabase() {
+        return this.memberDatabase;
     }
 
     /**

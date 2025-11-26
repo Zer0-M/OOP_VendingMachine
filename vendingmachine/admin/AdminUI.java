@@ -244,7 +244,7 @@ public class AdminUI extends JFrame {
 
         // [NEW LOGIC BINDING] ให้วางโค้ดนี้ต่อจากบรรทัดด้านบนสุด
         viewMemberBtn.addActionListener(e -> {
-            String members = controller.adminViewMemberData();
+            String members = controller.getMemberDatabase().getAllMembersDisplay();
             JOptionPane.showMessageDialog(this, members, "Member List", JOptionPane.PLAIN_MESSAGE);
         });
 

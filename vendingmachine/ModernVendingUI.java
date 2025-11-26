@@ -267,7 +267,7 @@ public class ModernVendingUI extends JFrame {
             if (controller.isValidThaiMobilePhone(phone)) { // <-- โค้ดใหม่
                 String result = controller.applyPoints(phone);
                 // [NEW] บันทึกข้อมูลสมาชิกทันทีที่เพิ่มแต้มสำเร็จ
-                controller.adminSaveMemberData(); // <--- เพิ่มบรรทัดนี้
+                controller.getMemberDatabase().saveMembersToFile();
                 JOptionPane.showMessageDialog(this, result, "Points Added", JOptionPane.INFORMATION_MESSAGE);
                 break; // ทำรายการสำเร็จ -> ออกจาก Loop
             }
