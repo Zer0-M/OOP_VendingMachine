@@ -64,10 +64,12 @@ public class VendingMachine {
 
         while (true) {
             // 2. เลือกวิธีการจ่ายเงิน
-            System.out.println("Payment Option \n[1] QR \n[2] Coin \n[3] Banknote \n[0] Cancel Transaction");
+            // [MODIFIED] ยุบ Coin และ Banknote เหลือแค่ Cash Payment
+            System.out.println("Payment Option \n[1] QR \n[2] Cash Payment \n[0] Cancel Transaction");
             System.out.print("Select payment: ");
             String paymentChoice = scanner.nextLine();
-            if (!paymentChoice.equals("1") && !paymentChoice.equals("2") && !paymentChoice.equals("3")
+            // [MODIFIED] ตรวจสอบ Input ใหม่: รับแค่ "1", "2", หรือ "0"
+            if (!paymentChoice.equals("1") && !paymentChoice.equals("2") 
                     && !paymentChoice.equals("0")) {
                 System.out.println("Invalid payment option. Please try again.");
                 continue; // กลับไปเลือกใหม่
