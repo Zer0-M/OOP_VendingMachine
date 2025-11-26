@@ -128,4 +128,4 @@ vendingmachine/
 
 | รายการ | สถานะปัจจุบัน | สิ่งที่ต้องทำ |
 
-| **GUI** | ยังไม่มีปุ่ม "Cancel" ในหน้า QR Payment โดยตรง (ต้องกดปุ่ม Cancel ที่ Dialog) | **Improve:** เพิ่มปุ่ม Cancel ที่หน้า Checkout ให้ชัดเจนขึ้น |
+| **GUI** | xxx | ไม่มีเเล้ว เย้ๆๆ |
