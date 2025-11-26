@@ -12,4 +12,9 @@ public class Snack extends Product {
     public String getInfo() {
         return getName() + " (" + weight + " g)";
     }
+
+    // [NEW] Getter สำหรับดึงน้ำหนักไปบันทึกไฟล์
+    public double getWeight() {
+        return this.weight;
+    }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class VendingMachineController {
+
     private final InventoryManager inventoryManager; // ตัวจัดการคลังสินค้า
     private final MoneyManager moneyManager; // ตัวจัดการเงินต่างๆ
     private final MemberDatabase memberDatabase; // ส่วนจัดการผู้ใช้
@@ -20,7 +21,9 @@ public class VendingMachineController {
     private final HashMap<ItemSlot, Integer> shoppingCart; // ตะกล้าสินค้า
 
     public VendingMachineController() {
+        // ใน VendingMachineController()
         this.inventoryManager = new InventoryManager();
+        this.inventoryManager.loadInventoryFromFile(); // <-- เพิ่มบรรทัดนี้ต่อท้าย
         this.moneyManager = new MoneyManager(500); // ใส่เงินทอนเริ่มต้นในเครื่อง
         this.memberDatabase = new MemberDatabase();
 
@@ -151,7 +154,6 @@ public class VendingMachineController {
     // --- 4. (ใหม่) สร้างเมธอด "ส่งต่อ" สำหรับ Admin ---
     // VendingMachine (View) จะเรียกเมธอดนี้
     // Controller จะ "ส่งต่อ" (Delegate) งานไปให้ AdminService
-
     public void adminRestockItem(String slotCode, int quantity) {
         // (เราอาจจะเช็ก Password ก่อนตรงนี้ก็ได้)
         adminService.restockItem(slotCode, quantity);
@@ -247,8 +249,8 @@ public class VendingMachineController {
     }
 
     /**
-     * [NEW] ตรวจสอบความถูกต้องของเบอร์โทรศัพท์มือถือไทย
-     * ต้องเป็น 10 หลัก และขึ้นต้นด้วย 06, 08, หรือ 09 เท่านั้น 
+     * [NEW] ตรวจสอบความถูกต้องของเบอร์โทรศัพท์มือถือไทย ต้องเป็น 10 หลัก
+     * และขึ้นต้นด้วย 06, 08, หรือ 09 เท่านั้น
      */
     public boolean isValidThaiMobilePhone(String phoneNumber) {
         if (phoneNumber == null) {
@@ -256,7 +258,16 @@ public class VendingMachineController {
         }
         // Regex Pattern: 10 digits, starting with 0, followed by [6, 8, or 9]
         // ^0[689][0-9]{8}$
-        String thaiMobilePattern = "^0[689][0-9]{8}$"; 
+        String thaiMobilePattern = "^0[689][0-9]{8}$";
         return phoneNumber.matches(thaiMobilePattern);
+    }
+
+    // [EXTENSION]
+    public void adminSaveStock() {
+        adminService.saveStock();
+    }
+
+    public void adminLoadStock() {
+        adminService.loadStock();
     }
 }

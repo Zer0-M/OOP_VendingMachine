@@ -12,4 +12,9 @@ public class Drink extends Product {
     public String getInfo() {
         return getName() + " (" + volume + " ml)";
     }
+
+    // [NEW] Getter สำหรับดึงปริมาตรไปบันทึกไฟล์
+    public double getVolume() {
+        return this.volume;
+    }
 }

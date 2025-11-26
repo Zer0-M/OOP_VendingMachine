@@ -1,0 +1,4 @@
+A1,Snack,5,Lays,20.00,10,330.00
+B2,Drink,8,Sprite,15.00,24,600.00
+A2,Snack,6,Testo,15.00,5,300.00
+B1,Drink,7,Coke,17.00,20,550.00

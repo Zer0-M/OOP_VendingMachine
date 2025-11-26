@@ -3,6 +3,7 @@ package vendingmachine.products;
 import vendingmachine.exceptions.OutOfStockException;
 import java.util.HashMap;
 import java.util.Map; // ใช้ Map แทน List ในการรับพารามิเตอร์
+import java.io.*;
 
 /**
  * คลาส "ผู้จัดการสต็อก" (Encapsulation)
@@ -12,7 +13,75 @@ import java.util.Map; // ใช้ Map แทน List ในการรับ�
 public class InventoryManager {
     private Map<String, ItemSlot> slots = new HashMap<>();
     private int nextProductId = 000;
+    private static final String INVENTORY_FILE = "vendingmachine/products/inventory_data.txt";
 
+    public void saveInventoryToFile() {
+        try (java.io.FileWriter writer = new java.io.FileWriter(INVENTORY_FILE)) {
+            // Format: SlotCode,Type,ID,Name,Price,Quantity,Size
+            for (ItemSlot slot : slots.values()) {
+                Product p = slot.getProduct();
+                String type = (p instanceof Snack) ? "Snack" : "Drink";
+                double size = 0.0;
+                
+                if (p instanceof Snack) size = ((Snack) p).getWeight();
+                else if (p instanceof Drink) size = ((Drink) p).getVolume();
+
+                String line = String.format("%s,%s,%d,%s,%.2f,%d,%.2f",
+                        slot.getSlotCode(), type, p.getProductId(), p.getName(), 
+                        p.getPrice(), slot.getQuantity(), size);
+                
+                writer.write(line + "\n");
+            }
+            System.out.println("✅ Inventory saved to " + INVENTORY_FILE);
+        } catch (Exception e) {
+            System.out.println("❌ Error saving inventory: " + e.getMessage());
+        }
+    }
+
+    public void loadInventoryFromFile() {
+        java.io.File file = new java.io.File(INVENTORY_FILE);
+        if (!file.exists()) {
+            System.out.println("⚠️ No saved inventory file found. Using default.");
+            return;
+        }
+
+        try (java.util.Scanner scanner = new java.util.Scanner(file)) {
+            // เคลียร์ของเก่าก่อนโหลดใหม่ (หรือจะใช้ method นี้แทน initializeInventory ก็ได้)
+            slots.clear(); 
+            
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] data = line.split(",");
+                // Format: Code[0], Type[1], ID[2], Name[3], Price[4], Qty[5], Size[6]
+                
+                if (data.length == 7) {
+                    String code = data[0];
+                    String type = data[1];
+                    int id = Integer.parseInt(data[2]); // ถ้าอยากใช้ ID เดิมก็แก้ constructor Product ให้รับ ID ได้
+                    String name = data[3];
+                    double price = Double.parseDouble(data[4]);
+                    int qty = Integer.parseInt(data[5]);
+                    double size = Double.parseDouble(data[6]);
+
+                    Product p;
+                    // *หมายเหตุ: ต้องแน่ใจว่า Constructor ของ Product/Snack รองรับการรับ ID 
+                    // (ในโค้ดเดิม nextId() มัน Auto run อาจจะต้องปรับนิดหน่อยถ้าซีเรียสเรื่อง ID เดิม)
+                    // แต่ในที่นี้เราสร้างใหม่ไปเลยเพื่อความง่าย
+                    if (type.equals("Snack")) {
+                        p = new Snack(nextId(), name, price, size); 
+                    } else {
+                        p = new Drink(nextId(), name, price, size);
+                    }
+                    
+                    addSlot(code, p, qty);
+                }
+            }
+            System.out.println("✅ Loaded inventory from file.");
+        } catch (Exception e) {
+            System.out.println("❌ Error loading inventory: " + e.getMessage());
+        }
+    }
+    
     public InventoryManager() {
         initializeInventory(); // โหลดของเข้าตู้
     }

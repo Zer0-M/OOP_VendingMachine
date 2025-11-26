@@ -181,10 +181,6 @@ public class AdminUI extends JFrame {
         addProductBtn.setForeground(Color.WHITE);
         addProductBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
-        JButton refreshBtn = new JButton("🔄 REFRESH DATA");
-        refreshBtn.setBackground(Color.WHITE);
-        refreshBtn.setForeground(TEXT_DARK);
-
         // [NEW BUTTONS] ปุ่มสำหรับจัดการสมาชิก (ให้วางโค้ดนี้ต่อจากตรงนี้)
         JButton viewMemberBtn = new JButton("👥 VIEW MEMBERS");
         viewMemberBtn.setBackground(new Color(60, 60, 70));
@@ -197,19 +193,49 @@ public class AdminUI extends JFrame {
         // saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
         // -----------------
 
+        // --- [NEW BUTTONS CODE BLOCK] ---
+        // ปุ่ม Save Stock
+        JButton saveStockBtn = new JButton("💾 SAVE STOCK");
+        saveStockBtn.setBackground(new Color(255, 87, 34)); // สีส้มเท่ๆ
+        saveStockBtn.setForeground(Color.WHITE);
+        saveStockBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        
+        saveStockBtn.addActionListener(e -> {
+            controller.adminSaveStock();
+            JOptionPane.showMessageDialog(this, "Inventory Saved Successfully!", "System", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        // ปุ่ม Load Stock (ถ้าอยากให้โหลดได้ด้วย)
+        JButton loadStockBtn = new JButton("📂 LOAD STOCK");
+        loadStockBtn.setBackground(new Color(33, 150, 243)); // สีฟ้า
+        loadStockBtn.setForeground(Color.WHITE);
+        loadStockBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        
+        loadStockBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Loading stock will replace current items. Continue?", 
+                "Warning", JOptionPane.YES_NO_OPTION);
+                
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.adminLoadStock();
+                if (onUpdateCallback != null) onUpdateCallback.run(); // รีเฟรชหน้าหลัก
+                JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
         actionPanel.add(collectCashBtn);
         actionPanel.add(addProductBtn);
         // [เพิ่มปุ่มใหม่ 2 ปุ่มตรงนี้]
         actionPanel.add(viewMemberBtn); 
         // actionPanel.add(saveMemberBtn);
+        actionPanel.add(saveStockBtn);
+        actionPanel.add(loadStockBtn);
         // -----------------------------
-        actionPanel.add(refreshBtn);
 
         bottomPanel.add(editPanel, BorderLayout.CENTER);
 
         actionPanel.add(collectCashBtn);
         actionPanel.add(addProductBtn);
-        actionPanel.add(refreshBtn);
 
         bottomPanel.add(editPanel, BorderLayout.CENTER);
         bottomPanel.add(actionPanel, BorderLayout.EAST);
@@ -231,7 +257,6 @@ public class AdminUI extends JFrame {
                     double amount = Double.parseDouble(input);
                     String result = controller.adminWithdrawCash(amount);
                     JOptionPane.showMessageDialog(this, result);
-                    refreshData();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Invalid number!");
                 }
@@ -239,8 +264,6 @@ public class AdminUI extends JFrame {
         });
 
         addProductBtn.addActionListener(e -> showAddProductDialog());
-
-        refreshBtn.addActionListener(e -> refreshData());
 
         // [NEW LOGIC BINDING] ให้วางโค้ดนี้ต่อจากบรรทัดด้านบนสุด
         viewMemberBtn.addActionListener(e -> {
@@ -255,7 +278,6 @@ public class AdminUI extends JFrame {
         // ----------------------
 
         // Initial Data Load
-        refreshData();
         setVisible(true);
     }
 
@@ -290,23 +312,6 @@ public class AdminUI extends JFrame {
         });
     }
 
-    private void refreshData() {
-        double currentCash = controller.getMachineCurrentCash();
-        cashLabel.setText(String.format("%.2f THB", currentCash));
-
-        tableModel.setRowCount(0);
-        Map<String, ItemSlot> slots = new TreeMap<>(controller.getProductList());
-
-        for (ItemSlot slot : slots.values()) {
-            tableModel.addRow(new Object[] {
-                    slot.getSlotCode(),
-                    slot.getProduct().getName(),
-                    slot.getProduct().getPrice(),
-                    slot.getQuantity()
-            });
-        }
-    }
-
     private void updateSelectedItem() {
         int row = productTable.getSelectedRow();
         if (row == -1) {
@@ -330,7 +335,6 @@ public class AdminUI extends JFrame {
             }
 
             JOptionPane.showMessageDialog(this, "Update Success!");
-            refreshData();
             // [3] เพิ่มส่วนนี้: สั่งให้หน้าหลักอัปเดตด้วย!
             if (onUpdateCallback != null) {
                 onUpdateCallback.run();
@@ -398,7 +402,6 @@ public class AdminUI extends JFrame {
                 controller.adminAddProduct(slot, name, price, qty, type, size);
 
                 JOptionPane.showMessageDialog(this, "Product Added Successfully!");
-                refreshData(); // อัปเดตตาราง Admin
 
                 // สั่งหน้าหลักอัปเดตด้วย (Callback)
                 if (onUpdateCallback != null)

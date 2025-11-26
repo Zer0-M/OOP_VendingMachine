@@ -65,4 +65,13 @@ public class AdminService {
         inventory.addNewProduct(slotCode, name, price, quantity, type, size);
         System.out.println("Admin: Added new product " + name + " to slot " + slotCode);
     }
+
+    // [EXTENSION]
+    public void saveStock() {
+        inventory.saveInventoryToFile();
+    }
+    
+    public void loadStock() {
+        inventory.loadInventoryFromFile();
+    }
 }
