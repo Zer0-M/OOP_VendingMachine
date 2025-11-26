@@ -11,7 +11,6 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class AdminUI extends JFrame {
-
     private VendingMachineController controller;
     private Runnable onUpdateCallback;
     private JTable productTable;
@@ -29,6 +28,7 @@ public class AdminUI extends JFrame {
     private final Color TEXT_DARK = new Color(50, 50, 60);
     private final Color TEXT_GOLD = new Color(255, 172, 51);
 
+    // Constructor
     public AdminUI(VendingMachineController controller, Runnable onUpdateCallback) {
         this.controller = controller;
         this.onUpdateCallback = onUpdateCallback;
@@ -69,7 +69,7 @@ public class AdminUI extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
 
         // --- TABLE (Inventory List) ---
-        String[] columnNames = {"SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY"};
+        String[] columnNames = { "SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -168,7 +168,7 @@ public class AdminUI extends JFrame {
         actionPanel.setOpaque(false);
 
         JButton collectCashBtn = new JButton("📤 COLLECT CASH");
-        collectCashBtn.setBackground(new Color(40, 167, 69)); // Green
+        collectCashBtn.setBackground(new Color(40, 167, 69));
         collectCashBtn.setForeground(Color.WHITE);
         collectCashBtn.setFont(new Font("Noto Color Emoji", Font.BOLD, 13));
 
@@ -192,7 +192,8 @@ public class AdminUI extends JFrame {
 
         saveStockBtn.addActionListener(e -> {
             controller.adminSaveStock();
-            JOptionPane.showMessageDialog(this, "Inventory Saved Successfully!", "System", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Inventory Saved Successfully!", "System",
+                    JOptionPane.INFORMATION_MESSAGE);
         });
 
         // ปุ่ม Load Stock (ถ้าอยากให้โหลดได้ด้วย)
@@ -211,24 +212,19 @@ public class AdminUI extends JFrame {
                 if (onUpdateCallback != null) {
                     onUpdateCallback.run(); // รีเฟรชหน้าหลัก
 
-                                }JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
+                }
+                JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
             }
         });
-
-        actionPanel.add(collectCashBtn);
-        actionPanel.add(addProductBtn);
-        // [เพิ่มปุ่มใหม่ 2 ปุ่มตรงนี้]
+        // -----------------------------
         actionPanel.add(viewMemberBtn);
-        // actionPanel.add(saveMemberBtn);
-        actionPanel.add(saveStockBtn);
+        actionPanel.add(collectCashBtn);
         actionPanel.add(loadStockBtn);
+        actionPanel.add(saveStockBtn);
+        actionPanel.add(addProductBtn);
         // -----------------------------
 
         bottomPanel.add(editPanel, BorderLayout.CENTER);
-
-        actionPanel.add(collectCashBtn);
-        actionPanel.add(addProductBtn);
-
         bottomPanel.add(editPanel, BorderLayout.CENTER);
         bottomPanel.add(actionPanel, BorderLayout.EAST);
 
@@ -240,7 +236,7 @@ public class AdminUI extends JFrame {
         collectCashBtn.addActionListener(e -> {
             String input = JOptionPane.showInputDialog(this,
                     "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n"
-                    + "Enter amount to collect:",
+                            + "Enter amount to collect:",
                     "Withdraw Cash", JOptionPane.QUESTION_MESSAGE);
 
             if (input != null && !input.isEmpty()) {
@@ -266,10 +262,6 @@ public class AdminUI extends JFrame {
             JOptionPane.showMessageDialog(this, members, "Member List", JOptionPane.PLAIN_MESSAGE);
         });
 
-        // saveMemberBtn.addActionListener(e -> {
-        //     controller.adminSaveMemberData();
-        //     JOptionPane.showMessageDialog(this, "Member data successfully saved to member_data.txt!", "Save Complete", JOptionPane.INFORMATION_MESSAGE);
-        // });
         // ----------------------
         // Initial Data Load
         loadDataToTable();
@@ -353,7 +345,7 @@ public class AdminUI extends JFrame {
         JTextField priceField = new JTextField();
         JTextField qtyField = new JTextField();
 
-        String[] types = {"Snack", "Drink"};
+        String[] types = { "Snack", "Drink" };
         JComboBox<String> typeBox = new JComboBox<>(types);
 
         JTextField sizeField = new JTextField(); // Weight or Volume
@@ -398,10 +390,7 @@ public class AdminUI extends JFrame {
 
                 JOptionPane.showMessageDialog(this, "Product Added Successfully!");
 
-                // สั่งหน้าหลักอัปเดตด้วย (Callback)
-                if (onUpdateCallback != null) {
-                    onUpdateCallback.run();
-                }
+                loadDataToTable();
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid Number Format!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -418,8 +407,8 @@ public class AdminUI extends JFrame {
 
         // 2. ดึงข้อมูลสินค้าจาก Controller
         // ใช้ TreeMap เพื่อให้ข้อมูลเรียงตาม Key (A1, A2, B1, B2, ...)
-        java.util.Map<String, vendingmachine.products.ItemSlot> slots
-                = new java.util.TreeMap<>(controller.getProductList());
+        java.util.Map<String, vendingmachine.products.ItemSlot> slots = new java.util.TreeMap<>(
+                controller.getProductList());
 
         for (vendingmachine.products.ItemSlot slot : slots.values()) {
             // [FIX] ต้องใช้ getProduct().getName() เพื่อให้ชื่อสินค้าถูกต้อง
@@ -428,11 +417,11 @@ public class AdminUI extends JFrame {
             int qty = slot.getQuantity();
 
             // 3. เพิ่มแถวใหม่
-            tableModel.addRow(new Object[]{
-                slot.getSlotCode(),
-                name,
-                price,
-                qty
+            tableModel.addRow(new Object[] {
+                    slot.getSlotCode(),
+                    name,
+                    price,
+                    qty
             });
         }
 

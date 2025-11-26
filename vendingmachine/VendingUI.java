@@ -322,7 +322,7 @@ public class VendingUI extends JFrame {
         infoPanel.setBackground(CARD_BG);
         infoPanel.setBorder(new EmptyBorder(0, 15, 15, 15));
 
-        JLabel nameLbl = new JLabel(p.getName());
+        JLabel nameLbl = new JLabel(p.getInfo());
         nameLbl.setForeground(TEXT_PRIMARY);
         nameLbl.setFont(new Font("Segoe UI", Font.BOLD, 15));
         nameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
