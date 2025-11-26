@@ -11,6 +11,10 @@ public abstract class Product {
         this.productPrice = productPrice;
     }
 
+    public int getProductId() {
+        return productID;
+    }
+
     public void setName(String newName) {
         this.productName = newName;
     }
@@ -19,16 +23,12 @@ public abstract class Product {
         return productName;
     }
 
-    public double getPrice() {
-        return productPrice;
-    }
-
-    public int getProductId() {
-        return productID;
-    }
-
     public void setPrice(double newPrice) {
         this.productPrice = newPrice;
+    }
+
+    public double getPrice() {
+        return productPrice;
     }
 
     public abstract String getInfo();

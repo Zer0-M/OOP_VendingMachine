@@ -3,22 +3,20 @@ package vendingmachine.users;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-// [NEW IMPORTS] สำหรับ File I/O
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class MemberDatabase {
-    private Map<String, Member> activeMember = new HashMap<>();
     private static final String MEMBER_FILE = "vendingmachine/users/member_data.txt";
-
+    private final Map<String, Member> activeMember = new HashMap<>();
+    
     public MemberDatabase() {
-        // [UPDATE] ลองโหลดข้อมูลสมาชิกตั้งแต่เริ่มต้นโปรแกรม
-        loadMembersFromFile(); //
+        loadMembersFromFile();
     }
 
     public Member findMemberByPhone(String phoneNumber) {
-        return activeMember.get(phoneNumber); // คืนค่า Member หรือ null ถ้าไม่เจอ
+        return activeMember.get(phoneNumber);
     }
 
     public void deleteMember(String phoneNumber) {
@@ -26,21 +24,19 @@ public class MemberDatabase {
     }
 
     public String addPointsToMember(String phoneNumber, int pointsToAdd) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty())
             return "Invalid phone number.";
-        }
-        if (pointsToAdd <= 0) {
-            return "No points to add."; // ไม่ต้องทำอะไร ถ้าแต้มเป็น 0
-        }
+        if (pointsToAdd <= 0)return "No points to add.";
 
-        // ตรวจสอบสถานะก่อนว่า "เป็นสมาชิกใหม่หรือไม่"
+        // ตรวจสอบว่าสมาชิกใหม่หรือเก่า
         boolean wasNewMember = !activeMember.containsKey(phoneNumber);
 
+        // ดึง Member เดิมมาหรือสร้างใหม่ถ้ายังไม่มี
         Member member = activeMember.computeIfAbsent(phoneNumber, key -> new Member(key));
 
+        // เพิ่มแต้มให้สมาชิก
         member.addPoints(pointsToAdd);
 
-        // คืนค่าข้อความ Status ให้ Controller เอาไปโชว์
         if (wasNewMember) {
             return "Welcome new member! Added " + pointsToAdd + " points. Total: " + member.getPoints();
         } else {
@@ -48,23 +44,25 @@ public class MemberDatabase {
         }
     }
 
-    // [NEW METHOD] บันทึกข้อมูลสมาชิกทั้งหมดลงไฟล์
+
+
+    // บันทึกข้อมูลสมาชิกลงไฟล์
     public void saveMembersToFile() {
-        try (FileWriter writer = new FileWriter(MEMBER_FILE)) { //
+        try (FileWriter writer = new FileWriter(MEMBER_FILE)) {
             for (Member member : activeMember.values()) {
                 writer.write(member.toString() + "\n");
             }
-            System.out.println("Member data saved to " + MEMBER_FILE);
+            System.out.println("[System] Member data saved to " + MEMBER_FILE);
         } catch (IOException e) {
-            System.out.println("Error saving member data: " + e.getMessage());
+            System.out.println("[System] Error saving member data: " + e.getMessage());
         }
     }
 
-    // [NEW METHOD] โหลดข้อมูลสมาชิกจากไฟล์ (ถูกเรียกใน Constructor)
+    // โหลดข้อมูลสมาชิกจากไฟล์
     private void loadMembersFromFile() {
         File file = new File(MEMBER_FILE);
         if (!file.exists()) {
-            System.out.println("Member data file not found. Starting with empty database.");
+            System.out.println("[System] Member data file not found. Starting with empty database.");
             return;
         }
 
@@ -77,19 +75,19 @@ public class MemberDatabase {
                     int points = Integer.parseInt(parts[1].trim());
 
                     Member member = new Member(phone);
-                    member.addPoints(points); //
+                    member.addPoints(points);
 
                     activeMember.put(phone, member);
                 }
             }
-            System.out.println("Loaded " + activeMember.size() + " members from file.");
+            System.out.println("[System] Loaded " + activeMember.size() + " members from file.");
         } catch (IOException | NumberFormatException e) {
-            System.out.println("Error loading member data: " + e.getMessage());
+            System.out.println("[System] Error loading member data: " + e.getMessage());
             activeMember.clear();
         }
     }
     
-    // [NEW METHOD] สร้างข้อความแสดงรายการสมาชิกทั้งหมด
+    // สร้างข้อความแสดงรายการสมาชิกทั้งหมด
     public String getAllMembersDisplay() {
         if (activeMember.isEmpty()) {
             return "No active members found.";

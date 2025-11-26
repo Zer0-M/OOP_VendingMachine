@@ -1,8 +1,8 @@
 package vendingmachine.products;
 
 public class ItemSlot {
-    private String slotCode;
-    private Product product;
+    private final String slotCode;
+    private final Product product;
     private int quantity;
 
     public ItemSlot(String slotCode, Product product, int quantity) {

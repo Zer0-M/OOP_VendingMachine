@@ -1,31 +1,29 @@
 package vendingmachine.users;
 
 public class Member {
-
-    private String phoneNumber;
-    private int points; // ห่อหุ้มไว้
+    private final String phoneNumber;
+    private int points;
 
     public Member(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-        this.points = 0; // แต้มเริ่มต้น
+        this.points = 0;
     }
 
-    public String getCustomerId() {
-        return this.phoneNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public int getPoints() {
-        return this.points;
+        return points;
     }
 
     public void addPoints(int pointsToAdd) {
         if (pointsToAdd > 0) {
-            this.points += pointsToAdd;
+            points += pointsToAdd;
         }
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return phoneNumber + "," + points;
     }
 }

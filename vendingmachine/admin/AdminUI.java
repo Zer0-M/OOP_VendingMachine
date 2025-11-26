@@ -178,18 +178,12 @@ public class AdminUI extends JFrame {
         addProductBtn.setForeground(Color.WHITE);
         addProductBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
-        // [NEW BUTTONS] ปุ่มสำหรับจัดการสมาชิก (ให้วางโค้ดนี้ต่อจากตรงนี้)
+        // ปุ่มสำหรับจัดการสมาชิก (ให้วางโค้ดนี้ต่อจากตรงนี้)
         JButton viewMemberBtn = new JButton("👥 VIEW MEMBERS");
         viewMemberBtn.setBackground(new Color(60, 60, 70));
         viewMemberBtn.setForeground(Color.WHITE);
         viewMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
 
-        // JButton saveMemberBtn = new JButton("💾 SAVE MEMBER DATA");
-        // saveMemberBtn.setBackground(new Color(255, 172, 51));
-        // saveMemberBtn.setForeground(Color.WHITE);
-        // saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
-        // -----------------
-        // --- [NEW BUTTONS CODE BLOCK] ---
         // ปุ่ม Save Stock
         JButton saveStockBtn = new JButton("💾 SAVE STOCK");
         saveStockBtn.setBackground(new Color(255, 87, 34)); // สีส้มเท่ๆ

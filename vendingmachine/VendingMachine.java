@@ -12,34 +12,29 @@ public class VendingMachine {
     }
 
     public void run() {
-        // Loop ใหญ่: ตู้เปิดทำงานตลอดเวลา (Machine On)
         while (true) {
             System.out.println("=== Welcome to the Vending Machine ===");
-            System.out.println(controller.getDisplayProducts()); // โชว์สินค้าใหม่ทุกรอบ (เผื่อสต็อกลด)
             System.out.println("Type 'OK' to Confirm Order | Type 'OFF' to Shutdown");
 
-            boolean isSelecting = true; // ตัวแปรสำหรับ Loop การเลือกของ (Session)
+            boolean isSelecting = true;
 
-            // Loop เล็ก: ลูกค้าคนปัจจุบันกำลังเลือกของ
+            // ลูกค้าคนปัจจุบันกำลังเลือกของ
             while (isSelecting) {
-                controller.getCart(); // แสดงตะกร้าปัจจุบัน
-
+                controller.getCart();
+        
                 System.out.print("Select item (or OK): ");
                 String input = scanner.nextLine().toUpperCase().trim();
 
                 if (input.equals("OFF")) {
                     System.out.println("Shutting down system...");
-                    return; // จบโปรแกรมทันที
+                    return;
                 }
-
+                
                 if (input.equals("OK")) {
-                    // จบการเลือกของ -> ไปจ่ายเงิน
                     isSelecting = false;
                     startPaymentProcess();
-                    // พอจ่ายเงินเสร็จ (หรือจ่ายไม่สำเร็จ) มันจะหลุด Loop นี้
-                    // แล้วไปเริ่ม Loop ใหญ่ใหม่ (ต้อนรับลูกค้าคนต่อไป)
+
                 } else if (controller.hasProductsID(input)) {
-                    // เลือกสินค้า
                     String result = controller.addItemToCart(input);
                     System.out.println(result);
                 } else {
@@ -47,7 +42,6 @@ public class VendingMachine {
                 }
             }
 
-            // (Optional) อาจจะใส่ Delay หรือเคลียร์หน้าจอนิดหน่อยเพื่อให้รู้ว่าจบรายการแล้ว
             System.out.println("\n\n--- Next Customer ---\n");
         }
     }
@@ -56,53 +50,49 @@ public class VendingMachine {
         double total = controller.getCartTotal();
 
         if (total == 0) {
-            System.out.println("Your cart is empty. Transaction cancelled.");
+            System.out.println("Your cart is empty.");
             return;
         }
 
-        System.out.println("Total due: " + total + " Baht");
+        System.out.println("Total : " + total + " Baht");
 
         while (true) {
-            // 2. เลือกวิธีการจ่ายเงิน
-            // [MODIFIED] ยุบ Coin และ Banknote เหลือแค่ Cash Payment
             System.out.println("Payment Option \n[1] QR \n[2] Cash Payment \n[0] Cancel Transaction");
             System.out.print("Select payment: ");
             String paymentChoice = scanner.nextLine();
-            // [MODIFIED] ตรวจสอบ Input ใหม่: รับแค่ "1", "2", หรือ "0"
+
             if (!paymentChoice.equals("1") && !paymentChoice.equals("2") 
                     && !paymentChoice.equals("0")) {
                 System.out.println("Invalid payment option. Please try again.");
-                continue; // กลับไปเลือกใหม่
+                continue;
             }
             if (paymentChoice.equals("0")) {
                 System.out.println("Transaction cancelled.");
                 return;
             }
-            // 3. จ่ายเงิน
+
             boolean ispaid = controller.processPayment(total, paymentChoice);
 
             if (ispaid) {
                 System.out.println("Payment Successful!");
 
-                // String phoneformat = "^[0][0-9]{9}$"; // <-- ลบ Regex เก่าออก
                 while (true) {
                     System.out.print("Enter phone number for points (or press Enter to skip): ");
                     String phone = scanner.nextLine().trim();
-                    // 4. สะสมแต้ม
+
                     if (phone.equals("")) {
-                        break; // ข้ามการสะสมแต้ม
+                        break;
                     }
-                    // if (!phone.isEmpty() && phone.matches(phoneformat)) { // <-- โค้ดเดิม
-                    if (controller.isValidThaiMobilePhone(phone)) { // <-- โค้ดใหม่
+
+                    if (controller.isValidThaiMobilePhone(phone)) {
                         String pointsResult = controller.applyPoints(phone);
                         System.out.println(pointsResult);
                         break;
-                    } else { // <-- เพิ่ม else block เพื่อแจ้ง Error 
+                    } else {
                         System.out.println("Invalid Phone Number Format! Must be a valid 10-digit Thai Mobile (starting with 06, 08, or 09). Example: 0812345678");
                     }
                 }
 
-                // *** สำคัญ: ต้องเคลียร์ตะกร้าเสมอหลังจ่ายเสร็จ ***
                 controller.clearCart();
                 System.out.println("Thank you! Please come again.");
                 return;

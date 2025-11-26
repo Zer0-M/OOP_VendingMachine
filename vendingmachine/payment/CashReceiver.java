@@ -32,7 +32,7 @@ public class CashReceiver implements PaymentMethod {
                 String input = scanner.nextLine().toUpperCase().trim();
 
                 if (input.equals("C")) {
-                    throw new InsufficientFundsException("Payment cancelled by user.", insertedMoney);
+                    throw new InsufficientFundsException("Payment cancelled by user.");
                 }
 
                 try {
