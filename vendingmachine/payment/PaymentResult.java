@@ -15,7 +15,7 @@ public class PaymentResult {
         this.changeDue = changeDue;
         this.insertedMoney = insertedMoney;
     }
-
+    
     public boolean isSuccess() {
         return success;
     }

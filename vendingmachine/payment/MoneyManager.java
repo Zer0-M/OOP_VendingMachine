@@ -8,15 +8,25 @@ import vendingmachine.exceptions.ChangeNotAvailableException;
 import vendingmachine.exceptions.InsufficientFundsException;
 
 public class MoneyManager {
+    private final TreeMap<Double, Integer> machineMoney;
 
-    // (Encapsulation) เปลี่ยนจาก double เป็น Map เพื่อเก็บสต็อกเหรียญ/แบงค์แต่ละชนิด
-    // ใช้ TreeMap + reverseOrder เพื่อให้วนลูปจาก แบงค์ 1000 -> เหรียญ 1 บาท เสมอ (สำคัญมากสำหรับ Greedy Algo)
-    private TreeMap<Double, Integer> machineMoney; 
-
+    // Constructor
     public MoneyManager(double initialInternalCash) {
         this.machineMoney = new TreeMap<>(Collections.reverseOrder());
-        initializeDefaultMoney(); // สมมติว่าใส่เงินทอนเริ่มต้นให้ตู้
-        System.out.println("(Admin) CashRegister initialized.");
+        initializeDefaultMoney();
+        System.out.println("[Admin] CashRegister initialized.");
+    }
+
+    // เติมเงินเริ่มต้นในตู้
+    private void initializeDefaultMoney() {
+        machineMoney.put(1000.0, 2);
+        machineMoney.put(500.0, 4);
+        machineMoney.put(100.0, 6);
+        machineMoney.put(50.0, 8);
+        machineMoney.put(20.0, 10);
+        machineMoney.put(10.0, 10);
+        machineMoney.put(5.0, 10);
+        machineMoney.put(1.0, 20);
     }
 
     public boolean processPayment(double totalAmount, String choice)
@@ -32,42 +42,34 @@ public class MoneyManager {
                 return false;
             }
         }
-
-        // 1. สั่งให้ช่องทางนั้นๆ รับเงิน (Polymorphism)
-        // Logic การรับเงิน (Loop ถามเงิน) จะเกิดในเมธอดนี้
+        // 1. รับเงินจากผู้ใช้
         PaymentResult result = paymentMethod.receivePayment(totalAmount);
 
         // 2. ถ้าจ่ายสำเร็จ (result.isSuccess() มักจะ true เสมอ นอกจากโดน Exception)
         if (result.isSuccess()) {
 
             if (paymentMethod.isCashPayment()) {
-                // --- LOGIC ใหม่เริ่มตรงนี้ ---
-            
                 Map<Double, Integer> userInserted = result.getInsertedMoney();
                 double changeDue = result.getChangeDue();
 
-                // Step A: เอาเงินลูกค้ามารวมกับเงินตู้ก่อน (เพื่อให้มีแบงค์ย่อยทอน)
-                addMoneyToMachine(userInserted); 
+                // Step 1: เอาเงินลูกค้ามารวมกับเงินตู้ก่อน
+                addMoneyToMachine(userInserted);
 
-                // Step B: คำนวณเงินทอน (Greedy Algorithm)
+                // Step 2: คำนวณเงินทอน (Greedy Algorithm)
                 Map<Double, Integer> changeToReturn = calculateChange(changeDue);
 
-                // Step C: เช็กผลลัพธ์การทอน
-                if (changeToReturn == null) {
-                    // ทอนไม่ได้! (เงินไม่พอ หรือ ไม่มีเศษเหรียญที่แมตช์)
-                    // IMPORTANT: ต้อง Rollback เอาเงินลูกค้าออก เพราะ Transaction ล้มเหลว
-                    removeMoneyFromMachine(userInserted); 
-                
-                    throw new ChangeNotAvailableException(
-                        "Not enough cash in this machine " + changeDue + " baht (change: " + totalAmount + ")"
-                    );
+                // Step 3: เช็กผลลัพธ์การทอน
+                if (changeToReturn == null) { // ทอนไม่สำเร็จ
+                    removeMoneyFromMachine(userInserted);
+                    throw new ChangeNotAvailableException("Not enough cash in this machine " + changeDue + " baht (change: " + totalAmount + ")");
                 }
                 // Step D: ทอนสำเร็จ (ตัดเงินทอนออกจากตู้จริงๆ)
                 removeMoneyFromMachine(changeToReturn);
-            
+
                 System.out.println("Payment Complete! Change details:");
                 changeToReturn.forEach((val, count) -> {
-                    if(count > 0) System.out.println("- " + val + " Baht: " + count + " units");
+                    if (count > 0)
+                        System.out.println("- " + val + " Baht: " + count + " units");
                 });
 
             } else {
@@ -81,27 +83,17 @@ public class MoneyManager {
     }
 
     private void addMoneyToMachine(Map<Double, Integer> money) {
-        if (money == null) return;
+        if (money == null)
+            return;
         for (Map.Entry<Double, Integer> entry : money.entrySet()) {
             machineMoney.merge(entry.getKey(), entry.getValue(), Integer::sum);
         }
     }
 
-    private void removeMoneyFromMachine(Map<Double, Integer> money) {
-        if (money == null) return;
-        for (Map.Entry<Double, Integer> entry : money.entrySet()) {
-            if (machineMoney.containsKey(entry.getKey())) {
-                int current = machineMoney.get(entry.getKey());
-                int remove = entry.getValue();
-                // ป้องกันค่าติดลบ
-                machineMoney.put(entry.getKey(), Math.max(0, current - remove));
-            }
-        }
-    }
-
     // ฟังก์ชันคำนวณเงินทอน (Greedy Algorithm)
     private Map<Double, Integer> calculateChange(double targetChange) {
-        if (targetChange == 0) return new HashMap<>(); // ไม่ต้องทอน
+        if (targetChange == 0)
+            return new HashMap<>(); // ไม่ต้องทอน
 
         Map<Double, Integer> changePlan = new HashMap<>();
         // สร้าง Temp Inventory จำลอง (Copy มาจากของจริง)
@@ -109,7 +101,8 @@ public class MoneyManager {
 
         // วนลูปจากมากไปน้อย (1000 -> 1)
         for (Double denomination : machineMoney.keySet()) {
-            if (targetChange <= 0.001) break;
+            if (targetChange <= 0.001)
+                break;
 
             int countNeeded = (int) (targetChange / denomination);
             int countAvailable = tempStock.getOrDefault(denomination, 0);
@@ -131,6 +124,19 @@ public class MoneyManager {
         return changePlan;
     }
 
+    private void removeMoneyFromMachine(Map<Double, Integer> money) {
+        if (money == null)
+            return;
+        for (Map.Entry<Double, Integer> entry : money.entrySet()) {
+            if (machineMoney.containsKey(entry.getKey())) {
+                int current = machineMoney.get(entry.getKey());
+                int remove = entry.getValue();
+                // ป้องกันค่าติดลบ
+                machineMoney.put(entry.getKey(), Math.max(0, current - remove));
+            }
+        }
+    }
+
     // --- Admin & Utils ---
     public double getCurrentInternalCash() {
         double total = 0;
@@ -139,6 +145,7 @@ public class MoneyManager {
         }
         return total;
     }
+
     public double collectAllCash() {
         double total = 0;
         for (Map.Entry<Double, Integer> entry : machineMoney.entrySet()) {
@@ -150,23 +157,12 @@ public class MoneyManager {
         return total;
     }
 
-    private void initializeDefaultMoney() {
-        // ใส่เงินตั้งต้นที่มีในตู้
-        machineMoney.put(1000.0, 2);
-        machineMoney.put(500.0, 4);
-        machineMoney.put(100.0, 6);
-        machineMoney.put(50.0, 8);
-        machineMoney.put(20.0, 10);
-        machineMoney.put(10.0, 10);
-        machineMoney.put(5.0, 10);
-        machineMoney.put(1.0, 20);
-    }
-
     // [UPDATED] ฟังก์ชันถอนเงินแบบแจกแจงรายละเอียด
     public Map<Double, Integer> withdrawSpecificCash(double amount) {
-        if (amount <= 0) return null;
+        if (amount <= 0)
+            return null;
         double currentCash = getCurrentInternalCash();
-        
+
         if (amount > currentCash) {
             return null; // เงินไม่พอ
         }
@@ -176,7 +172,8 @@ public class MoneyManager {
         double remaining = amount;
 
         for (Double denom : machineMoney.keySet()) { // machineMoney เรียงมากไปน้อยอยู่แล้ว
-            if (remaining < denom) continue;
+            if (remaining < denom)
+                continue;
             int countAvailable = machineMoney.get(denom);
             int countNeeded = (int) (remaining / denom);
             int countToTake = Math.min(countAvailable, countNeeded);
