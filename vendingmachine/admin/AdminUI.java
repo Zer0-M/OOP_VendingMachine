@@ -11,6 +11,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class AdminUI extends JFrame {
+
     private VendingMachineController controller;
     private Runnable onUpdateCallback;
     private JTable productTable;
@@ -68,7 +69,7 @@ public class AdminUI extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
 
         // --- TABLE (Inventory List) ---
-        String[] columnNames = { "SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY" };
+        String[] columnNames = {"SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -188,14 +189,13 @@ public class AdminUI extends JFrame {
         // saveMemberBtn.setForeground(Color.WHITE);
         // saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
         // -----------------
-
         // --- [NEW BUTTONS CODE BLOCK] ---
         // ปุ่ม Save Stock
         JButton saveStockBtn = new JButton("💾 SAVE STOCK");
         saveStockBtn.setBackground(new Color(255, 87, 34)); // สีส้มเท่ๆ
         saveStockBtn.setForeground(Color.WHITE);
         saveStockBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
-        
+
         saveStockBtn.addActionListener(e -> {
             controller.adminSaveStock();
             JOptionPane.showMessageDialog(this, "Inventory Saved Successfully!", "System", JOptionPane.INFORMATION_MESSAGE);
@@ -206,23 +206,25 @@ public class AdminUI extends JFrame {
         loadStockBtn.setBackground(new Color(33, 150, 243)); // สีฟ้า
         loadStockBtn.setForeground(Color.WHITE);
         loadStockBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
-        
+
         loadStockBtn.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this, 
-                "Loading stock will replace current items. Continue?", 
-                "Warning", JOptionPane.YES_NO_OPTION);
-                
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Loading stock will replace current items. Continue?",
+                    "Warning", JOptionPane.YES_NO_OPTION);
+
             if (confirm == JOptionPane.YES_OPTION) {
                 controller.adminLoadStock();
-                if (onUpdateCallback != null) onUpdateCallback.run(); // รีเฟรชหน้าหลัก
-                JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
+                if (onUpdateCallback != null) {
+                    onUpdateCallback.run(); // รีเฟรชหน้าหลัก
+
+                                }JOptionPane.showMessageDialog(this, "Inventory Loaded!", "System", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
         actionPanel.add(collectCashBtn);
         actionPanel.add(addProductBtn);
         // [เพิ่มปุ่มใหม่ 2 ปุ่มตรงนี้]
-        actionPanel.add(viewMemberBtn); 
+        actionPanel.add(viewMemberBtn);
         // actionPanel.add(saveMemberBtn);
         actionPanel.add(saveStockBtn);
         actionPanel.add(loadStockBtn);
@@ -239,13 +241,12 @@ public class AdminUI extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
 
         // --- LOGIC BINDING ---
-
         updateBtn.addActionListener(e -> updateSelectedItem());
 
         collectCashBtn.addActionListener(e -> {
             String input = JOptionPane.showInputDialog(this,
-                    "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n" +
-                            "Enter amount to collect:",
+                    "Current Machine Cash: " + controller.getMachineCurrentCash() + "\n\n"
+                    + "Enter amount to collect:",
                     "Withdraw Cash", JOptionPane.QUESTION_MESSAGE);
 
             if (input != null && !input.isEmpty()) {
@@ -253,6 +254,10 @@ public class AdminUI extends JFrame {
                     double amount = Double.parseDouble(input);
                     String result = controller.adminWithdrawCash(amount);
                     JOptionPane.showMessageDialog(this, result);
+
+                    // [NEW] ต้องอัปเดตยอดเงินสดและตารางหลังจากถอนเงิน
+                    updateCashDisplay();
+                    loadDataToTable();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Invalid number!");
                 }
@@ -272,8 +277,8 @@ public class AdminUI extends JFrame {
         //     JOptionPane.showMessageDialog(this, "Member data successfully saved to member_data.txt!", "Save Complete", JOptionPane.INFORMATION_MESSAGE);
         // });
         // ----------------------
-
         // Initial Data Load
+        loadDataToTable();
         setVisible(true);
     }
 
@@ -354,7 +359,7 @@ public class AdminUI extends JFrame {
         JTextField priceField = new JTextField();
         JTextField qtyField = new JTextField();
 
-        String[] types = { "Snack", "Drink" };
+        String[] types = {"Snack", "Drink"};
         JComboBox<String> typeBox = new JComboBox<>(types);
 
         JTextField sizeField = new JTextField(); // Weight or Volume
@@ -400,8 +405,9 @@ public class AdminUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Product Added Successfully!");
 
                 // สั่งหน้าหลักอัปเดตด้วย (Callback)
-                if (onUpdateCallback != null)
+                if (onUpdateCallback != null) {
                     onUpdateCallback.run();
+                }
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid Number Format!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -409,5 +415,39 @@ public class AdminUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    // [2] **ย้าย Logic การโหลด/อัปเดตข้อมูลมาใส่ในเมธอดใหม่** (เพื่อ Clean Code)
+    private void loadDataToTable() {
+        // 1. เคลียร์ข้อมูลเก่า
+        tableModel.setRowCount(0);
+
+        // 2. ดึงข้อมูลสินค้าจาก Controller
+        // ใช้ TreeMap เพื่อให้ข้อมูลเรียงตาม Key (A1, A2, B1, B2, ...)
+        java.util.Map<String, vendingmachine.products.ItemSlot> slots
+                = new java.util.TreeMap<>(controller.getProductList());
+
+        for (vendingmachine.products.ItemSlot slot : slots.values()) {
+            // [FIX] ต้องใช้ getProduct().getName() เพื่อให้ชื่อสินค้าถูกต้อง
+            String name = slot.getProduct().getName(); // <-- ดึงชื่อจริง (ไม่ใช่ getInfo())
+            String price = String.format("%.2f", slot.getProduct().getPrice());
+            int qty = slot.getQuantity();
+
+            // 3. เพิ่มแถวใหม่
+            tableModel.addRow(new Object[]{
+                slot.getSlotCode(),
+                name,
+                price,
+                qty
+            });
+        }
+
+        // 4. อัปเดตยอดเงินสด
+        updateCashDisplay();
+    }
+
+    // [3] **สร้างเมธอดเฉพาะสำหรับอัปเดตยอดเงินสด**
+    public void updateCashDisplay() {
+        cashLabel.setText(String.format("Total Cash: %.2f THB", controller.getMachineCurrentCash()));
     }
 }
