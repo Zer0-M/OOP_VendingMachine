@@ -37,7 +37,7 @@
 
 โปรเจกต์นี้แบ่งความรับผิดชอบ (Separation of Concerns) อย่างชัดเจน โดยใช้โครงสร้างที่คล้ายกับ **Model-View-Controller (MVC)**
 
-  * **View (หน้าจอ):** `VendingUI.java` (GUI) และ `VendingMachine.java` (Console/Legacy)
+  * **View (หน้าจอ):** `VendingUI.java` (GUI)
   * **Controller (สมอง):** `VendingMachineController.java`
   * **Model (ตรรกะ/ข้อมูล):** ทุกคลาสใน Package อื่นๆ (Products, Payment, Users)
 
