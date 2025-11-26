@@ -240,4 +240,14 @@ public class VendingMachineController {
             throws Exception {
         adminService.addProduct(slotCode, name, price, quantity, type, size);
     }
+
+    // [NEW] เมธอด "ส่งต่อ" สำหรับ Admin: บันทึกข้อมูลสมาชิก
+    public void adminSaveMemberData() {
+        memberDatabase.saveMembersToFile();
+    }
+
+    // [NEW] เมธอด "ส่งต่อ" สำหรับ Admin: ดูข้อมูลสมาชิกทั้งหมด
+    public String adminViewMemberData() {
+        return memberDatabase.getAllMembersDisplay();
+    }
 }

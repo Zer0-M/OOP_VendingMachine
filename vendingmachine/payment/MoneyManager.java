@@ -151,13 +151,13 @@ public class MoneyManager {
     }
 
     private void initializeDefaultMoney() {
-        // ใส่เงินตั้งต้นไว้ทอนหน่อย
-        machineMoney.put(1000.0, 10); // เหรียญสิบ 10 เหรียญ
-        machineMoney.put(500.0, 10);
-        machineMoney.put(100.0, 10); // เหรียญสิบ 10 เหรียญ
-        machineMoney.put(50.0, 10);
-        machineMoney.put(20.0, 20);
-        machineMoney.put(10.0, 10); // เหรียญสิบ 10 เหรียญ
+        // ใส่เงินตั้งต้นที่มีในตู้
+        machineMoney.put(1000.0, 2);
+        machineMoney.put(500.0, 4);
+        machineMoney.put(100.0, 6);
+        machineMoney.put(50.0, 8);
+        machineMoney.put(20.0, 10);
+        machineMoney.put(10.0, 10);
         machineMoney.put(5.0, 10);
         machineMoney.put(1.0, 20);
     }

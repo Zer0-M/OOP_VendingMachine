@@ -185,6 +185,28 @@ public class AdminUI extends JFrame {
         refreshBtn.setBackground(Color.WHITE);
         refreshBtn.setForeground(TEXT_DARK);
 
+        // [NEW BUTTONS] ปุ่มสำหรับจัดการสมาชิก (ให้วางโค้ดนี้ต่อจากตรงนี้)
+        JButton viewMemberBtn = new JButton("👥 VIEW MEMBERS");
+        viewMemberBtn.setBackground(new Color(60, 60, 70));
+        viewMemberBtn.setForeground(Color.WHITE);
+        viewMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+
+        JButton saveMemberBtn = new JButton("💾 SAVE MEMBER DATA");
+        saveMemberBtn.setBackground(new Color(255, 172, 51));
+        saveMemberBtn.setForeground(Color.WHITE);
+        saveMemberBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        // -----------------
+
+        actionPanel.add(collectCashBtn);
+        actionPanel.add(addProductBtn);
+        // [เพิ่มปุ่มใหม่ 2 ปุ่มตรงนี้]
+        actionPanel.add(viewMemberBtn); 
+        actionPanel.add(saveMemberBtn);
+        // -----------------------------
+        actionPanel.add(refreshBtn);
+
+        bottomPanel.add(editPanel, BorderLayout.CENTER);
+
         actionPanel.add(collectCashBtn);
         actionPanel.add(addProductBtn);
         actionPanel.add(refreshBtn);
@@ -219,6 +241,18 @@ public class AdminUI extends JFrame {
         addProductBtn.addActionListener(e -> showAddProductDialog());
 
         refreshBtn.addActionListener(e -> refreshData());
+
+        // [NEW LOGIC BINDING] ให้วางโค้ดนี้ต่อจากบรรทัดด้านบนสุด
+        viewMemberBtn.addActionListener(e -> {
+            String members = controller.adminViewMemberData();
+            JOptionPane.showMessageDialog(this, members, "Member List", JOptionPane.PLAIN_MESSAGE);
+        });
+
+        saveMemberBtn.addActionListener(e -> {
+            controller.adminSaveMemberData();
+            JOptionPane.showMessageDialog(this, "Member data successfully saved to member_data.txt!", "Save Complete", JOptionPane.INFORMATION_MESSAGE);
+        });
+        // ----------------------
 
         // Initial Data Load
         refreshData();

@@ -1,6 +1,7 @@
 package vendingmachine.users;
 
 public class Member {
+
     private String phoneNumber;
     private int points; // ห่อหุ้มไว้
 
@@ -18,7 +19,13 @@ public class Member {
     }
 
     public void addPoints(int pointsToAdd) {
-        if (pointsToAdd > 0)
+        if (pointsToAdd > 0) {
             this.points += pointsToAdd;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return phoneNumber + "," + points;
     }
 }
