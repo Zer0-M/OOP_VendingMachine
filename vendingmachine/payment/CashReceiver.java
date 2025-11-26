@@ -50,7 +50,7 @@ public class CashReceiver implements PaymentMethod {
 
         double changeDue = amountInserted - totalAmount;
         System.out.printf("Payment complete. Inserted: %.2f, Change: %.2f\n", amountInserted, changeDue);
-
+        
         // ส่ง Map กลับไปพร้อม PaymentResult
         return new PaymentResult(true, changeDue, insertedMoney);
     }

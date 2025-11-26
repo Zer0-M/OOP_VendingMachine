@@ -523,10 +523,12 @@ public class ModernVendingUI extends JFrame {
 
         // Hover Effect
         btn.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseEntered(MouseEvent evt) {
                 btn.setBackground(bg.brighter());
             }
 
+            @Override
             public void mouseExited(MouseEvent evt) {
                 btn.setBackground(bg);
             }
@@ -544,11 +546,13 @@ public class ModernVendingUI extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btn.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseEntered(MouseEvent evt) {
                 btn.setBorder(new LineBorder(ACCENT_PRIMARY));
                 btn.setForeground(ACCENT_PRIMARY);
             }
 
+            @Override
             public void mouseExited(MouseEvent evt) {
                 btn.setBorder(new LineBorder(TEXT_SECONDARY));
                 btn.setForeground(TEXT_SECONDARY);
@@ -566,15 +570,18 @@ public class ModernVendingUI extends JFrame {
             this.size = size;
         }
 
+        @Override
         public void paintIcon(Component c, Graphics g, int x, int y) {
             g.setFont(new Font("Segoe UI Emoji", Font.PLAIN, size));
             g.drawString(text, x, y + size - 5);
         }
 
+        @Override
         public int getIconWidth() {
             return size;
         }
 
+        @Override
         public int getIconHeight() {
             return size;
         }
