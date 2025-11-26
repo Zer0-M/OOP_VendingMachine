@@ -1,7 +1,7 @@
 package vendingmachine.products;
 
 public abstract class Product {
-    private int productID;
+    private final int productID;
     private String productName;
     private double productPrice;
 

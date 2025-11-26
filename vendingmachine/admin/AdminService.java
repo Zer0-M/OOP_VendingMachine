@@ -1,23 +1,31 @@
 package vendingmachine.admin;
 
+import java.util.Map;
 import vendingmachine.products.InventoryManager;
 import vendingmachine.payment.MoneyManager;
 
 /**
  * คลาสสำหรับ "โหมดแอดมิน" (Encapsulation)
  * ห่อหุ้มเมธอดที่อันตราย (เช่น เติมของ, เก็บเงิน) ไว้ที่นี่
- * VendingMachine (View) จะเข้าถึงเมธอดเหล่านี้ไม่ได้
+ * AdminUI (View) จะเข้าถึงเมธอดเหล่านี้ไม่ได้
  */
 public class AdminService {
     private final InventoryManager inventory;
     private final MoneyManager moneyManager;
     private static final String ADMIN_PASSWORD = "1234"; // รหัสผ่านแอดมิน
 
+    // Constructor
     public AdminService(InventoryManager inventory, MoneyManager moneyManager) {
         this.inventory = inventory;
         this.moneyManager = moneyManager;
     }
 
+    // เช็ครหัสผ่านแอดมิน
+    public static boolean authenticate(String password) {
+        return ADMIN_PASSWORD.equals(password);
+    }
+
+    // เติมสินค้าในช่องที่ระบุ
     public void restockItem(String slotCode, int quantity) {
         try {
             inventory.restockSlot(slotCode, quantity);
@@ -27,12 +35,7 @@ public class AdminService {
         }
     }
 
-    public double collectCash() {
-        double collected = moneyManager.collectAllCash();
-        System.out.println("Admin: Collected " + collected + " Baht.");
-        return collected;
-    }
-
+    // เปลี่ยนราคาสินค้าในช่องที่ระบุ
     public void setPrice(String slotCode, double newPrice) {
         try {
             inventory.updatePrice(slotCode, newPrice);
@@ -42,6 +45,7 @@ public class AdminService {
         }
     }
 
+    // เปลี่ยนชื่อสินค้่าในช่องที่ระบุ
     public void setName(String slotCode, String newName) {
         try {
             inventory.updateName(slotCode, newName);
@@ -51,26 +55,24 @@ public class AdminService {
         }
     }
 
-    public java.util.Map<Double, Integer> withdrawCash(double amount) {
+    // ถอนเงินจำนวนเฉพาะเจาะจง
+    public Map<Double, Integer> collectCashAmount(double amount) {
+        System.out.println("Admin: Collected " + amount + " Baht.");
         return moneyManager.withdrawSpecificCash(amount);
     }
 
-    public static boolean authenticate(String password) {
-        return ADMIN_PASSWORD.equals(password);
-    }
-
-    // เพิ่มเมธอดนี้ใน AdminService.java
+    // เพิ่มสินค้าใหม่ลงในตู้
     public void addProduct(String slotCode, String name, double price, int quantity, String type, double size)
             throws Exception {
         inventory.addNewProduct(slotCode, name, price, quantity, type, size);
         System.out.println("Admin: Added new product " + name + " to slot " + slotCode);
     }
-
-    // [EXTENSION]
+    
+    // บันทึกสต็อกสินค้าลงไฟล์
     public void saveStock() {
         inventory.saveInventoryToFile();
     }
-    
+
     public void loadStock() {
         inventory.loadInventoryFromFile();
     }

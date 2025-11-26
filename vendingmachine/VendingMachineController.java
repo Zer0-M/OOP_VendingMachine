@@ -159,10 +159,6 @@ public class VendingMachineController {
         adminService.restockItem(slotCode, quantity);
     }
 
-    public void adminCollectCash() {
-        adminService.collectCash();
-    }
-
     public void adminSetName(String slotCode, String newName) {
         adminService.setName(slotCode, newName);
     }
@@ -209,7 +205,7 @@ public class VendingMachineController {
 
     // [UPDATED] ถอนเงินและสร้างข้อความสรุปรายการ
     public String adminWithdrawCash(double amount) {
-        Map<Double, Integer> result = adminService.withdrawCash(amount);
+        Map<Double, Integer> result = adminService.collectCashAmount(amount);
 
         if (result == null) {
             return "Error: Cannot withdraw that amount (Insufficient funds or no suitable change).";

@@ -1,7 +1,6 @@
 package vendingmachine.admin;
 
 import vendingmachine.VendingMachineController;
-import vendingmachine.products.ItemSlot;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,11 +9,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class AdminUI extends JFrame {
-
     private VendingMachineController controller;
     private Runnable onUpdateCallback;
     private JTable productTable;
@@ -23,7 +19,7 @@ public class AdminUI extends JFrame {
     private JTextField nameField;
     private JTextField priceField;
     private JTextField stockField;
-    private JLabel selectedItemLabel; // โชว์ว่ากำลังแก้ตัวไหน
+    private JLabel selectedItemLabel;
 
     // --- ADMIN THEME ---
     private final Color BG_ADMIN = new Color(240, 242, 245);
@@ -36,13 +32,13 @@ public class AdminUI extends JFrame {
         this.controller = controller;
         this.onUpdateCallback = onUpdateCallback;
 
-        setTitle("Admin Dashboard - Vending Machine System");
+        setTitle("Admin Dashboard - Vending Machine");
         setSize(900, 650);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         getContentPane().setBackground(BG_ADMIN);
 
-        // --- 1. HEADER (Dashboard Stats) ---
+        // --- HEADER (Dashboard Stats) ---
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(PRIMARY_COLOR);
         headerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
@@ -71,7 +67,7 @@ public class AdminUI extends JFrame {
         headerPanel.add(cashBox, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // --- 2. TABLE (Inventory List) ---
+        // --- TABLE (Inventory List) ---
         String[] columnNames = { "SLOT", "PRODUCT NAME", "PRICE (THB)", "STOCK QTY" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -79,16 +75,16 @@ public class AdminUI extends JFrame {
                 return false;
             }
         };
-
         productTable = new JTable(tableModel);
-        styleTable(productTable); // เรียกฟังก์ชันแต่งตาราง
+        styleTable(productTable);
 
         // Selection Logic
         productTable.getSelectionModel().addListSelectionListener(e -> {
+            // ถ้าไม่ได้เป็นการปรับค่า selection อยู่ และมีแถวถูกเลือก
             if (!e.getValueIsAdjusting() && productTable.getSelectedRow() != -1) {
-                int row = productTable.getSelectedRow();
-                String name = tableModel.getValueAt(row, 1).toString();
-                String price = tableModel.getValueAt(row, 2).toString();
+                int row = productTable.getSelectedRow(); // ดึงแถวที่ถูกเลือก
+                String name = tableModel.getValueAt(row, 1).toString(); // ดึงชื่อสินค้า
+                String price = tableModel.getValueAt(row, 2).toString(); // ดึงราคาสินค้า
 
                 selectedItemLabel.setText("Editing: " + name);
                 selectedItemLabel.setForeground(PRIMARY_COLOR);
