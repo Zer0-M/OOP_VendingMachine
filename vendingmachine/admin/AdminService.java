@@ -8,6 +8,7 @@ import vendingmachine.products.InventoryManager;
 import vendingmachine.products.ItemSlot;
 import vendingmachine.payment.MoneyManager;
 import vendingmachine.users.MemberDatabase;
+import vendingmachine.exceptions.*;
 
 /**
  * คลาสสำหรับ "โหมดแอดมิน" (Encapsulation)
@@ -37,7 +38,7 @@ public class AdminService {
         try {
             inventory.restockSlot(slotCode, quantity);
             System.out.println("Admin: Restocked " + slotCode + " with " + quantity + " items.");
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             System.out.println("Admin Error: " + e.getMessage());
         }
     }
@@ -47,7 +48,7 @@ public class AdminService {
         try {
             inventory.updatePrice(slotCode, newPrice);
             System.out.println("Admin: Updated price for " + slotCode + " to " + newPrice);
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             System.out.println("Admin Error: " + e.getMessage());
         }
     }
@@ -57,7 +58,7 @@ public class AdminService {
         try {
             inventory.updateName(slotCode, newName);
             System.out.println("Admin: Updated name for " + slotCode + " to " + newName);
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             System.out.println("Admin Error: " + e.getMessage());
         }
     }
@@ -70,7 +71,7 @@ public class AdminService {
 
     // เพิ่มสินค้าใหม่ลงในตู้
     public void addProduct(String slotCode, String name, double price, int quantity, String type, double size)
-            throws Exception {
+            throws VendingMachineException {
         inventory.addNewProduct(slotCode, name, price, quantity, type, size);
         System.out.println("Admin: Added new product " + name + " to slot " + slotCode);
     }

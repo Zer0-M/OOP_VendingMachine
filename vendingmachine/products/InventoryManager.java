@@ -1,6 +1,7 @@
 package vendingmachine.products;
 
 import vendingmachine.exceptions.OutOfStockException;
+import vendingmachine.exceptions.VendingMachineException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,16 +17,16 @@ public class InventoryManager {
     private final Map<String, ItemSlot> active_slots = new TreeMap<>();
     private int nextProductId = 0;
 
-    public void updateName(String slotCode, String newName) throws Exception {
+    public void updateName(String slotCode, String newName) throws VendingMachineException {
         ItemSlot slot = findSlotByCode(slotCode);
         slot.getProduct().setName(newName);
     }
 
     // หา ItemSlot จากรหัสช่องสินค้า
-    public ItemSlot findSlotByCode(String slotCode) throws Exception {
+    public ItemSlot findSlotByCode(String slotCode) throws VendingMachineException {
         ItemSlot slot = active_slots.get(slotCode.toUpperCase());
         if (slot == null) {
-            throw new Exception("Invalid slot code: " + slotCode);
+            throw new VendingMachineException("Invalid slot code: " + slotCode);
         }
         return slot;
     }
@@ -73,12 +74,12 @@ public class InventoryManager {
     }
 
     // ------------------------ AdminService ----------------------------
-    public void restockSlot(String slotCode, int quantity) throws Exception {
+    public void restockSlot(String slotCode, int quantity) throws VendingMachineException {
         ItemSlot slot = findSlotByCode(slotCode);
         slot.restock(quantity);
     }
 
-    public void updatePrice(String slotCode, double newPrice) throws Exception {
+    public void updatePrice(String slotCode, double newPrice) throws VendingMachineException {
         ItemSlot slot = findSlotByCode(slotCode);
         slot.getProduct().setPrice(newPrice);
     }
@@ -88,12 +89,12 @@ public class InventoryManager {
     }
 
     public void addNewProduct(String slotCode, String name, double price, int quantity, String type, double size)
-            throws Exception {
+            throws VendingMachineException {
         slotCode = slotCode.toUpperCase();
 
         // ตรวจสอบว่าช่องสินค้านี้มีอยู่แล้วหรือไม่
         if (active_slots.containsKey(slotCode)) {
-            throw new Exception("[System] Slot " + slotCode + " already exists!");
+            throw new VendingMachineException("[System] Slot " + slotCode + " already exists!");
         }
 
         // สร้างสินค้าใหม่ตามประเภท

@@ -39,7 +39,7 @@ public class VendingMachineController {
         try {
             inventoryManager.findSlotByCode(slotCode);
             return true;
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             return false;
         }
     }
@@ -58,7 +58,7 @@ public class VendingMachineController {
 
         } catch (OutOfStockException e) {
             return "Error: " + e.getMessage();
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             return "Error: Invalid slot code.";
         }
     }
@@ -129,7 +129,7 @@ public class VendingMachineController {
             if (shoppingCart.containsKey(slot)) {
                 shoppingCart.remove(slot);
             }
-        } catch (Exception e) {
+        } catch (VendingMachineException e) {
             System.out.println("Error removing item: " + e.getMessage());
         }
     }
