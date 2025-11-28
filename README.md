@@ -106,8 +106,8 @@ vendingmachine/
 
 ## ▶️ วิธีการรัน (How to Run)
 
-1.  เปิดโปรเจกต์ด้วย IDE ที่คุณถนัด (เช่น IntelliJ IDEA, VS Code, หรือ Eclipse)
-2.  **รัน GUI (แนะนำ):** ไปที่ไฟล์ `vendingmachine/ModernVendingUI.java` และกดปุ่ม "Run"
+1.  เปิดโปรเจกต์ด้วย IDE (เช่น VS Code)
+2.  **รัน GUI (แนะนำ):** ไปที่ไฟล์ `vendingmachine/VendingUI.java` และกดปุ่ม "Run"
 
 -----
 
